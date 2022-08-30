@@ -150,7 +150,6 @@ abstract class BaseApi
             if(in_array(strtolower($method), ['post', 'put'])){
                 $params['body'] = json_encode((array) $data);
             }else{
-                dd($url, $data, url_merge($url, $data));
                 $url = url_merge($url, $data);
             }
 
