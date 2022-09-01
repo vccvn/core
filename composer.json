@@ -11,7 +11,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Gomee\\": "src/app/"
+            "Gomee\\": "src/app/",
+            "PHPHtmlParser\\": "src/PHPHtmlParser/"
         },
         "files": [
             "src/helpers/utils.php"
