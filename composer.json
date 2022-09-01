@@ -20,7 +20,8 @@
     },
     "require": {
         "guzzlehttp/guzzle": "7.x",
-        "laravel/framework": "^9.2"
+        "laravel/framework": "^9.2",
+        "myclabs/php-enum": "^1.8"
     },
     "config": {
         "allow-plugins": {
