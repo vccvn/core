@@ -19,6 +19,10 @@
         ]
     },
     "require": {
+        "ext-mbstring": "*",
+        "ext-zlib": "*",
+        "ext-curl": "*",
+        "paquettg/string-encode": "~1.0.0",
         "guzzlehttp/guzzle": "7.x",
         "laravel/framework": "^9.2",
         "myclabs/php-enum": "^1.8"
