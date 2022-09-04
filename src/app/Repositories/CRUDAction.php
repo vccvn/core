@@ -275,7 +275,6 @@ trait CRUDAction
         if (!$model->useUuid || $model->useUuid === 'no') return;
         $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid);
         $uuidValue = $model->{$uuidName};
-        die($uuidName . ' ' . $uuidValue);
         // Check if the primary key doesn't have a value
         if (!$uuidValue) {
             // Dynamically set the primary key
