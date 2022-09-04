@@ -273,7 +273,7 @@ trait CRUDAction
 
     protected function checkModelUuid($model)
     {
-        
+        dump($model);
         if (!$model->useUuid || $model->useUuid == 'no') return;
         $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid);
         $uuidValue = $model->{$uuidName};
