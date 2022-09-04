@@ -249,6 +249,7 @@ trait CRUDAction
         $data = $this->parseData($data);
         $model->fill($data);
         $this->checkModelUuid($model);
+        die($model->toArray());
         // dd($model);
         $model->save();
         if ($id && $id == $model->{$this->_primaryKeyName}) {
