@@ -12,6 +12,7 @@ use ReflectionClass;
 use Illuminate\Http\Request;
 
 
+use Illuminate\Support\Str;
 /**
  * Các phuong thức để crud
  * @method array beforeCreate(array $data) can thiep va tra ve mang du lieu truoc khi tao moi
@@ -247,6 +248,7 @@ trait CRUDAction
         if (!$data && !$id) return false;
         $data = $this->parseData($data);
         $model->fill($data);
+        $this->checkModelUuid($model);
         // dd($model);
         $model->save();
         if ($id && $id == $model->{$this->_primaryKeyName}) {
@@ -268,6 +270,18 @@ trait CRUDAction
     }
 
 
+    protected function checkModelUuid($model)
+    {
+        
+        if (!$model->useUuid || $model->useUuid == 'no') return;
+        $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid);
+        $uuidValue = $model->{$uuidName};
+        // Check if the primary key doesn't have a value
+        if (!$uuidValue) {
+            // Dynamically set the primary key
+            $model->setAttribute($uuidName, Str::uuid()->toString());
+        }
+    }
 
     /**
      * chuẩn hóa data trước khi lưu

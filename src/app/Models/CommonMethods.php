@@ -169,6 +169,7 @@ trait CommonMethods
 
     /**
      * lay du lieu de truyen toi form
+     * @return array
      */
     public function toFormData()
     {
