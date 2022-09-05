@@ -127,7 +127,7 @@ class ColumnItem{
             $content = static::parseTextData($content, $parseFns);
         }
         $attrs = static::parseParams(is_array($options->attrs)?$options->attrs:[]);
-        if($type == 'text' || $options->text || $type == 'order' || $options->order || ($type == 'data' && $options->data_key && $options->value_key) || $options->data_access){
+        if(($type == 'text' || $options->text || ($type == 'data' && $options->data_key && $options->value_key) || $options->data_access) && !$options->template){
             $content = htmlentities($content);
         }
         
