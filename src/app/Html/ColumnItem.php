@@ -1,10 +1,12 @@
 <?php
+
 namespace Gomee\Html;
 
 use Gomee\Files\Filemanager;
 use Gomee\Helpers\Arr;
 
-class ColumnItem{
+class ColumnItem
+{
     protected static $item;
     protected static $config;
     protected static $options = [];
@@ -23,21 +25,22 @@ class ColumnItem{
         static::$options = $options;
         static::$moduleRoute = $route;
         static::$baseView = $base_view_path;
-        if($columm_tag){
+        if ($columm_tag) {
             static::$columnTag = $columm_tag;
         }
         static::$order = $order;
-        
+
         return static::render();
     }
 
-    public static function parseTextData($text, $fns = []){
-        if(is_array($fns)){
+    public static function parseTextData($text, $fns = [])
+    {
+        if (is_array($fns)) {
             foreach ($fns as $fn) {
                 $args = [];
-                if($fn['args']){
+                if ($fn['args']) {
                     foreach ($fn['args'] as $i => $arg) {
-                        if($arg == '$text'){
+                        if ($arg == '$text') {
                             $args[$i] = $text;
                         }
                     }
@@ -59,23 +62,23 @@ class ColumnItem{
         $type = $options->type;
         $parse = $options->parse;
         $parseFns = [];
-        $ORDER = static::$order + ($options->order?$options->order:0);
-        if($parse){
+        $ORDER = static::$order + ($options->order ? $options->order : 0);
+        if ($parse) {
             $parses = explode('|', $parse);
-            if(count($parses)){
+            if (count($parses)) {
                 foreach ($parses as $fn) {
                     $a = explode(':', $fn);
                     $args = [];
                     $f = $a[0];
-                    if(count($a) > 1){
+                    if (count($a) > 1) {
                         $args = array_map('trim', explode(',', $a[1]));
                     }
-                    if(method_exists(self::$item, $f)){
+                    if (method_exists(self::$item, $f)) {
                         $parseFns[] = [
                             'call' => [self::$item, $f],
                             'args' => $args
                         ];
-                    }elseif(is_callable($f)){
+                    } elseif (is_callable($f)) {
                         $parseFns[] = [
                             'call' => $f,
                             'args' => $args
@@ -85,54 +88,47 @@ class ColumnItem{
             }
         }
         $mergData = array_merge(Arr::entities(static::$item->toArray()), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->parseData), ['ORDER' => $ORDER]);
-        if($type == 'text' || $options->text){
+        if ($type == 'text' || $options->text) {
             $content = static::getDataFromString($options->text);
-        }
-        elseif($type == 'order' || $options->order){
-            $content = static::$order + ($options->order?$options->order:0);
-            $options->class.=" order-col";
-            if($options->template){
+        } elseif ($type == 'order' || $options->order) {
+            $content = static::$order + ($options->order ? $options->order : 0);
+            $options->class .= " order-col";
+            if ($options->template) {
                 $content = str_eval($options->template, $mergData, 0, '');
                 $content = str_eval($content, $mergData, 0, '');
             }
-        }
-        elseif($type == 'data' && $options->data_key && $options->value_key){
+        } elseif ($type == 'data' && $options->data_key && $options->value_key) {
             $vkey = static::getDataFromString($options->value_key);
-            $content = static::$config->get('data.'.$options->data_key.'.'.$vkey);
-        }
-        elseif($options->data_access){
+            $content = static::$config->get('data.' . $options->data_key . '.' . $vkey);
+        } elseif ($options->data_access) {
             $key = str_eval($options->data_access, $mergData, 0, '');
-            $content = static::$config->get('data.'.$key);
-        }
-        elseif($type == 'template' || $options->template){
+            $content = static::$config->get('data.' . $key);
+        } elseif ($type == 'template' || $options->template) {
             $content = str_eval($options->template, $mergData, 0, '');
             $content = str_eval($content, $mergData, 0, '');
-        }
-        elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
+        } elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
             $ob = new Arr($options->html);
-            $content = new HtmlDom($ob->tag_name??'div', $ob->content, static::parseParams($ob->attrs));
-        }
-        elseif ($type == 'input' || $options->input) {
+            $content = new HtmlDom($ob->tag_name ?? 'div', $ob->content, static::parseParams($ob->attrs));
+        } elseif ($type == 'input' || $options->input) {
             $args = static::parseTemplateData($options->input);
             $input = new Input($args);
-            if($input->template && Input::checkSupportTemplate($input->template, $input->type)){
+            if ($input->template && Input::checkSupportTemplate($input->template, $input->type)) {
                 $content = view(static::$baseView . 'forms.templates.' . $input->template, ['input' => $input])->render();
-            }
-            else{
+            } else {
                 $content = $input->render();
             }
         }
 
-        if($parseFns){
+        if ($parseFns) {
             $content = static::parseTextData($content, $parseFns);
         }
-        $attrs = static::parseParams(is_array($options->attrs)?$options->attrs:[]);
-        if(($type == 'text' || $options->text || ($type == 'data' && $options->data_key && $options->value_key) || $options->data_access) && !$options->template){
+        $attrs = static::parseParams(is_array($options->attrs) ? $options->attrs : []);
+        if (($type == 'text' || $options->text || ($type == 'data' && $options->data_key && $options->value_key) || $options->data_access) && !$options->template) {
             $content = htmlentities($content);
         }
-        
+
         $html = new HtmlDom(static::$columnTag, $content, $attrs);
-        if($options->class){
+        if ($options->class) {
             $html->addClass($options->class);
         }
         return $html->render();
@@ -141,16 +137,14 @@ class ColumnItem{
     public static function parseAttributeData($data, $pre = '')
     {
         $newData = [];
-        if(!$pre) $pre = 'data:';
+        if (!$pre) $pre = 'data:';
         foreach ($data as $key => $value) {
-            if(is_array($value)){
-                $a = static::parseAttributeData($value, $pre.$key.'.');
+            if (is_array($value)) {
+                $a = static::parseAttributeData($value, $pre . $key . '.');
                 $newData = array_merge($newData, $a);
+            } else {
+                $newData[$pre . $key] = $value;
             }
-            else{
-                $newData[$pre.$key] = $value;
-            }
-            
         }
         return $newData;
     }
@@ -163,25 +157,22 @@ class ColumnItem{
     public static function parseTemplateData($data = [])
     {
         $d = [];
-        if(is_array($data)){
-            foreach($data as $key => $value){
-                if(!is_array($value)){
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (!is_array($value)) {
                     $d[$key] = static::getDataFromString($value);
-                }else{
-                    if(isset($value['call']) && (method_exists(static::$item, $value['call']) || is_callable($value['call']))){
+                } else {
+                    if (isset($value['call']) && (method_exists(static::$item, $value['call']) || is_callable($value['call']))) {
                         $c = $value['call'];
                         $params = (isset($value['params']) && is_array($value['params'])) ? $value['params'] : [];
-                        if($c=='route' && $params && substr($params[0], 0, 1) == '.') $params[0] = static::$moduleRoute.$params[0];
+                        if ($c == 'route' && $params && substr($params[0], 0, 1) == '.') $params[0] = static::$moduleRoute . $params[0];
                         $params = static::parseParams($params);
-                        $call = method_exists(static::$item, $c)?[static::$item, $c]:$c;
+                        $call = method_exists(static::$item, $c) ? [static::$item, $c] : $c;
                         $d[$key] = call_user_func_array($call, $params);
-                    }
-                    elseif(substr($key, 0, 1) == '@'){
+                    } elseif (substr($key, 0, 1) == '@') {
                         $f = substr($key, 1);
                         $d[$key] = static::callFunc($f, $value);
-                        
-                    }
-                    else{
+                    } else {
                         $d[$key] = static::parseTemplateData($value);
                     }
                 }
@@ -193,26 +184,23 @@ class ColumnItem{
     public static function callFunc($func, $params)
     {
         $c = null;
-        if(is_callable($func)){
+        if (is_callable($func)) {
             $c = $func;
-            if($c=='route' && $params && substr($params[0], 0, 1) == '.') {
-                if(is_array($params)){
-                    $params[0] = static::$moduleRoute.$params[0];
-                }
-                else{
-                    $params = static::$moduleRoute.$params;
+            if ($c == 'route' && $params && substr($params[0], 0, 1) == '.') {
+                if (is_array($params)) {
+                    $params[0] = static::$moduleRoute . $params[0];
+                } else {
+                    $params = static::$moduleRoute . $params;
                 }
             }
-        }
-        elseif(method_exists(static::$item, $func)){
+        } elseif (method_exists(static::$item, $func)) {
             $c = [static::$item, $func];
         }
-        if($c){
+        if ($c) {
             $params = static::parseParams($params);
-            $p = is_array($params)?$params:[$params];
+            $p = is_array($params) ? $params : [$params];
             $d = call_user_func_array($c, $p);
-        }
-        else{
+        } else {
             $d = null;
         }
         return $d;
@@ -225,13 +213,13 @@ class ColumnItem{
     public static function parseParams($raw = null)
     {
         $data = [];
-        if(is_array($raw)){
+        if (is_array($raw)) {
             foreach ($raw as $key => $value) {
                 $data[$key] = static::getDataFromString($value);
             }
-        }elseif (is_callable($raw)) {
+        } elseif (is_callable($raw)) {
             $data = $raw();
-        }elseif ($raw) {
+        } elseif ($raw) {
             $data = static::getDataFromString($raw);
         }
         return $data;
@@ -244,27 +232,25 @@ class ColumnItem{
 
     public static function getDataFromString($raw)
     {
-        if(is_array($raw)){
+        if (is_array($raw)) {
             $data = [];
             foreach ($raw as $key => $value) {
                 $data[$key] = static::getDataFromString($value);
             }
             return $data;
-        }
-        elseif (in_array($s = substr($raw,0,1), [':', '@'])) {
-            $nsp = substr($raw,1);
-            if ($s==':') {
+        } elseif (in_array($s = substr($raw, 0, 1), [':', '@'])) {
+            $nsp = substr($raw, 1);
+            if ($s == ':') {
                 return static::$item->{$nsp};
-            }elseif(strtolower(substr($nsp, 0, 5)) == 'data:'){
+            } elseif (strtolower(substr($nsp, 0, 5)) == 'data:') {
                 return static::$config->get('data.' . substr($nsp, 5));
-            }
-            elseif(method_exists(static::$item, $nsp)){
+            } elseif (method_exists(static::$item, $nsp)) {
                 return static::$item->{$nsp}();
-            }elseif(is_callable($nsp)){
+            } elseif (is_callable($nsp)) {
                 return $nsp();
             }
         }
-        
+
         return static::parseString($raw);
     }
 
@@ -272,6 +258,4 @@ class ColumnItem{
     {
         return str_eval($string, static::$item->toArray(), 0, '');
     }
-
-
 }
