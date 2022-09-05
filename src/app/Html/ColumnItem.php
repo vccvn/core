@@ -59,6 +59,7 @@ class ColumnItem{
         $type = $options->type;
         $parse = $options->parse;
         $parseFns = [];
+        $ORDER = static::$order + ($options->order?$options->order:0);
         if($parse){
             $parses = explode('|', $parse);
             if(count($parses)){
@@ -83,13 +84,17 @@ class ColumnItem{
                 }
             }
         }
-        $mergData = array_merge(Arr::entities(static::$item->toArray()), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->parseData));
+        $mergData = array_merge(Arr::entities(static::$item->toArray()), static::parseTemplateData($options->data), static::parseTemplateData(static::$config->parseData), ['ORDER' => $ORDER]);
         if($type == 'text' || $options->text){
             $content = static::getDataFromString($options->text);
         }
         elseif($type == 'order' || $options->order){
             $content = static::$order + ($options->order?$options->order:0);
             $options->class.=" order-col";
+            if($options->template){
+                $content = str_eval($options->template, $mergData, 0, '');
+                $content = str_eval($content, $mergData, 0, '');
+            }
         }
         elseif($type == 'data' && $options->data_key && $options->value_key){
             $vkey = static::getDataFromString($options->value_key);
