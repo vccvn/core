@@ -280,17 +280,17 @@ trait BaseCrud
                 // nếu có data và lưu thành công
                 if ($inputs && $model = $this->repository->save($inputs, $id)) {
                     // thao tac sau khi luu tru
-                    $this->callCrudEvent('afterAjax' . $action, $request, $model);
-                    $this->callCrudEvent('afterAjaxSave', $request, $model);
+                    $this->callCrudEvent('afterAjax' . $action, $request, $model, $arrInput);
+                    $this->callCrudEvent('afterAjaxSave', $request, $model, $arrInput);
                     // du lieu tra ve sau cung
                     
-                    $this->fire('ajax' . $action . 'd', $this, $request, $model);
-                    $this->fire('ajaxSaved', $this, $request, $model);
+                    $this->fire('ajax' . $action . 'd', $this, $request, $model, $arrInput);
+                    $this->fire('ajaxSaved', $this, $request, $model, $arrInput);
                     $data = $this->repository->detail($model->{$this->repository->getKeyName()});
-                    if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data)) {
+                    if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data, $arrInput)) {
                         return $rss;
                     }
-                    if ($rs = $this->fire('ajaxSaveSuccess', $this, $request, $errors)) {
+                    if ($rs = $this->fire('ajaxSaveSuccess', $this, $request, $data, $arrInput)) {
                         foreach ($rs as $r) {
                             if ($r) return $r;
                         }
