@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Gomee\Files\Filemanager;
 use Gomee\Files\Image;
 use Gomee\Engines\Helper;
+use JamesHeinrich\GetID3\GetID3;
+
 /**
  * các thuộc tính và phương thức của form sẽ được triển trong ManagerController
  */
@@ -115,16 +117,20 @@ trait FileMethods
         $mime = $file->getClientMimeType();
         $ftype = explode('/', $mime);
         $filetype = $ftype[0];
-        // chờ chut
-        //  $destinationPath = $destinationPath.DIRECTORY_SEPARATOR.$filename;
-        //    dd(base_path('public/static'));
 
         if (!$file->move($path, $filename)) return false;
         // den day là cus3 laravel
         $filepath = rtrim($path, '/') . '/' . ltrim($filename, '/');
         // $this->filemanager->chmod($filepath, 0755);
         $size = filesize($filepath) / 1024;
-        return new Arr(compact('filename', 'original_filename', 'filepath', 'extension', 'mime', 'size', 'filetype'));
+
+        $f = new Arr(compact('filename', 'original_filename', 'filepath', 'extension', 'mime', 'size', 'filetype'));
+        if($filetype == 'audio' || $filetype == 'video'){
+            $getID3 = new GetID3;
+            $ThisFileInfo = $getID3->analyze($filepath);
+        }
+        
+        return $f;
     }
 
     /**

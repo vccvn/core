@@ -27,6 +27,7 @@ function __call__($args = [])
                 case 'generate':
                 case 'm':
                 case 'g':
+                case 'add':
                 case 'c':
                     if (isset($param[0])) {
                         $t = array_shift($param);
@@ -92,7 +93,7 @@ function __call__($args = [])
 
 
                                 default:
-                                echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line\n\t - s, service, sv, serv";
+                                    echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line\n\t - s, service, sv, serv";
                                     break;
                             }
                         }
@@ -111,7 +112,14 @@ function __call__($args = [])
                         }
                     }
                     break;
-
+                case 'list':
+                case 'l':
+                case 'ds':
+                    $t = array_shift($param);
+                    $p = get_args_params($param);
+                    $args = array_merge([$p['params']], $p['args']);
+                    call_user_func_array('show_list', $args);
+                    break;
                 default:
                     echo "What do you want to do?\n\t make or create somthing\n\t run command exists";
             }

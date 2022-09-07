@@ -79,3 +79,22 @@ function show($data)
     echo $data;
 }
 
+function show_list($params, ...$args){
+    $t = count($args);
+    if(isset($args[0])){
+        switch($args[0]){
+            case 'controller':
+                case 'ctl':
+                    if($t > 1){
+                        $l = strtolower($args[1]);
+                        if($l == 'methods' || $l == 'method' || $l == 'mt'){
+                            echo '
+void save(Request $request) - lưu dữ liệu sau khi validate
+                            ';
+                        }
+                    }
+                    break;
+
+        }
+    }
+}
