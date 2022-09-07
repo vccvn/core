@@ -128,6 +128,10 @@ trait FileMethods
         if($filetype == 'audio' || $filetype == 'video'){
             $getID3 = new GetID3;
             $ThisFileInfo = $getID3->analyze($filepath);
+            $f->info = $ThisFileInfo;
+        }
+        else{
+            $f->info = [];
         }
         
         return $f;
