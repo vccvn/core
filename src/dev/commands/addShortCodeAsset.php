@@ -38,7 +38,7 @@ if(!function_exists('addShortCodeAsset')){
                 $vl = substr($link, 1, strlen($link) - 2);
                 $sub = substr($vl, 0, 7);
                 if($sub == 'assets/'){
-                    $rvl = "{{{$type}('" . substr($vl, 7) . "')}}";
+                    $rvl = "{{{$type}_asset('" . substr($vl, 7) . "')}}";
                     $replace = str_replace($link, "\"$rvl\"", $match);
                     $content = str_replace($match, $replace, $content);
                     echo "Đã sửa $vl -> $rvl\n";
@@ -52,7 +52,7 @@ if(!function_exists('addShortCodeAsset')){
                 $vl = str_replace(['"', "'"], '', $link);
                 $sub = substr($vl, 0, 7);
                 if($sub == 'assets/'){
-                    $rvl = "{{{$type}(\"" . substr($vl, 7) . "\")}}";
+                    $rvl = "{{{$type}_asset(\"" . substr($vl, 7) . "\")}}";
                     $replace = str_replace($link, "\"$rvl\"", $match);
                     $content = str_replace($match, $replace, $content);
                     echo "Đã sửa $vl -> $rvl\n";
