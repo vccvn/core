@@ -127,8 +127,8 @@ trait FileMethods
         $f = new Arr(compact('filename', 'original_filename', 'filepath', 'extension', 'mime', 'size', 'filetype'));
         if($filetype == 'audio' || $filetype == 'video'){
             $getID3 = new GetID3;
-            $ThisFileInfo = $getID3->analyze($filepath);
-            $f->info = $ThisFileInfo;
+            $info = $getID3->analyze($filepath);
+            $f->info = $info;
         }
         else{
             $f->info = [];
