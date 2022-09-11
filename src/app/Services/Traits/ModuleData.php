@@ -2,92 +2,210 @@
 
 namespace Gomee\Services\Traits;
 
-trait ModuleData
+use Gomee\Helpers\Arr;
+use Illuminate\Http\Request;
+
+use Gomee\Html\Menu;
+
+use Gomee\Laravel\Router;
+
+/**
+ * các thuộc tính và phương thức của form sẽ được triển trong ManagerController
+ */
+trait ModuleMethods
 {
+    /**
+     * @var \Gomee\Repositories\BaseRepository
+     */
+    protected $repository;
 
     /**
-     * lay thong tin file cache hoac json
-     * @param string $file ten file hoac sub path khong chua phan mo rong
-     * @param array|null
+     * @var string $module day là tên module cung la ten thu muc view va ten so it cua bang, thu muc trong asset
+     * override del chinh sua
      */
-    public function getModuleData(string $file)
+    protected $module = 'test';
+
+    /**
+     * @var string $module day là duong dan blade den thu muc cua module bo qua nếu nó cùng tên với module
+     * override del chinh sua
+     */
+    protected $moduleBlade = null;
+
+    /**
+     * @var string $moduleName tên của module và cũng là tiêu đề trong form
+     */
+    protected $moduleName = '';
+
+    /**
+     * @var string $routeNamePrefix
+     */
+    protected $routeNamePrefix = '';
+
+    /**
+     * @var string $menuName
+     */
+    protected $menuName = 'menu';
+
+    /**
+     * @var bool $flashMode cho biết có chia chức năng này thành module rieng ko hay sử dụng trung
+     * Chuẩn hóa module thoe mguyen6 mẫu Crazy CMS 
+     */
+    protected $flashMode = false;
+
+    /**
+     * @var string $modulePath
+     */
+    protected $modulePath = '';
+
+    protected $scope = '';
+
+    
+    protected $mode = 'system';
+    
+
+    /**
+     * lấy dữ liệu damg5 danh sách
+     * @param Request $request
+     * @param array $args
+     *
+     * @return collection
+     */
+    public function getResults(Request $request, array $args = [])
     {
-        if ($d = $this->getStorageData($file)) {
-            return $d;
-        } else {
-            return $this->getJsonData($file);
-        }
+        return $this->repository->getResults($request, $args);
     }
 
     /**
-     * check storage data
-     * @param string $file duong dan
-     * @return bool
+     * thiết lập module
      */
-    public function checkStorageData($file)
+    public function moduleInit()
     {
-        return file_exists(storage_path('crazy/' . ltrim($file, '/') . '.php'));
+        if (!$this->moduleBlade) $this->moduleBlade = $this->module;
+
+        if ($this->repository)
+            $this->repository->notTrashed();
+
+        $this->modulePath = $this->scope . '/modules/' . str_replace('.', '/', $this->module);
     }
 
     /**
-     * lấy data dc lưu
-     * @param string $file duong dan
-     * @return array
+     * actice module menu
      */
-    public function getStorageData($file)
+    public function activeMenu($activeKey = null)
     {
-        if ($cachePath = $this->checkConvertStorageDataCache($file)) {
-            return require $cachePath;
-        }
-        $file = ltrim($file, '/');
-        if (file_exists($path = storage_path('crazy/data/' . $file . '.php'))) {
-            $data = require $path;
-        } else {
-            $data = [];
-        }
-        return $data;
-    }
-
-
-
-    /**
-     * check json data
-     * @param string $file duong dan
-     * @return bool
-     */
-    public function checkJsonData($file)
-    {
-        return file_exists($this->jsonPath($file . '.json'));
+        Menu::addActiveKey($this->menuName, $activeKey ? $activeKey : $this->module);
     }
 
     /**
-     * lấy data dc lưu
+     * get route url
+     * @param string $routeName
+     * @param array $params
+     * 
+     * @return string
      */
-    public function getJsonData($file)
+    public function getRouteUrl($routeName = null, array $params = [])
     {
-        $path = $this->jsonPath($file . '.json');
-
-        if (file_exists($path = $this->jsonPath($file . '.json'))) {
-            $data = json_decode(file_get_contents($path), true);
-        } else {
-            $data = [];
-        }
-        return $data;
-    }
-
-    public function checkConvertStorageDataCache($file)
-    {
-        $file = ltrim($file, '/');
-        if (file_exists($json_path = $this->jsonPath($file . '.json'))) {
-            $time = filemtime($json_path);
-            $php_filename = md5($file . '-' . $time) . '.php';
-            $path = storage_path('crazy/cache/' . $php_filename);
-            if (file_exists($path)) {
-                return $path;
-            } elseif ($this->filemanager->convertJsonToPhp($json_path, $path)) {
-                return $path;
-            }
+        if (!is_string($routeName) || !strlen($routeName)) return null;
+        if (Router::getByName($this->routeNamePrefix . $routeName)) {
+            return \route($this->routeNamePrefix . $routeName, $params);
         }
         return null;
+    }
+
+    /**
+     * get route url
+     * @param string $routeName
+     * @param array $params
+     * 
+     * @return Route
+     */
+    public function getModuleRoute($routeName = null, array $params = [])
+    {
+        return $this->getRouteUrl($this->module . '.' . $routeName, $params);
+    }
+
+    /**
+     * thêm nút thêm mới
+     * 
+     */
+    public function addHeaderButtons(...$buttons)
+    {
+        $btns = [
+            'create' => [
+                'url' => $this->getModuleRoute('create'),
+                'text' => 'Thêm mới',
+                'icon' => 'plus'
+            ]
+        ];
+        $data = [];
+        if ($buttons) {
+            foreach ($buttons as $i => $button) {
+                if (isset($btns[$button])) {
+                    $data[] = $btns[$button];
+                }
+            }
+            // admin_breadcrumbs($data);
+        }
+    }
+
+
+
+    /**
+     * lấy dữ liệu list
+     * @param Arr $config
+     * 
+     */
+    public function getListConfigData()
+    {
+        $data = [];
+        // nếu sử dụng flash mode
+        if ($this->flashMode) {
+            $file = $this->modulePath . '/list';
+            $data = $this->getJsonData($file);
+            
+        }
+
+        return $data;
+    }
+
+    
+    public function checkListExtendsAndInclude($filename, $data)
+    {
+        $filter = $data['filter'];
+        $list_data = $data['filter'];
+        $table = $data['table'];
+        $paths = explode('/', $filename);
+        array_pop($paths);
+        if (is_string($data['extends']) && strlen($data['extends'])) {
+            $ejPath = $data['extends'];
+            $clonePaths = $paths;
+            if (substr($ejPath, 0, 1) != '/') {
+                $ExtPaths = explode('/', $ejPath);
+                foreach ($ExtPaths as $path) {
+                    if ($path == '..') {
+                        array_pop($clonePaths);
+                    } elseif ($path != '.') {
+                        $clonePaths[] = $path;
+                    }
+                }
+                $ejPath = implode('/', $clonePaths);
+            } else {
+                $ejPath = substr($ejPath, 1);
+            }
+            if ($inputData = $this->getJsonData($ejPath)) {
+                if ($form_data = $this->checkFullFormModule($inputData)) {
+                    $parsedata = $this->checkFormExtendsAndInclude($ejPath, $form_data);
+                    $inputs = $parsedata['form_inputs'];
+                    $layout_type = $parsedata['layout_type'] != 'single' ? $parsedata['layout_type'] : null;
+                    $form_groups = $parsedata['form_groups'];
+                } else {
+                    $inputs = $this->parseInputArr($inputData, $this->module);
+                }
+                // $inputs = array_merge($inputs, $mainInputs);
+            }
+        }
+        return $data;
+        
+
     }
 }
