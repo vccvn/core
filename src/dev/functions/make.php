@@ -66,23 +66,26 @@ if (!function_exists('make_controller')) {
     function make_controller($args = [], $type = 'client', $name = null, $repo = null, $title = null, $module = null)
     {
         if (!$name) {
-            echo "Tham so:\n\t\$type -- loai controller (client, admin, manager, api, custom)\n\t\$name -- Ten controller\n\t\$repo -- ten class Repository/Model\n\t\$title -- ten/tieu de\n\t\$module -- js module && route module\n\n";
+            echo "Tham so:\n\t\$type -- loai controller (web, admin, manager, api, custom)\n\t\$name -- Ten controller\n\t\$repo -- ten class Repository/Model\n\t\$title -- ten/tieu de\n\t\$module -- js module && route module\n\n";
             return null;
         }
         $folders = [
             'client' => 'Clients',
+            'cms' => 'CMS',
             'admin' => 'Admin',
             'account' => 'Accounts',
             'manager' => 'Manager',
             'branch' => 'Branch',
             'cpanel' => 'CPanel',
-            'frontend' => 'Frontend',
             'backend' => 'Backend',
             'private' => 'Private',
             'public' => 'Public',
             'protected' => 'Protected',
             'publish' => 'Publish',
             'api' => 'Apis',
+            'web' => 'Web',
+            'frontend' => 'Frontend',
+            
             'custom' => null
         ];
         $ac = explode('/', str_replace("\\", "/", $name));
