@@ -162,8 +162,49 @@ trait ModuleMethods
         if ($this->flashMode) {
             $file = $this->modulePath . '/list';
             $data = $this->getJsonData($file);
+            if($data){
+                $data = $this->checkListExtendsAndInclude($file, $data);
+            }
+            
         }
 
         return $data;
+    }
+
+    
+    public function checkListExtendsAndInclude($filename, $data)
+    {
+        if(array_key_exists('extends', $data)){
+            $mergeData = [];
+            $paths = explode('/', $filename);
+            array_pop($paths);
+    
+            if (is_string($data['extends']) && strlen($data['extends'])) {
+                $ejPath = $data['extends'];
+                $clonePaths = $paths;
+                if (substr($ejPath, 0, 1) != '/') {
+                    $ExtPaths = explode('/', $ejPath);
+                    foreach ($ExtPaths as $path) {
+                        if ($path == '..') {
+                            array_pop($clonePaths);
+                        } elseif ($path != '.') {
+                            $clonePaths[] = $path;
+                        }
+                    }
+                    $ejPath = implode('/', $clonePaths);
+                } else {
+                    $ejPath = substr($ejPath, 1);
+                }
+                if ($configData = $this->getJsonData($ejPath)) {
+    
+                    $mergeData = $this->checkListExtendsAndInclude($ejPath, $configData);
+                }
+    
+            }
+            unset($data['extends']);
+            return Arr::deepMerge($mergeData, $data);
+        }
+        return $data;
+        
     }
 }

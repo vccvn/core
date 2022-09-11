@@ -31,6 +31,9 @@ use Illuminate\Contracts\Support\Arrayable;
  * 
  * @method $this entities(array $array) htmlentities for all element of array
  * @method static array entities(array $array) htmlentities for all element of array
+ * 
+ * @method $this deepMerge(array $merge) deep merge for all element of array
+ * @method static array deepMerge(array $root, array $merge) deep merge for all element of array
  */
 Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable {
     const DEFVAL = '<!-----------------s2--------2025----------->';
@@ -718,7 +721,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     }
 
     protected static $funcs = [
-        'prefix', 'setPrefix', 'match', 'entities'
+        'prefix', 'setPrefix', 'match', 'entities', 'deepMerge'
     ];
     /**
      * gọi hàm với tên thuộc tính với tham số là giá trị default
@@ -899,5 +902,24 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         return $array;
     }
 
+    /**
+     * Deep Merge
+     *
+     * @param array $root
+     * @param array $data
+     * @return array
+     */
+    protected static function __deepMerge($root, $data)
+    {
+        foreach ($data as $key => $value) {
+            if(array_key_exists($key, $root) && is_array($value) && is_array($root[$key])){
+                $root[$key] = static::__deepMerge($root[$key], $value);
+            }
+            else{
+                $root[$key] = $value;
+            }
+        }
+        return $root;
+    }
 
 }
