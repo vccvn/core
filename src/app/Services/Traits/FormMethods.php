@@ -218,7 +218,7 @@ trait FormMethods
     {
         $this->jsonFormDir = $this->jsonPath($this->formDir);
 
-        $this->phpFormDir = Helper::storage_path('crazy/' . ltrim($this->formDir??'', '/'));
+        $this->phpFormDir = Helper::storage_path('crazy/' . ltrim($this->formDir ?? '', '/'));
         $this->realFormDir = $this->jsonFormDir;
     }
 
@@ -316,7 +316,7 @@ trait FormMethods
 
 
 
-    
+
 
 
 
@@ -329,41 +329,41 @@ trait FormMethods
     public function checkFullFormModule(array $args = [])
     {
         $data = [
-            'extends' => [],
+            'extends' => '',
             'include' => [],
             'form_inputs' => [],
-            'layout_type' => 'single',
+            'layout_type' => '',
             'form_groups' => []
         ];
 
         if (array_key_exists('@inputs', $args)) {
             $data['form_inputs'] = $this->parseInputArr($args['@inputs'], $this->module);
-            if(array_key_exists('@extends', $args)){
+            if (array_key_exists('@extends', $args)) {
                 $data['extends'] = $args['@extends'];
             }
-            if(array_key_exists('@include', $args)){
+            if (array_key_exists('@include', $args)) {
                 $data['include'] = $args['@include'];
             }
-            
+
             if (array_key_exists('@config', $args)) {
                 $data = array_merge($data, $this->getConfigDataArray($args['@config']));
             }
             return $data;
         } elseif (array_key_exists('inputs', $args) && (($t = count($args)) == 1 || $hasCf = array_key_exists('config', $args))) {
             $data['form_inputs'] = $this->parseInputArr($args['inputs'], $this->module);
-            if(array_key_exists('@extends', $args)){
+            if (array_key_exists('@extends', $args)) {
                 $data['extends'] = $args['@extends'];
             }
-            if(array_key_exists('@include', $args)){
+            if (array_key_exists('@include', $args)) {
                 $data['include'] = $args['@include'];
             }
-            if(array_key_exists('extends', $args)){
+            if (array_key_exists('extends', $args)) {
                 $data['extends'] = $args['extends'];
             }
-            if(array_key_exists('include', $args)){
+            if (array_key_exists('include', $args)) {
                 $data['include'] = $args['include'];
             }
-            
+
             if ($t > 1 && $hasCf) {
                 $data = array_merge($data, $this->getConfigDataArray($args['config']));
             }
@@ -380,7 +380,7 @@ trait FormMethods
      */
     public function getConfigDataArray($config = [])
     {
-        $layout_type = 'single';
+        $layout_type = '';
         $form_groups = [];
         $array_config = [];
 
@@ -417,14 +417,13 @@ trait FormMethods
     {
         $data = [
             'form_inputs' => [],
-            'layout_type' => 'single',
+            'layout_type' => '',
             'form_groups' => []
         ];
         // nếu có thông tin input
         if ($inputs = $this->getJsonData($filename)) {
             if ($form_data = $this->checkFullFormModule($inputs)) {
-
-                return $form_data;
+                return $this->checkExtendsAndInclude($filename, $form_data);
             }
             // chuẩn hóa thong tin input để generate ra view
             $data['form_inputs'] = $this->parseInputArr($inputs, $this->module);
@@ -435,9 +434,81 @@ trait FormMethods
 
         return $data;
     }
+
+
     public function checkExtendsAndInclude($filename, $data)
     {
-        # code...
+        $inputs = [];
+        $mainInputs = $data['form_inputs'];
+        $layout_type = null;
+        $form_groups = [];
+        $paths = explode('/', $filename);
+        array_pop($paths);
+        if (is_string($data['extends']) && strlen($data['extends'])) {
+            $ejPath = $data['extends'];
+            $clonePaths = $paths;
+            if (substr($ejPath, 0, 1) != '/') {
+                $ExtPaths = explode('/', $ejPath);
+                foreach ($ExtPaths as $path) {
+                    if ($path == '..') {
+                        array_pop($clonePaths);
+                    } elseif ($path != '.') {
+                        $clonePaths[] = $path;
+                    }
+                }
+                $ejPath = implode('/', $clonePaths);
+            } else {
+                $ejPath = substr($ejPath, 1);
+            }
+            if ($inputData = $this->getJsonData($ejPath)) {
+                if ($form_data = $this->checkFullFormModule($inputData)) {
+                    $parsedata = $this->checkExtendsAndInclude($ejPath, $form_data);
+                    $inputs = $parsedata['form_inputs'];
+                    $layout_type = $parsedata['layout_type'] != 'single' ? $parsedata['layout_type'] : null;
+                    $form_groups = $parsedata['form_groups'];
+                } else {
+                    $inputs = $this->parseInputArr($inputData, $this->module);
+                }
+                // $inputs = array_merge($inputs, $mainInputs);
+            }
+        }
+        $inputs = array_merge($inputs, $mainInputs);
+        if ($data['include']) {
+            if (!is_array($data['include'])) $data['include'] = [$data['include']];
+            foreach ($data['include'] as $incPath) {
+                $ejPath = $incPath;
+                $clonePaths = $paths;
+                if (substr($ejPath, 0, 1) != '/') {
+                    $incPaths = explode('/', $ejPath);
+                    foreach ($incPaths as $path) {
+                        if ($path == '..') {
+                            array_pop($clonePaths);
+                        } elseif ($path != '.') {
+                            $clonePaths[] = $path;
+                        }
+                    }
+                    $ejPath = implode('/', $clonePaths);
+                } else {
+                    $ejPath = substr($ejPath, 1);
+                }
+                if ($inputData = $this->getJsonData($ejPath)) {
+                    if ($form_data = $this->checkFullFormModule($inputData)) {
+                        $parsedata = $this->checkExtendsAndInclude($ejPath, $form_data);
+                        $inputs = array_merge($inputs, $parsedata['form_inputs']);
+                        
+                    } else {
+                        $inputs = array_merge($inputs, $this->parseInputArr($inputData, $this->module));
+                    }
+
+                }
+            }
+        }
+        if(!$data['layout_type'] && $layout_type) $data['layout_type'] = $layout_type;
+        if(!$data['form_groups'] && $form_groups) $data['form_groups'] = $form_groups;
+        $data['form_inputs'] = $inputs;
+        return $data;
+        
+
     }
 
     /**
@@ -450,7 +521,7 @@ trait FormMethods
     {
         $data = [
             'form_inputs' => [],
-            'layout_type' => 'single',
+            'layout_type' => '',
             'form_groups' => []
         ];
         if ($inputs = $this->getStorageData($filename)) {
@@ -1093,8 +1164,7 @@ trait FormMethods
 
 
         return $this->cancelButtonUrl ? $this->cancelButtonUrl : (
-            ($route = $this->getModuleRoute('list')) ? $route : (
-                $back ? $back : 'javascript:history.back();'
+            ($route = $this->getModuleRoute('list')) ? $route : ($back ? $back : 'javascript:history.back();'
             )
         );
     }
