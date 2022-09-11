@@ -329,6 +329,8 @@ trait FormMethods
     public function checkFullFormModule(array $args = [])
     {
         $data = [
+            'extends' => [],
+            'include' => [],
             'form_inputs' => [],
             'layout_type' => 'single',
             'form_groups' => []
@@ -336,12 +338,32 @@ trait FormMethods
 
         if (array_key_exists('@inputs', $args)) {
             $data['form_inputs'] = $this->parseInputArr($args['@inputs'], $this->module);
+            if(array_key_exists('@extends', $args)){
+                $data['extends'] = $args['@extends'];
+            }
+            if(array_key_exists('@include', $args)){
+                $data['include'] = $args['@include'];
+            }
+            
             if (array_key_exists('@config', $args)) {
                 $data = array_merge($data, $this->getConfigDataArray($args['@config']));
             }
             return $data;
         } elseif (array_key_exists('inputs', $args) && (($t = count($args)) == 1 || $hasCf = array_key_exists('config', $args))) {
             $data['form_inputs'] = $this->parseInputArr($args['inputs'], $this->module);
+            if(array_key_exists('@extends', $args)){
+                $data['extends'] = $args['@extends'];
+            }
+            if(array_key_exists('@include', $args)){
+                $data['include'] = $args['@include'];
+            }
+            if(array_key_exists('extends', $args)){
+                $data['extends'] = $args['extends'];
+            }
+            if(array_key_exists('include', $args)){
+                $data['include'] = $args['include'];
+            }
+            
             if ($t > 1 && $hasCf) {
                 $data = array_merge($data, $this->getConfigDataArray($args['config']));
             }
@@ -907,7 +929,7 @@ trait FormMethods
     {
         if (!is_array($inputs) || !count($inputs)) return [];
         $data = [];
-        $p = str_slug($prefix ? $prefix : $this->module, '_');
+        $p = Str::slug($prefix ? $prefix : $this->module, '_');
         foreach ($inputs as $name => $props) {
             $attrs = new Arr($props);
             // nếu chưa được set tên thì lấy key làm tên
