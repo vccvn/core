@@ -423,6 +423,7 @@ trait FormMethods
         // nếu có thông tin input
         if ($inputs = $this->getJsonData($filename)) {
             if ($form_data = $this->checkFullFormModule($inputs)) {
+
                 return $form_data;
             }
             // chuẩn hóa thong tin input để generate ra view
@@ -434,7 +435,10 @@ trait FormMethods
 
         return $data;
     }
-
+    public function checkExtendsAndInclude($filename, $data)
+    {
+        # code...
+    }
 
     /**
      * lấy thông tin input, layout type, column

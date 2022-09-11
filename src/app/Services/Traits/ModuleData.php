@@ -2,7 +2,8 @@
 
 namespace Gomee\Services\Traits;
 
-trait ModuleData{
+trait ModuleData
+{
 
     /**
      * lay thong tin file cache hoac json
@@ -11,9 +12,9 @@ trait ModuleData{
      */
     public function getModuleData(string $file)
     {
-        if($d = $this->getStorageData($file)){
+        if ($d = $this->getStorageData($file)) {
             return $d;
-        }else{
+        } else {
             return $this->getJsonData($file);
         }
     }
@@ -22,10 +23,10 @@ trait ModuleData{
      * check storage data
      * @param string $file duong dan
      * @return bool
-    */
+     */
     public function checkStorageData($file)
     {
-        return file_exists(storage_path('crazy/'. ltrim($file,'/').'.php'));
+        return file_exists(storage_path('crazy/' . ltrim($file, '/') . '.php'));
     }
 
     /**
@@ -35,29 +36,28 @@ trait ModuleData{
      */
     public function getStorageData($file)
     {
-        if($cachePath = $this->checkConvertStorageDataCache($file)){
+        if ($cachePath = $this->checkConvertStorageDataCache($file)) {
             return require $cachePath;
         }
-        $file = ltrim($file,'/');
-        if(file_exists($path = storage_path('crazy/data/'. $file.'.php'))){
+        $file = ltrim($file, '/');
+        if (file_exists($path = storage_path('crazy/data/' . $file . '.php'))) {
             $data = require $path;
-        }
-        else{
+        } else {
             $data = [];
         }
         return $data;
     }
 
-    
+
 
     /**
      * check json data
      * @param string $file duong dan
      * @return bool
-    */
+     */
     public function checkJsonData($file)
     {
-        return file_exists($this->jsonPath($file.'.json'));
+        return file_exists($this->jsonPath($file . '.json'));
     }
 
     /**
@@ -65,12 +65,11 @@ trait ModuleData{
      */
     public function getJsonData($file)
     {
-        $path = $this->jsonPath($file.'.json');
-        
-        if(file_exists($path = $this->jsonPath($file.'.json'))){
-            $data = json_decode(file_get_contents($path),true);
-        }
-        else{
+        $path = $this->jsonPath($file . '.json');
+
+        if (file_exists($path = $this->jsonPath($file . '.json'))) {
+            $data = json_decode(file_get_contents($path), true);
+        } else {
             $data = [];
         }
         return $data;
@@ -78,19 +77,17 @@ trait ModuleData{
 
     public function checkConvertStorageDataCache($file)
     {
-        $file = ltrim($file,'/');
-        if(file_exists($json_path = $this->jsonPath($file.'.json'))){
+        $file = ltrim($file, '/');
+        if (file_exists($json_path = $this->jsonPath($file . '.json'))) {
             $time = filemtime($json_path);
-            $php_filename = md5($file.'-'.$time).'.php';
-            $path = storage_path('crazy/cache/'.$php_filename);
-            if(file_exists($path)){
+            $php_filename = md5($file . '-' . $time) . '.php';
+            $path = storage_path('crazy/cache/' . $php_filename);
+            if (file_exists($path)) {
                 return $path;
-            }elseif($this->filemanager->convertJsonToPhp($json_path, $path)){
+            } elseif ($this->filemanager->convertJsonToPhp($json_path, $path)) {
                 return $path;
             }
         }
         return null;
-        
     }
-    
 }
