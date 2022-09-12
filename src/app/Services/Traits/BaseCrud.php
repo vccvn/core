@@ -294,7 +294,7 @@ trait BaseCrud
                     if($callEventData && $callEventData !== true) return $callEventData;
                     $callEventData = $this->fire('ajaxSaved', $this, $request, $model, $arrInput);
                     if($callEventData && $callEventData !== true) return $callEventData;
-                    $data = $this->repository->detail($model->{$this->repository->getKeyName()});
+                    $data = $this->repository->mode('mask')->detail($model->{$this->repository->getKeyName()});
                     if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data, $arrInput)) {
                         return $rss;
                     }
