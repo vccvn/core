@@ -269,23 +269,31 @@ trait BaseCrud
 
                 // xử lý dữ liệu
 
-                $this->callCrudEvent('beforeAjax' . $action, $request, $arrInput, $result);
-                $this->callCrudEvent('beforeAjaxSave', $request, $arrInput, $result);
-                $this->fire('ajax' . $action .'ing', $this, $request, $arrInput, $result);
-                $this->fire('ajaxSaving', $this, $request, $arrInput, $result);
-    
+                $callEventData = $this->callCrudEvent('beforeAjax' . $action, $request, $arrInput, $result);
+                if($callEventData && $callEventData !== true) return $callEventData;
+                $callEventData = $this->callCrudEvent('beforeAjaxSave', $request, $arrInput, $result);
+                if($callEventData && $callEventData !== true) return $callEventData;
+                $callEventData = $this->fire('ajax' . $action .'ing', $this, $request, $arrInput, $result);
+                if($callEventData && $callEventData !== true) return $callEventData;
+                $callEventData = $this->fire('ajaxSaving', $this, $request, $arrInput, $result);
+                if($callEventData && $callEventData !== true) return $callEventData;
+                
                 // lấy dữ liệu đã qua xử lý
                 $inputs = $arrInput->all();
 
                 // nếu có data và lưu thành công
                 if ($inputs && $model = $this->repository->save($inputs, $id)) {
                     // thao tac sau khi luu tru
-                    $this->callCrudEvent('afterAjax' . $action, $request, $model, $arrInput);
-                    $this->callCrudEvent('afterAjaxSave', $request, $model, $arrInput);
+                    $callEventData = $this->callCrudEvent('afterAjax' . $action, $request, $model, $arrInput);
+                    if($callEventData && $callEventData !== true) return $callEventData;
+                    $callEventData = $this->callCrudEvent('afterAjaxSave', $request, $model, $arrInput);
+                    if($callEventData && $callEventData !== true) return $callEventData;
                     // du lieu tra ve sau cung
                     
-                    $this->fire('ajax' . $action . 'd', $this, $request, $model, $arrInput);
-                    $this->fire('ajaxSaved', $this, $request, $model, $arrInput);
+                    $callEventData = $this->fire('ajax' . $action . 'd', $this, $request, $model, $arrInput);
+                    if($callEventData && $callEventData !== true) return $callEventData;
+                    $callEventData = $this->fire('ajaxSaved', $this, $request, $model, $arrInput);
+                    if($callEventData && $callEventData !== true) return $callEventData;
                     $data = $this->repository->detail($model->{$this->repository->getKeyName()});
                     if ($rss = $this->callCrudEvent('ajaxSaveSuccess', $request, $data, $arrInput)) {
                         return $rss;
