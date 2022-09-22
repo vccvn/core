@@ -49,7 +49,7 @@ trait CommonMethods
     public function getDatetime($column = 'created_at', $format = null)
     {
         if (!$format) $format = 'Y-m-d H:i:s';
-        return is_object($this->{$column})?$this->{$column}->format($format): ($this->{$column}?date($format, strtolower($this->{$column})):($this->created_at?$this->created_at->format($format):''));
+        return is_object($this->{$column})?$this->{$column}->format($format): ($this->{$column}?date($format, strtotime($this->{$column})):($this->created_at?$this->created_at->format($format):''));
     }
 
 
