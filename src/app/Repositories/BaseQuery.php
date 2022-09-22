@@ -2,7 +2,7 @@
 
 namespace Gomee\Repositories;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -393,7 +393,7 @@ trait BaseQuery
 
     public function queryAfter($action)
     {
-        if(is_callable($action)){
+        if (is_callable($action)) {
             $this->__queryAfter[] = $action;
         }
         return $this;
@@ -566,36 +566,7 @@ trait BaseQuery
                 }
                 // end if start with @
                 else {
-                    // không bắt đầu bằng @ thì sẽ gọi hàm where với column là key và so sánh '='
-                    $ifield = $field;
-                    $funcfield = null;
-                    $ftype = null;
-                    if (count($spactor = explode(':', $field)) == 2) {
-                        $ifield = $spactor[0];
-                        if (in_array($stype = strtolower($spactor[1]), ['date', 'fromdate', 'from_date' . 'todate', 'to_date', 'daterange', 'date_range'])) {
-                            $ftype = str_replace('_', '', $stype);
-                            $funcfield = 'addDate';
-                        }
-                    }
-                    $hasPrefix = (count(explode('.', $ifield)) > 1);
-                    if (!$hasPrefix) {
-
-                        // nếu không có prefix và ko có trong fillable thì bỏ qua
-                        if (isset($this->whereable) && array_key_exists($ifield, $this->whereable)) {
-                            $f = $this->whereable[$ifield];
-                        } elseif (!in_array($ifield, $fields) && $ifield != $this->_primaryKeyName) continue;
-                        else $f = $prefix . $ifield;
-                    } else $f = $ifield;
-
-                    if ($funcfield) {
-                        call_user_func_array([$this, $funcfield], [$query, $ftype, $f, $vl]);
-                    } elseif (is_array($vl)) {
-                        // nếu value là mảng sẽ gọi where in
-                        $query->whereIn($f, $vl);
-                    } else {
-                        // if($f == 'parent_id') die(static::class . '-'. $f);    
-                        $query->where($f, $vl);
-                    }
+                    $this->__whereQuery($query, $field, $vl, true, $fields, $prefix);
                 }
             }
         }
@@ -619,6 +590,97 @@ trait BaseQuery
     }
 
 
+    /**
+     * build where query
+     *
+     * @param Builder $query
+     * @param string $field
+     * @param mixed $value
+     * @return $this
+     */
+    protected function __whereQuery($query, $field, $value = null, $useStrict = false, $fields = [], $prefix = '')
+    {
+        $vl = $value;
+        // không bắt đầu bằng @ thì sẽ gọi hàm where với column là key và so sánh '='
+        $operator = '=';
+        preg_match_all('/[A-z0-9_]\s*(=|!=|<=|>=|<|>|<>|!|==|\slike|!like|\snotlike|\snot\slike|startwith|endwith|startby|endby|contains|find|search)$/i', $field, $m);
+        if ($m[1]) {
+            $operator = strtolower(trim($m[1][0]));
+            $field = trim(substr($field, 0, strlen($field) - strlen($operator)));
+        }
+        $ifield = $field;
+        $funcfield = null;
+        $ftype = null;
+        if (count($spacto = explode(':', $field)) == 2) {
+            $ifield = $spacto[0];
+            if (in_array($stype = strtolower($spacto[1]), ['date', 'fromdate', 'from_date' . 'todate', 'to_date', 'daterange', 'date_range'])) {
+                $ftype = str_replace('_', '', $stype);
+                $funcfield = 'addDate';
+            }
+        }
+        $hasPrefix = (count(explode('.', $ifield)) > 1);
+        if (!$hasPrefix && $useStrict) {
+
+            // nếu không có prefix và ko có trong fillable thì bỏ qua
+            if (isset($this->whereable) && array_key_exists($ifield, $this->whereable)) {
+                $f = $this->whereable[$ifield];
+            } elseif (!in_array($ifield, $fields) && $ifield != $this->_primaryKeyName) return;
+            else $f = $prefix . $ifield;
+        } else $f = $ifield;
+
+        if ($funcfield) {
+            call_user_func_array([$this, $funcfield], [$query, $ftype, $f, $vl]);
+        } elseif (is_array($vl)) {
+            // nếu value là mảng sẽ gọi where in
+            if (in_array($operator, ['!', '!=', '<>'])) {
+                $query->whereNotIn($f, $vl);
+            } else {
+                $query->whereIn($f, $vl);
+            }
+        } else {
+            switch ($operator) {
+                case 'like':
+                    $query->where($f, $operator, $vl);
+                    break;
+                case 'notlike':
+                case 'not like':
+                    $query->where($f, 'not like', $vl);
+                    break;
+
+                case 'contains':
+                case 'search':
+                case 'find':
+                    $query->where($f, 'like', '%' . $vl . '%');
+                    break;
+
+
+                case 'start':
+                case 'startwith':
+                case 'startby':
+                    $query->where($f, 'like', $vl . '%');
+                    break;
+
+
+                case 'end':
+                case 'endwith':
+                case 'endby':
+                    $query->where($f, 'like', '%' . $vl);
+                    break;
+
+                case '==':
+                    $query->where($f, $vl);
+                    break;
+
+                case 'not':
+                    $query->where($f, '!=', $vl);
+                    break;
+
+                default:
+                    $query->where($f, $operator, $vl);
+                    break;
+            }
+        }
+    }
 
     /**
      * run all query action in query after
@@ -628,7 +690,7 @@ trait BaseQuery
      */
     protected function runQueryAfter($query)
     {
-        if(is_array($this->__queryAfter) && count($this->__queryAfter)){
+        if (is_array($this->__queryAfter) && count($this->__queryAfter)) {
             foreach ($this->__queryAfter as $action) {
                 $action($query);
             }
@@ -727,12 +789,13 @@ trait BaseQuery
                                 }
                             }
                         } else {
-                            if (is_array($value)) {
-                                // nếu value là mảng sẽ gọi where in
-                                $query->whereIn($key, $value);
-                            } else {
-                                $query->where($key, $value);
-                            }
+                            $this->__whereQuery($query, $key, $value);
+                            // if (is_array($value)) {
+                            //     // nếu value là mảng sẽ gọi where in
+                            //     $query->whereIn($key, $value);
+                            // } else {
+                            //     $query->where($key, $value);
+                            // }
                         }
                     }
                 }

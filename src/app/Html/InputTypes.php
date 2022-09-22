@@ -700,6 +700,9 @@ trait InputTypes
     {
         if (in_array($s = substr($raw, 0, 1), ['#', ':', '@'])) {
             $nsp = substr($raw, 1);
+            $arrParams = explode('|', $nsp);
+            $nsp = array_shift($arrParams);
+            
             if ($s == '#' && $this->parent) {
                 $prop = null;
                 $inp = $nsp;
@@ -722,6 +725,18 @@ trait InputTypes
             } elseif (is_callable($nsp)) {
                 return $nsp();
             }
+            if(count($arrParams)){
+                foreach ($arrParams as $key) {
+                    if (in_array($s = substr($key, 0, 1), ['#', ':', '@'])){
+                        $val = $this->getInputDataFromString($key);
+                        if($val !== null){
+                            return $val;
+                        }
+                    }
+                    else return $key;
+                }
+            }
+            return null;
         } elseif (is_array($raw)) {
             $data = [];
             foreach ($raw as $key => $value) {
