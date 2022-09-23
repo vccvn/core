@@ -390,7 +390,7 @@ function make_json($args = [], $table, $filename)
 }
 
 
-function make_json_module($args = [], $module = null, $table = null)
+function make_json_module($args = [], $module = null, $table = null, $moduleName = null)
 {
     if (!$module) {
         echo "Tham so:\n\t\$module -- Ten thư mục\n\t\$table -- Tên bảng\n\t\$path -- duong dan tu thu muc /json/";
@@ -402,18 +402,21 @@ function make_json_module($args = [], $module = null, $table = null)
     if (!$table) $table = Str::tableName($name);
 
     $filemanager = new Filemanager(base_path('json'));
-    if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode(defaultJson($table), JSON_PRETTY_PRINT)), 'json')) {
+    if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode(['inputs' => defaultJson($table), 'config' => ['name' => $moduleName]], JSON_PRETTY_PRINT)), 'json')) {
         echo "create form success\nPath: $file->path\n";
     }
     $fields = schema($table)->getConfig(true);
     $json = [
-        "name" => "[module]", "package" => "customers", "use_trash" => true,
-        "titles" => ["default" => "Danh sách [module]", "trash" => "Danh sách [module] đã xóa"],
+        "name" => "[module]", 
+        "package" => "customers", 
+        "use_trash" => true,
+        "titles" => ["default" => "Danh sách ". ($moduleName??'[module]'), "trash" => "Danh sách ".($moduleName??'[module]')." đã xóa"],
         "data" => [], "filter" => ["search_columns" => [], "sort_columns" => []],
         "table" => ["class" => "header-center", "columns" => []],
         "resources" => ["js_data" => [], "js" => [], "css" => []]
     ];
     $json['package'] = $table;
+    if($moduleName) $json['name'] = $moduleName;
     $columns = [];
     foreach ($fields as $col => $config) {
         $columns[] = [
