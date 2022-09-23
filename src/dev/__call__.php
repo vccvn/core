@@ -90,6 +90,10 @@ function __call__($args = [])
                                 case 'sv':
                                     call_user_func_array("create_service", $args);
                                     break;
+                                case 'route':
+                                case 'router':
+                                    call_user_func_array("make_route", $args);
+                                    break;
 
 
                                 default:

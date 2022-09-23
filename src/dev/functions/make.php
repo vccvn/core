@@ -750,3 +750,63 @@ if (!function_exists('create_service')) {
         }
     }
 }
+
+
+
+if (!function_exists('make_route')) {
+    /**
+     * make_controller
+     * 
+     */
+    function make_route($args = [], $type = 'client', $filename = null, $controller = null, $MODULENAME = null, $MODULEDESCRIPTION = null)
+    {
+        $folders = [
+            'client' => 'Clients',
+            'cms' => 'CMS',
+            'admin' => 'Admin',
+            'account' => 'Accounts',
+            'manager' => 'Manager',
+            'branch' => 'Branch',
+            'cpanel' => 'CPanel',
+            'backend' => 'Backend',
+            'private' => 'Private',
+            'public' => 'Public',
+            'protected' => 'Protected',
+            'publish' => 'Publish',
+            'api' => 'Apis',
+            'web' => 'Web',
+            'frontend' => 'Frontend',
+            
+            'custom' => null
+        ];
+        
+        if (!$filename) {
+            echo "Tham so:\n\t\$type -- loai controller (".implode(', ', array_keys($folders)).")\n\t\$name -- Ten file route\n\t\$controller -- ten controller PathName [không cần Controller]\n\t\$ModuleName -- tenmodule\n\t\$ModuleDescription -- Mô tả\n\n";
+            return null;
+        }
+        $ac = explode('/', str_replace("\\", "/", $controller));
+
+        $name = ucfirst(array_pop($ac));
+        
+        if (!array_key_exists($t = strtolower($type), $folders) || !$name) {
+            echo "Tham so:\n\t\$type -- loai route: (".implode(', ', array_keys($folders)).")\n\n";
+            return ;
+        }
+        $s = implode('\\', array_map('ucfirst', $ac));
+        $CONTROLLERPATH = $s?$s.'\\':'';
+        $CONTROLLERNAME = $name;
+        $find = ['CONTROLLERPATH', 'CONTROLLERNAME', 'MODULENAME', 'MODULEDESCRIPTION'];
+        $replace = [$CONTROLLERPATH, $CONTROLLERNAME, $MODULENAME, $MODULEDESCRIPTION];
+
+        $template = file_get_contents(DEVPATH . '/templates/route-'.$t.'.php');
+        $code = str_replace($find, $replace, $template);
+        $filemanager = new Filemanager();
+        $filemanager->setDir((BASEDIR . '/routes/' . $t . '/'));
+        if ($a = $filemanager->save($name . '.php', $code, 'php')) {
+            echo "Tạo {$name}route thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        } else {
+            echo "Lỗi không xác định\n";
+        }
+    }
+}
+
