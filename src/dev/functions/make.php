@@ -417,7 +417,7 @@ function make_json_module($args = [], $module = null, $table = null)
     $columns = [];
     foreach ($fields as $col => $config) {
         $columns[] = [
-            'title' => $config->comment??$config->name,
+            'title' => $config->comment??implode(' ', array_map('ucfirst', explode('_', $config->name))),
             'class' => '',
             'text' => ':' . $col
         ];

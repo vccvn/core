@@ -76,10 +76,11 @@ function defaultJson($table = null){
 
     $a = [];
     foreach ($fields as $field => $cfg) {
+        $lb = $cfg->comment??implode(' ', array_map('ucfirst', explode('_', $cfg->name)));
         $a[$field] = [
             'type' => $cfg->type == 'boolean'?'switch':($cfg->type == 'integer' || $cfg->type == 'float'?'number':'text'),
-            'label' => $cfg->comment??'',
-            'placeholder' => 'Nhập '.($cfg->comment??'')
+            'label' => $lb,
+            'placeholder' => 'Nhập '.$lb
         ];
     }
     return $a;
