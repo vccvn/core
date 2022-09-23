@@ -66,7 +66,7 @@ function getProperties($table = null){
         $a.= "\n * @property $type \$$field";
         // echo "\n$field:";
     }
-    $a .= "\n";
+    // $a .= "\n";
     return $a;
 }
 
