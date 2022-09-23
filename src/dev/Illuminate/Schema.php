@@ -19,10 +19,12 @@ class Schema {
         if (array_key_exists($table, static::$tables)) {
             $blueprint = new Blueprint($table);
             $callback($blueprint);
-            $a = $blueprint->getData();
+            $a = $blueprint->getConfig(true);
             foreach ($a as $c => $t) {
                 // if(!array_key_exists($c, static::$tables[$table]->data)){
-                    static::$tables[$table]->data[$c] = $t;
+                    static::$tables[$table]->data[$c] = $t->type;
+                    static::$tables[$table]->config[$c] = array_merge(static::$tables[$table]->config[$c]??[], $t->all());
+                    
                 // }
             }
         }
