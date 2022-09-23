@@ -82,7 +82,7 @@ class Blueprint
             elseif ($name == 'bigInteger' || $name == 'tinyInteger') $name = 'integer';
 
             $this->data[$params[0]] = $name;
-            if(!array_key_exists($params[0], $this->confih)){
+            if(!array_key_exists($params[0], $this->config)){
                 $this->config[$params[0]] = [
                     'name' => $params[0],
                     'type' => $name
