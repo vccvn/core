@@ -212,7 +212,7 @@ function make_model($args = [], $name = null, $table = null)
 
     if (!$table) $table = Str::tableName($name);
 
-    $find = ['NAME', 'TABLE', 'FILLABLE', '//PROPS', 'MODEL_TYPE'];
+    $find = ['NAME', 'TABLE', 'FILLABLE', '//PROPS', 'MODEL_TYPE', 'PROPERTIES'];
     $props = [];
     $MODELtYPE = '';
 
@@ -274,7 +274,7 @@ function make_model($args = [], $name = null, $table = null)
 
 
 
-    $replace = [$name, $table, getFields($table, true), implode("\n    ", $props), $MODELtYPE];
+    $replace = [$name, $table, getFields($table, true), implode("\n    ", $props), $MODELtYPE, getProperties($table)];
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH . '/templates/model.php');
     $filemanager->setDir(base_path('app/Models/'));

@@ -9,7 +9,7 @@ function base_path($path = null)
 function getFields($table = null, $inline = false){
     $table = schema($table);
     if($inline){
-        return "['".implode("', '", $table->getData())."']";
+        return "['".implode("', '", $table->getColumns())."']";
     }
 
     return $table;
@@ -18,12 +18,12 @@ function getFields($table = null, $inline = false){
 function getColumns($table = null){
     $table = schema($table);
     
-    return $table->getData();
+    return $table->getColumns();
 
 }
 
 function getResource($table = null){
-    $fillable = schema($table)->getData();
+    $fillable = schema($table)->getColumns();
 
     $a = "";
     foreach ($fillable as $field) {
@@ -38,8 +38,8 @@ function getRules($table = null){
     $fillable = schema($table)->getData();
 
     $a = "";
-    foreach ($fillable as $field) {
-        $a.= "\n            '$field' => 'mixed',";
+    foreach ($fillable as $field => $type) {
+        $a.= "\n            '$field' => '$type',";
         // echo "\n$field:";
     }
     $a .= "\n";
@@ -49,8 +49,21 @@ function getMessages($table = null){
     $fillable = schema($table)->getData();
 
     $a = "";
-    foreach ($fillable as $field) {
-        $a.= "\n            '$field.mixed' => '$field Không hợp lệ',";
+    foreach ($fillable as $field => $type) {
+        $a.= "\n            '$field.$type' => '$field Không hợp lệ',";
+        // echo "\n$field:";
+    }
+    $a .= "\n";
+    return $a;
+}
+
+
+function getProperties($table = null){
+    $fillable = schema($table)->getData();
+
+    $a = "";
+    foreach ($fillable as $field => $type) {
+        $a.= "\n * @property $type \$$field";
         // echo "\n$field:";
     }
     $a .= "\n";
@@ -62,9 +75,9 @@ function defaultJson($table = null){
     $fields = schema($table)->getData();
 
     $a = [];
-    foreach ($fields as $field) {
+    foreach ($fields as $field => $type) {
         $a[$field] = [
-            'type' => 'text',
+            'type' => $type == 'boolean'?'switch':($type == 'integer' || $type == 'float'?'number':'text'),
             'label' => '',
             'placeholder' => 'nhập '
         ];

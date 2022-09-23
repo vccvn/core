@@ -20,10 +20,10 @@ class Schema {
             $blueprint = new Blueprint($table);
             $callback($blueprint);
             $a = $blueprint->getData();
-            foreach ($a as $c) {
-                if(!in_array($c, static::$tables[$table]->data)){
-                    static::$tables[$table]->data[] = $c;
-                }
+            foreach ($a as $c => $t) {
+                // if(!array_key_exists($c, static::$tables[$table]->data)){
+                    static::$tables[$table]->data[$c] = $t;
+                // }
             }
         }
     }
