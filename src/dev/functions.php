@@ -72,14 +72,14 @@ function getProperties($table = null){
 
 
 function defaultJson($table = null){
-    $fields = schema($table)->getData();
+    $fields = schema($table)->getConfig(true);
 
     $a = [];
-    foreach ($fields as $field => $type) {
+    foreach ($fields as $field => $cfg) {
         $a[$field] = [
-            'type' => $type == 'boolean'?'switch':($type == 'integer' || $type == 'float'?'number':'text'),
-            'label' => '',
-            'placeholder' => 'nhập '
+            'type' => $cfg->type == 'boolean'?'switch':($cfg->type == 'integer' || $cfg->type == 'float'?'number':'text'),
+            'label' => $cfg->comment??'',
+            'placeholder' => 'Nhập '.($cfg->comment??'')
         ];
     }
     return $a;

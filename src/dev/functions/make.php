@@ -402,10 +402,10 @@ function make_json_module($args = [], $module = null, $table = null)
     if (!$table) $table = Str::tableName($name);
 
     $filemanager = new Filemanager(base_path('json'));
-    if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode(defaultJson($table))), 'json')) {
+    if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode(defaultJson($table), JSON_PRETTY_PRINT)), 'json')) {
         echo "create form success\nPath: $file->path\n";
     }
-    $fields = schema($table)->getData();
+    $fields = schema($table)->getConfig(true);
     $json = [
         "name" => "[module]", "package" => "customers", "use_trash" => true,
         "titles" => ["default" => "Danh sách [module]", "trash" => "Danh sách [module] đã xóa"],
@@ -415,15 +415,15 @@ function make_json_module($args = [], $module = null, $table = null)
     ];
     $json['package'] = $table;
     $columns = [];
-    foreach ($fields as $col) {
+    foreach ($fields as $col => $config) {
         $columns[] = [
-            'title' => '',
+            'title' => $config->comment??$config->name,
             'class' => '',
             'text' => ':' . $col
         ];
     }
     $json['table']['columns'] = $columns;
-    if ($file = $filemanager->save($module . '/list.json', Str::jsonVi(json_encode($json)), 'json')) {
+    if ($file = $filemanager->save($module . '/list.json', Str::jsonVi(json_encode($json, JSON_PRETTY_PRINT)), 'json')) {
         echo "create list success\nPath: $file->path\n";
     }
 }

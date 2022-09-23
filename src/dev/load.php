@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
+
 if(!defined('BASE_PATH')) define('BASE_PATH', dirname(dirname(dirname(dirname(dirname(__FILE__))))));
 define('BASEDIR', BASE_PATH);
 
@@ -62,6 +64,12 @@ if (is_string($dir) && is_dir($dir)) {
     }
 }
 
+/**
+ * get table
+ *
+ * @param string $table
+ * @return Blueprint
+ */
 function schema($table)
 {
 

@@ -2,10 +2,49 @@
 
 namespace Illuminate\Database\Schema;
 
+use Arr;
+
+class BlueprintDataConfig
+{
+    public $data = [];
+
+    protected $column = '';
+    /**
+     * table
+     *
+     * @var Blueprint
+     */
+    protected $table = null;
+    public function __construct($table, $column)
+    {
+        $this->table = $table;
+        $this->column = $column;
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+
+    public function __call($name, $params)
+    {
+
+        $this->data[$name] = $params[0]??true;
+        $this->table->config[$name] = $params[0]??true;
+        return $this;
+    }
+
+}
+
+
 class Blueprint
 {
     public $data = [];
 
+    public $config = [];
+
+    
     public function __construct()
     {
         # code...
@@ -14,6 +53,19 @@ class Blueprint
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * lấy data config
+     *
+     * @param boolean $toArrObject
+     * @return array<string, Arr>
+     */
+    public function getConfig($toArrObject = false)
+    {
+        return $toArrObject?array_map(function($value){
+            return new Arr($value);
+        }, $this->config):  $this->config;
     }
 
     public function getColumns()
@@ -28,8 +80,17 @@ class Blueprint
             elseif ($name == 'json') $name = 'array';
             elseif ($name == 'text' || $name == 'longText' || $name == 'tinyText' || $name == 'uuid' || $name == 'timestamp' || $name == 'date' || $name == 'datetime' || $name == 'time') $name = 'string';
             elseif ($name == 'bigInteger' || $name == 'tinyInteger') $name = 'integer';
-            
+
             $this->data[$params[0]] = $name;
+            if(!array_key_exists($params[0], $this->confih)){
+                $this->config[$params[0]] = [
+                    'name' => $params[0],
+                    'type' => $name
+                ];
+            }else{
+                $this->config[$params[0]]['type'] = $name;
+            }
+            return new BlueprintDataConfig($this, $params[0]);
         }
 
         return (new static());

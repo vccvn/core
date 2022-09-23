@@ -44,6 +44,12 @@ class Schema {
         return array_key_exists($table, static::$tables);
     }
 
+    /**
+     * get schema
+     *
+     * @param string $table
+     * @return Blueprint
+     */
     public static function get($table)
     {
         return array_key_exists($table, static::$tables) ? static::$tables[$table] : (new Blueprint($table));
