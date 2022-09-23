@@ -802,8 +802,8 @@ if (!function_exists('make_route')) {
         $code = str_replace($find, $replace, $template);
         $filemanager = new Filemanager();
         $filemanager->setDir((BASEDIR . '/routes/' . $t . '/'));
-        if ($a = $filemanager->save($name . '.php', $code, 'php')) {
-            echo "Tạo {$name}route thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        if ($a = $filemanager->save($filename . '.php', $code, 'php')) {
+            echo "Tạo {$name} route thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
         } else {
             echo "Lỗi không xác định\n";
         }
