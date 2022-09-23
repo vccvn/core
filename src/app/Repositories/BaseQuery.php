@@ -57,6 +57,7 @@ trait BaseQuery
         'crossjoin' => 'crossJoin',
         // where
         'where' => 'where',
+        'wherenot' => 'whereNot',
         'whereraw' => 'whereRaw',
         'wherein' => 'whereIn',
         'wherenotin' => 'whereNotIn',
@@ -72,6 +73,7 @@ trait BaseQuery
         'wherecolumn' => 'whereColumn',
         // orwhere
         'orwhere' => 'orWhere',
+        'orwherenot' => 'orWhereNot',
         'orwhereraw' => 'orWhereRaw',
         'orwherein' => 'orWhereIn',
         'orwherenotin' => 'orWhereNotIn',

@@ -31,7 +31,7 @@ class BlueprintDataConfig
     {
 
         $this->data[$name] = $params[0]??true;
-        $this->table->config[$name] = $params[0]??true;
+        $this->table->config[$this->column][$name] = $params[0]??true;
         return $this;
     }
 
