@@ -2,6 +2,7 @@
 
 namespace Gomee\Repositories;
 
+use Gomee\Helpers\Arr;
 use Gomee\Models\Model;
 use Gomee\Models\MongoModel;
 use Gomee\Models\SQLModel;
@@ -386,6 +387,23 @@ trait CRUDAction
         return $this->create($data);
     }
 
+    /**
+     * xóa bằng model
+     *
+     * @param Model $model
+     * @return bool
+     */
+    protected function deleteByModel($model)
+    {
+        if($model->canDelete()) return false;
+        $this->fire('beforedelete', $this, $model->id, $model);
+        $this->fire('deleting', $this, $model->id, $model);
+        $stt = $model->delete();
+        $this->fire('afterdelete', $this, $model->id, $model);
+        $this->fire('deleted', $this, $model->id, $model);
+        return $stt;
+    }
+
 
     /**
      * Delete
@@ -398,11 +416,12 @@ trait CRUDAction
         if (!$id) {
             // 
             if (count($this->params) || count($this->actions)) {
-                $this->fire('beforedelete', $this, $id);
-                $this->fire('deleting', $this, $id);
-                $rs = $this->query()->delete();
-                $this->fire('afterdelete', $this, $id);
-                $this->fire('deleting', $this, $id);
+                $stt = false;
+                if($rs = $this->get()){
+                    foreach ($rs as $item) {
+                        $stt = $this->deleteByModel($item);
+                    }
+                }
                 return $rs;
             }
             return false;
@@ -410,33 +429,21 @@ trait CRUDAction
         // nếu xóa nhiều
         if (is_array($id)) {
             $ids = [];
-            $list = $this->get([$this->_primaryKeyName => $id]);
+            $args = Arr::isNumericKeys($id)?$id:[$this->_primaryKeyName => $id];
+            $list = $this->get($args);
             if (count($list)) {
-                $this->fire('beforedelete', $this, $id);
-                $this->fire('deleting', $this, $id);
                 foreach ($list as $item) {
-                    if (!$item->canDelete()) continue;
-                    
-                    $ids[] = $item->{$this->_primaryKeyName};
-                    $item->delete();
-                    $this->fire('deleted', $this, $item);
+                    $id0 = $item->{$this->_primaryKeyName};
+                    if($this->deleteByModel($item)){
+                        $ids[] = $id0;
+                    }
                 }
-                
-                $this->fire('deleted', $this, $ids);
-                $this->fire('afterdelete', $this, $ids);
             }
             return $ids;
         }
         $result = $this->find($id);
         if ($result) {
-            if ($result->canDelete()) {
-                $this->fire('befordelete', $this, $id, $result);
-                $this->fire('deleting', $this, $id, $result);
-                $result->delete();
-                $this->fire('deleted', $this, $id, $result);
-                $this->fire('afterdelete', $this, $id, $result);
-                return true;
-            }
+            return $this->deleteByModel($result);
         }
 
         return false;
@@ -452,23 +459,28 @@ trait CRUDAction
     public function forceDelete($id = null)
     {
         if (!$id) {
-            $ids = [];
-            $list = $this->get();
-            if (count($list)) {
-                $this->fire('beforeForceDelete', $this, $id, $list);
-                foreach ($list as $item) {
-                    if (!$item->canForceDelete()) continue;
-                    $ids[] = $item->{$this->_primaryKeyName};
-                    $item->forceDelete();
+            if(count($this->params) || count($this->actions)){
+                $ids = [];
+                $list = $this->get();
+                if (count($list)) {
+                    $this->fire('beforeForceDelete', $this, $id, $list);
+                    foreach ($list as $item) {
+                        if (!$item->canForceDelete()) continue;
+                        $ids[] = $item->{$this->_primaryKeyName};
+                        $item->forceDelete();
+                    }
+                    $this->fire('afterForceDelete', $this, $ids, $list);
                 }
-                $this->fire('afterForceDelete', $this, $ids, $list);
+                return $ids;
             }
-            return $ids;
+            return false;
+            
         }
         // nếu xóa nhiều
         if (is_array($id)) {
             $ids = [];
-            $list = $this->get([$this->_primaryKeyName => $id]);
+            $args = Arr::isNumericKeys($id)?$id:[$this->_primaryKeyName => $id];
+            $list = $this->get($args);
             if (count($list)) {
                 $this->fire('beforeForceDelete', $this, $id, $list);
                 foreach ($list as $item) {
@@ -507,7 +519,7 @@ trait CRUDAction
         $result = $this->find($id);
         if ($result && $result->canMoveToTrash()) {
             $this->fire('beforeMoveToTrash', $this, $id, $result);
-            $rs = $result->moveToTrash();
+            if(!($rs = $result->moveToTrash())) return false;
             $this->fire('afterMoveToTrash', $this, $id, $result);
             return $rs;
         }
@@ -527,7 +539,7 @@ trait CRUDAction
         $result = $this->find($id);
         if ($result && $result->canMoveToTrash()) {
             $this->fire('beforeMoveToTrash', $this, $id, $result);
-            $rs = $result->moveToTrash();
+            if(!($rs = $result->moveToTrash())) return false;
             $this->fire('afterMoveToTrash', $this, $id, $result);
             return $rs;
         }
@@ -544,7 +556,7 @@ trait CRUDAction
         $result = $this->find($id);
         if ($result) {
             $this->fire('beforerestore', $this, $id, $result);
-            $rs = $result->restore();
+            if(!($rs = $result->restore())) return false;
             $this->fire('afterrestore', $this, $id, $result);
             return $rs;
         }
