@@ -76,13 +76,13 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
             if ($this->mask && class_exists($this->mask)) {
                 foreach ($collection as $key => $item) {
                     $rc = new ReflectionClass($this->mask);
-                    $this->items[$key] = $rc->newInstanceArgs([$item]);
+                    $this->items[$key] = $rc->newInstanceArgs([$item, null, null, $this]);
                     $id = $item->_id??$item->id;
                     if($id) $this->itemMap[$id] = $key;
                 }
             } else {
                 foreach ($collection as $key => $item) {
-                    $this->items[$key] = new ExampleMask($this->mask);
+                    $this->items[$key] = new ExampleMask($this->mask, null, null, $this);
                     $id = $item->_id??$item->id;
                     if($id) $this->itemMap[$id] = $key;
                 }

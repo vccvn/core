@@ -69,6 +69,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         $this->setup($model, $collectionClass);
     }
 
+    public function isLocked()
+    {
+        return $this->isLock;
+    }
 
     /**
      * Thiết lập thông số
