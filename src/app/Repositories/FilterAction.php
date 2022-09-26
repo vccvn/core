@@ -234,7 +234,7 @@ trait FilterAction
     {
         $this->fire('beforegetData', $this, $args);
         $rs = $this->parseCollection($this->get($args));
-        $this->fire('aftergetResults', $this,$args, $rs);
+        $this->fire('aftergetResults', $this, $args, $rs);
         return $rs;
     }
 
@@ -300,28 +300,30 @@ trait FilterAction
         if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
         }
-        
+
         $rs = $this->get($args);
-        $this->fire('aftergetFilter', $this, $request,$args, $rs);
+        $this->fire('aftergetFilter', $this, $request, $args, $rs);
         return $rs;
     }
 
     /**
      * ham lấy và lọc dử liệu
-     * 
+     * @param array $args
+     * @param boolean $useConfig
      * @return Model|SQLModel|MongoModel
      */
-    public function getDetail(array $args = [])
+    public function getDetail(array $args = [], $useConfig = true)
     {
         $this->fire('beforegetDetail', $this, $args);
-        $this->buildJoin();
-        $this->buildSelect();
-        $this->buildEager();
-        $this->buildGroupBy();
+        if ($useConfig) {
+            $this->buildJoin();
+            $this->buildSelect();
+            $this->buildEager();
+            $this->buildGroupBy();
+        }
         $rs = $this->first($args);
         $this->fire('aftergetDetail', $this, $args, $rs);
         return $rs;
-        
     }
 
 
@@ -332,12 +334,6 @@ trait FilterAction
      */
     public function getFormData(array $args = [])
     {
-        $this->beforeGetFormData($args);
-        $this->buildJoin();
-        $this->buildSelect();
-        $this->buildGroupBy();
-        return $this->first($args);
-
         $this->fire('beforegetFormData', $this, $args);
         $this->beforeGetFormData($args);
         $this->buildJoin();
@@ -372,9 +368,10 @@ trait FilterAction
     /**
      * ham lấy và lọc dử liệu
      * @param int|array $args
+     * @param bool $useConfig
      * @return Mask
      */
-    public function detail($args)
+    public function detail($args, $useConfig = true)
     {
         $d = [];
         if (is_array($args)) {
@@ -383,13 +380,17 @@ trait FilterAction
             $d[$this->_primaryKeyName] = $args;
         }
         $this->fire('beforedetail', $this, $args);
-        if ($data = $this->getDetail($d)) {
+        if ($data = $this->getDetail($d, $useConfig)) {
             $rs = $this->parseDetail($data);
             $this->fire('afterdetail', $this, $args, $rs);
             return $rs;
         }
+
         return null;
     }
+
+
+
 
 
 
@@ -402,7 +403,7 @@ trait FilterAction
     public function parseCollection($collection)
     {
         return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : ($this->responseMode == 'resource' ? $this->resourceCollection($collection) : ($collection
-            )
+        )
         );
     }
 
@@ -416,7 +417,7 @@ trait FilterAction
     {
         if (!$data) return null;
         return $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data
-            )
+        )
         );
     }
 
@@ -654,10 +655,10 @@ trait FilterAction
     protected function buildSearch($request)
     {
         $s = strlen($request->search) ? $request->search : (strlen($request->s) ? $request->s : (strlen($request->keyword) ? $request->keyword : (strlen($request->keywords) ? $request->keywords : (strlen($request->tim) ? $request->tim : ($request->timkiem
-                        )
-                    )
-                )
-            )
+        )
+        )
+        )
+        )
         );
         if (strlen($s)) {
             if ($sb = $this->getSearchFields($request)) {
