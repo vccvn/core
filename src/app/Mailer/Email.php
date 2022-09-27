@@ -47,12 +47,12 @@ class Email{
 		'bcc' => [],
 		'replyTo' => []
 	];
-	protected $config = [];
+	protected static $config = [];
 	/**
 	 * khoi tao
 	 */
 	public function __construct(){
-		if(!$this->config){
+		if(!static::$config){
 			$config = [
 	
 				'driver' => env('MAIL_DRIVER', 'smtp'),
@@ -75,7 +75,7 @@ class Email{
 				],
 			];
 			
-			$this->config = $config;
+			static::$config = $config;
 			Config::set('mail', $config);
 			
 		}
@@ -149,7 +149,7 @@ class Email{
 	 */
 	public function _sendMail($body = null, $var = [])
 	{
-		Config::set('mail', $this->config);
+		Config::set('mail', static::$config);
 		Mail::send($body, $var, function ($message){
 			$data = $this->addressData;
 			foreach ($data as $key => $value) {
@@ -221,7 +221,7 @@ class Email{
 	}
 
 	protected function _queue(int $time = 1){
-		Config::set('mail', $this->config);
+		Config::set('mail', static::$config);
 		if(is_numeric($time) && $time >= 0){
 			$body = view($this->__body, $this->__data)->render();
 			$this->__data = ['body' => $body];
@@ -235,7 +235,7 @@ class Email{
 	}
 
 	protected function _sendAfter(int $time = 1){
-		Config::set('mail', $this->config);
+		Config::set('mail', static::$config);
 		return $this->_queue($time);
 	}
 
