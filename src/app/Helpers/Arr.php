@@ -418,10 +418,34 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         return in_array($value, $this->data);
     }
 
+    /**
+     * kiểm tra xem có tồn tại key nào hay ko
+     *
+     * @param string|array $key
+     * @return boolean
+     */
     public function has($key)
     {
         return $this->isset($key);
     }
+
+    /**
+     * kiểm tra xem có tồn tại bất kỳ key nào trong mảng đầu vào hay ko
+     *
+     * @param array $keys
+     * @return boolean
+     */
+    public function hasAny($keys)
+    {
+        if(!is_array($keys)){
+            return $this->has($keys);
+        }
+        foreach ($keys as $key) {
+            if($this->has($key)) return true;
+        }
+        return false;
+    }
+
     /**
      * kiểm tra xem key hoặc index nào đó có dc set hay ko
      * @param string $key

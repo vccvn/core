@@ -238,7 +238,7 @@ class Any implements Countable{
         return json_encode($this->__data);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->__data);
     }
