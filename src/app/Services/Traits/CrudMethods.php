@@ -204,11 +204,10 @@ trait CrudMethods
                     $data[] = $id;
 
                     $status = true;
-                } elseif(!is_bool($canDel) && is_string($canDel) && strlen($canDel)){
+                } elseif (!is_bool($canDel) && is_string($canDel) && strlen($canDel)) {
                     $errors[] = $canDel;
-                }
-                else{
-                    $errors[] = "Bạn không thể di chuyển $this->moduleName ".($result->title?$result->title:($result->name?$result->name:($result->label?$result->label:'có id '.$id)))." này vào thùng rác được";
+                } else {
+                    $errors[] = "Bạn không thể di chuyển $this->moduleName " . ($result->title ? $result->title : ($result->name ? $result->name : ($result->label ? $result->label : 'có id ' . $id))) . " này vào thùng rác được";
                 }
             }
             if ($status) {
@@ -254,21 +253,23 @@ trait CrudMethods
 
                     // chuyen vao thung ra
 
-                    $this->repository->delete($id);
+                    if ($this->repository->delete($id)) {
+                        // gọi hàm sự kiện truoc khi xóa
+                        $this->callCrudEvent('afterDelete', $result);
 
-                    // gọi hàm sự kiện truoc khi xóa
-                    $this->callCrudEvent('afterDelete', $result);
+                        $this->fire('deleted', $this, $result);
 
-                    $this->fire('deleted', $this, $result);
+                        $data[] = $id;
 
-                    $data[] = $id;
-
-                    $status = true;
-                } elseif(!is_bool($canDel) && is_string($canDel) && strlen($canDel)){
+                        $status = true;
+                    }
+                    else{
+                        $errors[] = "Bạn không thể xóa $this->moduleName " . ($result->title ? $result->title : ($result->name ? $result->name : ($result->label ? $result->label : 'có id ' . $id))) . " này vào thùng rác được";
+                    }
+                } elseif (!is_bool($canDel) && is_string($canDel) && strlen($canDel)) {
                     $errors[] = $canDel;
-                }
-                else{
-                    $errors[] = "Bạn không thể xóa $this->moduleName ".($result->title?$result->title:($result->name?$result->name:($result->label?$result->label:'có id '.$id)))." này vào thùng rác được";
+                } else {
+                    $errors[] = "Bạn không thể xóa $this->moduleName " . ($result->title ? $result->title : ($result->name ? $result->name : ($result->label ? $result->label : 'có id ' . $id))) . " này vào thùng rác được";
                 }
             }
 
