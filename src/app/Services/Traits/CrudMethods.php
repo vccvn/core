@@ -264,7 +264,7 @@ trait CrudMethods
                         $status = true;
                     }
                     else{
-                        $errors[] = "Bạn không thể xóa $this->moduleName " . ($result->title ? $result->title : ($result->name ? $result->name : ($result->label ? $result->label : 'có id ' . $id))) . " này vào thùng rác được";
+                        $errors[] = "Bạn không thể xóa $this->moduleName " . ($result->title ? $result->title : ($result->name ? $result->name : ($result->label ? $result->label : 'có id ' . $id))) . " này được";
                     }
                 } elseif (!is_bool($canDel) && is_string($canDel) && strlen($canDel)) {
                     $errors[] = $canDel;
