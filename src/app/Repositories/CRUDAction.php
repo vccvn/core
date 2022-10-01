@@ -395,7 +395,7 @@ trait CRUDAction
      */
     protected function deleteByModel($model)
     {
-        if($model->canDelete()) return false;
+        if(!$model->canDelete()) return false;
         $this->fire('beforedelete', $this, $model->id, $model);
         $this->fire('deleting', $this, $model->id, $model);
         $stt = $model->delete();
