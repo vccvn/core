@@ -19,7 +19,7 @@ trait CacheAction
      * @param array $params
      * @return CacheTask
      */
-    public function cache($key = null, $time = 0, $params = [])
+    final public function cache($key = null, $time = 0, $params = [])
     {
         if($time <= 0) $time = 0;
         if($time <= 0) return $this; // nếu timw truyền vào nhỏ hơn hoặc = 0 thì ko cần làm gì cả
@@ -34,7 +34,7 @@ trait CacheAction
      * @param string[] ...$methods
      * @return void
      */
-    public function registerCacheMethods(...$methods)
+    final public function registerCacheMethods(...$methods)
     {
         if(count($methods)){
             foreach ($methods as $method) {
@@ -49,7 +49,7 @@ trait CacheAction
      * @param string|array $methods
      * @return void
      */
-    public function registerCacheMethod($methods)
+    final public function registerCacheMethod($methods)
     {
         if(!is_array($methods)){
             $this->getDataMethods[] = $methods;
@@ -69,7 +69,7 @@ trait CacheAction
      *
      * @return array
      */
-    public function getCacheMethods()
+    final public function getCacheMethods()
     {
         return $this->getDataMethods;
     }

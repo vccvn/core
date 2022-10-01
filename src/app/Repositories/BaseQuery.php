@@ -114,24 +114,24 @@ trait BaseQuery
      * các tham số mặc định
      * @var array
      */
-    public $defaultParams = [];
+    protected $defaultParams = [];
 
     /**
      * các tham số mặc định
      * @var array
      */
-    public $defaultConditions = [];
+    protected $defaultConditions = [];
 
     /**
      * @var array $defaultValues giá trị mặc đĩnh
      */
-    public $defaultValues = [];
+    protected $defaultValues = [];
 
     /**
      * tham số có thể xóa
      * @var array
      */
-    public $fixableParams = [];
+    protected $fixableParams = [];
 
 
 
@@ -172,7 +172,7 @@ trait BaseQuery
      * đưa tất cả về 0 =))))
      * 
      */
-    public function reset($all = false)
+    final public function reset($all = false)
     {
         $this->totalCount = 0;
         $this->query = null;
@@ -193,7 +193,7 @@ trait BaseQuery
      * thêm tham số
      * @param string|integer|float $paramKey
      */
-    public function addDefaultParam($paramKey = null, ...$params)
+    final public function addDefaultParam($paramKey = null, ...$params)
     {
         $t = count($params);
         if ($t == 1) {
@@ -217,7 +217,7 @@ trait BaseQuery
      * xóa tham số mặc định
      * @param string $paramKey
      */
-    public function resetDefaultParams($paramKey = null)
+    final public function resetDefaultParams($paramKey = null)
     {
         if (is_null($paramKey)) $this->defaultParams = [];
         else unset($this->defaultParams[$paramKey]);
@@ -228,7 +228,7 @@ trait BaseQuery
      * xóa tham số mặc định
      * @param string $paramKey
      */
-    public function removeDefaultParam($paramKey = null)
+    final public function removeDefaultParam($paramKey = null)
     {
         return $this->resetDefaultParams($paramKey);
     }
@@ -241,7 +241,7 @@ trait BaseQuery
      * @param array ...$params
      * @return static
      */
-    public function addDefaultCondition($conditionName = null, ...$params)
+    final public function addDefaultCondition($conditionName = null, ...$params)
     {
 
         if (count($params) > 1) {
@@ -260,7 +260,7 @@ trait BaseQuery
      * @param string $conditionName
      * @return static
      */
-    public function removeDefaultConditions($conditionName = null)
+    final public function removeDefaultConditions($conditionName = null)
     {
         if (!is_null($conditionName)) unset($this->defaultConditions[$conditionName]);
         else $this->defaultConditions = [];
@@ -271,7 +271,7 @@ trait BaseQuery
      * @param string $conditionName
      * @return static
      */
-    public function removeDefaultCondition($conditionName = null)
+    final public function removeDefaultCondition($conditionName = null)
     {
         return $this->removeDefaultConditions($conditionName);
     }
@@ -302,7 +302,7 @@ trait BaseQuery
      * 
      * @return static
      */
-    public function addFixableParam($name, $value = null)
+    final public function addFixableParam($name, $value = null)
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {
@@ -326,7 +326,7 @@ trait BaseQuery
      * 
      * @return static
      */
-    public function removeFixableParam($name = null)
+    final public function removeFixableParam($name = null)
     {
         if (is_array($name)) {
             foreach ($name as $val) {
@@ -346,7 +346,7 @@ trait BaseQuery
      * 
      * @return static
      */
-    public function removeDefaultValue($name = null)
+    final public function removeDefaultValue($name = null)
     {
         if (is_array($name)) {
             foreach ($name as $val) {
@@ -366,7 +366,7 @@ trait BaseQuery
      * xóa giá trị tham số mặt định
      * @return static
      */
-    public function clear()
+    final public function clear()
     {
         $this->resetDefaultParams();
         $this->removeDefaultValue();
@@ -380,7 +380,7 @@ trait BaseQuery
      * @param string $field tên cột
      * @return boolean
      */
-    public function checkField($field)
+    final public function checkField($field)
     {
         return in_array($field, $this->getFields());
     }
@@ -393,7 +393,7 @@ trait BaseQuery
     }
 
 
-    public function queryAfter($action)
+    final public function queryAfter($action)
     {
         if (is_callable($action)) {
             $this->__queryAfter[] = $action;
@@ -407,7 +407,7 @@ trait BaseQuery
      * @return \Illuminate\Database\Eloquent\Builder
      * 
      */
-    public function query($args = [])
+    final public function query($args = [])
     {
         $this->fire('beforequery', $args);
         $keywords = null;
@@ -600,7 +600,7 @@ trait BaseQuery
      * @param mixed $value
      * @return $this
      */
-    protected function __whereQuery($query, $field, $value = null, $useStrict = false, $fields = [], $prefix = '')
+    final protected function __whereQuery($query, $field, $value = null, $useStrict = false, $fields = [], $prefix = '')
     {
         $vl = $value;
         // không bắt đầu bằng @ thì sẽ gọi hàm where với column là key và so sánh '='
@@ -690,7 +690,7 @@ trait BaseQuery
      * @param Builder $query
      * @return $this
      */
-    protected function runQueryAfter($query)
+    final protected function runQueryAfter($query)
     {
         if (is_array($this->__queryAfter) && count($this->__queryAfter)) {
             foreach ($this->__queryAfter as $action) {
@@ -718,7 +718,7 @@ trait BaseQuery
      *
      * @return static
      */
-    public function resetActionParams()
+    final public function resetActionParams()
     {
         $this->params = [];
         $this->actions = [];
@@ -733,7 +733,7 @@ trait BaseQuery
      * @param mixed $func
      * @return $this
      */
-    public function eager($type = 'with', $relation = null, $func = null, $queryBuilder = null)
+    final public function eager($type = 'with', $relation = null, $func = null, $queryBuilder = null)
     {
 
         if (!$queryBuilder) $queryBuilder = $this;
@@ -855,7 +855,7 @@ trait BaseQuery
      * @param string $prefix
      * @return static
      */
-    protected function buildSearchQuery($query, $keywords, $search_by = null, $prefix = null)
+    final protected function buildSearchQuery($query, $keywords, $search_by = null, $prefix = null)
     {
         if (is_string($keywords) && strlen($keywords) > 0) {
             if ($search_by) {
@@ -882,7 +882,7 @@ trait BaseQuery
         return $query;
     }
 
-    protected function lazyLoad($collection)
+    final protected function lazyLoad($collection)
     {
         if ($this->loadAfter) {
             foreach ($this->loadAfter as $key => $act) {
@@ -901,7 +901,7 @@ trait BaseQuery
      * @param string $prefix
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function doAction($actions, $query = null, $prefix = null)
+    final protected function doAction($actions, $query = null, $prefix = null)
     {
         if (!$query) {
             $prefix = '';
@@ -1007,7 +1007,7 @@ trait BaseQuery
      * @param string $prefix
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function buildOrderByQuery($query, $orderby = null, $prefix = null)
+    final protected function buildOrderByQuery($query, $orderby = null, $prefix = null)
     {
         if ($orderby) {
             // order by mot hoac nhieu cot
@@ -1062,7 +1062,7 @@ trait BaseQuery
      * @param array|string|int $limit
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function buildLimitQuery($query, $limit = null)
+    final public function buildLimitQuery($query, $limit = null)
     {
         $this->paginateMode = 'paginate';
         $this->paginateLomit = [];
@@ -1143,7 +1143,7 @@ trait BaseQuery
      * @param mixed $value
      * @return static
      */
-    public function param($key = null, $value = null)
+    final public function param($key = null, $value = null)
     {
         if (is_array($key)) {
             $this->params = array_merge($this->params, $key);
@@ -1210,7 +1210,7 @@ trait BaseQuery
      * @param mixed
      * @param string
      */
-    public function sortBy($column = null, $type = 'asc')
+    final public function sortBy($column = null, $type = 'asc')
     {
         $orderby = is_array($column) ? $column : [$column => $type];
         if (array_key_exists('@sortby', $this->params)) {
@@ -1221,7 +1221,7 @@ trait BaseQuery
         return $this;
     }
 
-    public function groupByRaw(...$columns)
+    final public function groupByRaw(...$columns)
     {
         if (is_array($columns) && count($columns)) {
             foreach ($columns as $col) {
@@ -1238,7 +1238,7 @@ trait BaseQuery
      * @param integer $length
      * @return static
      */
-    public function limit($start = null, $length = 0)
+    final public function limit($start = null, $length = 0)
     {
         if (is_array($start)) {
             $this->params['@limit'] = $start;
@@ -1255,7 +1255,7 @@ trait BaseQuery
      * @param integer|bool|null
      * @return static
      */
-    public function paginate($paginate = null)
+    final public function paginate($paginate = null)
     {
         if ($paginate === false) {
             $this->paginate = false;
@@ -1270,7 +1270,7 @@ trait BaseQuery
      * @param string[] ...$params
      * @return boolean
      */
-    public function hasActionParam($method, ...$params)
+    final public function hasActionParam($method, ...$params)
     {
         if ($this->actions) {
             foreach ($this->actions as $key => $actionParans) {

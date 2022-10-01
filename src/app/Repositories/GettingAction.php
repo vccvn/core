@@ -44,7 +44,7 @@ trait GettingAction
      * @param string $value
      * @return \Gomee\Models\Model
      */
-    public function findBy($prop = 'name', $value = null)
+    final public function findBy($prop = 'name', $value = null)
     {
         if ($prop && $value !== null) {
 
@@ -68,7 +68,7 @@ trait GettingAction
      * @return \Gomee\Models\Model[]
      */
 
-    public function getBy($prop = 'name', $value = null)
+    final public function getBy($prop = 'name', $value = null)
     {
         if ($prop && $value !== null) {
             $this->fire('beforgetBy', $this, $prop, $value);
@@ -87,7 +87,7 @@ trait GettingAction
      * @param array $args
      * @return \Gomee\Models\Model[]|\Gomee\Masks\MaskCollection
      */
-    public function get($args = [])
+    final public function get($args = [])
     {
         $this->fire('prepareget', $this, $args);
             
@@ -136,7 +136,7 @@ trait GettingAction
      * @return \Gomee\Models\Model[]
      */
 
-    public function getOnly($args = [])
+    final public function getOnly($args = [])
     {
         $this->hasPaginateParam = false;
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
@@ -175,7 +175,7 @@ trait GettingAction
      * @param array $args
      * @return \Gomee\Models\Model
      */
-    public function first($args = [])
+    final public function first($args = [])
     {
         $this->fire('preparefirst', $this, $args);
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
@@ -202,7 +202,7 @@ trait GettingAction
      * @param array $args
      * @return int
      */
-    public function count($args = [])
+    final public function count($args = [])
     {
         $this->fire('prepareCount', $this, $args);
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
@@ -228,7 +228,7 @@ trait GettingAction
      * @param string $value
      * @return int
      */
-    public function countBy($prop = 'name', $value = null)
+    final public function countBy($prop = 'name', $value = null)
     {
         if ($prop && $value !== null) {
             return $this->count([$prop => $value]);
@@ -243,7 +243,7 @@ trait GettingAction
      * @param array $args
      * @return int
      */
-    public function sum($column, $args = [])
+    final public function sum($column, $args = [])
     {
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
         return $this->query($args)->sum($column);
@@ -256,7 +256,7 @@ trait GettingAction
      * @param array $args
      * @return int|float
      */
-    public function avg($column, $args = [])
+    final public function avg($column, $args = [])
     {
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
         return $this->query($args)->avg($column);
@@ -264,7 +264,7 @@ trait GettingAction
 
 
 
-    public function countLast()
+    final public function countLast()
     {
         $data = $this->lastParams;
         $query = $this->query($data);

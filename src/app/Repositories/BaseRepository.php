@@ -128,7 +128,7 @@ abstract class BaseRepository
      * @param int $id
      * @return \Gomee\Models\Model
      */
-    public function find($id)
+    final public function find($id)
     {
         $result = $this->_model->find($id);
         return $result;
@@ -137,7 +137,7 @@ abstract class BaseRepository
     /**
      * tạo một repository mới
      *
-     * @return BaseRepository
+     * @return $this
      */
     public function mewRepo()
     {
@@ -150,7 +150,7 @@ abstract class BaseRepository
      * @param string|int|float ...$args
      * @return bool
      */
-    public function exists(...$args)
+    final public function exists(...$args)
     {
         $t = count($args);
         if ($t >= 2) {

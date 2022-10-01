@@ -220,7 +220,7 @@ trait CRUDAction
      * @param  integer $id        id cua ban ghi
      * @return Model
      */
-    public function save(array $data, $id = null)
+    final public function save(array $data, $id = null)
     {
         if ($id && $m = $this->_model->find($id)) {
             $model = $m;
@@ -271,7 +271,7 @@ trait CRUDAction
     }
 
 
-    protected function checkModelUuid($model)
+    final protected function checkModelUuid($model)
     {
         if (!$model->useUuid || $model->useUuid === 'no') return;
         $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid);
@@ -411,7 +411,7 @@ trait CRUDAction
      * @param int|int[] $id
      * @return bool
      */
-    public function delete($id = null)
+    final public function delete($id = null)
     {
         if (!$id) {
             // 
@@ -422,7 +422,7 @@ trait CRUDAction
                         $stt = $this->deleteByModel($item);
                     }
                 }
-                return $rs;
+                return $stt;
             }
             return false;
         }
@@ -456,7 +456,7 @@ trait CRUDAction
      * @param int|int[] $id
      * @return bool
      */
-    public function forceDelete($id = null)
+    final public function forceDelete($id = null)
     {
         if (!$id) {
             if(count($this->params) || count($this->actions)){
@@ -514,7 +514,7 @@ trait CRUDAction
      * @param $id
      * @return bool
      */
-    public function moveToTrash($id)
+    final public function moveToTrash($id)
     {
         $result = $this->find($id);
         if ($result && $result->canMoveToTrash()) {
@@ -534,7 +534,7 @@ trait CRUDAction
      * @param $id
      * @return bool
      */
-    public function softDelete($id)
+    final public function softDelete($id)
     {
         $result = $this->find($id);
         if ($result && $result->canMoveToTrash()) {
@@ -551,7 +551,7 @@ trait CRUDAction
      * khôi phục bản ghi
      * @param int $id
      */
-    public function restore($id)
+    final public function restore($id)
     {
         $result = $this->find($id);
         if ($result) {
@@ -568,7 +568,7 @@ trait CRUDAction
      * xóa vĩnh viễn bản ghi
      * @param int $id
      */
-    public function erase($id)
+    final public function erase($id)
     {
         $result = $this->find($id);
         if ($result && $result->canErase()) {
@@ -582,7 +582,7 @@ trait CRUDAction
      * kiểm tra cho cho phep chuyen vao thung ra hay ko
      * @param int $id
      */
-    public function canMoveToTrash($id = null)
+    final public function canMoveToTrash($id = null)
     {
         if ($id && $model = $this->find($id)) return $model->canMoveToTrash();
         return false;
@@ -592,7 +592,7 @@ trait CRUDAction
      * kiểm tra cho cho phep chuyen vao thung ra hay ko
      * @param int $id
      */
-    public function canDelete($id = null)
+    final public function canDelete($id = null)
     {
         if ($id && $model = $this->find($id)) return $model->canDelete();
         return false;

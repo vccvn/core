@@ -142,7 +142,7 @@ trait FilterAction
      *
      * @var string
      */
-    protected $maskClass = 'Mask';
+    protected $maskClass = 'ExampleMask';
 
     /**
      * tên collection mặt nạ
@@ -176,7 +176,7 @@ trait FilterAction
 
     protected $responseMode = 'default';
 
-    public function mode($mode = null)
+    final public function mode($mode = null)
     {
         if (in_array($mode, ['resource', 'mask', 'collection', 'default', 'raw'])) $this->responseMode = $mode;
         return $this;
@@ -190,7 +190,7 @@ trait FilterAction
      * 
      * @return \Gomee\Masks\MaskCollection
      */
-    public function getResults($request, array $args = [])
+    final public function getResults($request, array $args = [])
     {
         $this->fire('preparegetResults', $this, $request, $args);
 
@@ -230,7 +230,7 @@ trait FilterAction
      * @param array $args
      * @return \Gomee\Masks\MaskCollection
      */
-    public function getData(array $args = [])
+    final public function getData(array $args = [])
     {
         $this->fire('beforegetData', $this, $args);
         $rs = $this->parseCollection($this->get($args));
@@ -245,7 +245,7 @@ trait FilterAction
      * @param boolean $status
      * @return static
      */
-    public function trashed($status = true)
+    final public function trashed($status = true)
     {
         $this->params['@trashed'] = $status;
         return $this;
@@ -256,13 +256,13 @@ trait FilterAction
      * @param int $day
      * @return static
      */
-    public function notTrashed($day = null)
+    final public function notTrashed($day = null)
     {
         $this->params['@trashed'] = is_numeric($day) && $day > 0 ? $day : false;
         return $this;
     }
 
-    public function resetTrashed()
+    final public function resetTrashed()
     {
         unset($this->params['@trashed']);
         return $this;
@@ -274,7 +274,7 @@ trait FilterAction
      * 
      * @return void
      */
-    public function buildFilter($request)
+    final public function buildFilter($request)
     {
         $this->buildSearch($request);
         $this->prepareFilter($request);
@@ -290,7 +290,7 @@ trait FilterAction
      * 
      * @return LengthAwarePaginator|MaskCollection|Model[]|SQLModel[]|MongoModel[]
      */
-    public function getFilter($request, array $args = [])
+    final public function getFilter($request, array $args = [])
     {
         $this->fire('preparegetFilter', $this, $request, $args);
         $this->beforeFilter($request);
@@ -312,7 +312,7 @@ trait FilterAction
      * @param boolean $useConfig
      * @return Model|SQLModel|MongoModel
      */
-    public function getDetail(array $args = [], $useConfig = true)
+    final public function getDetail(array $args = [], $useConfig = true)
     {
         $this->fire('beforegetDetail', $this, $args);
         if ($useConfig) {
@@ -332,7 +332,7 @@ trait FilterAction
      * 
      * @return Model|SQLModel|MongoModel
      */
-    public function getFormData(array $args = [])
+    final public function getFormData(array $args = [])
     {
         $this->fire('beforegetFormData', $this, $args);
         $this->beforeGetFormData($args);
@@ -353,7 +353,7 @@ trait FilterAction
      * 
      * @return Resource Collection 
      */
-    public function filter($request, array $args = [])
+    final public function filter($request, array $args = [])
     {
         $this->fire('beforefilter', $this, $request, $args);
         $rs = $this->parseCollection(
@@ -371,7 +371,7 @@ trait FilterAction
      * @param bool $useConfig
      * @return Mask
      */
-    public function detail($args, $useConfig = true)
+    final public function detail($args, $useConfig = true)
     {
         $d = [];
         if (is_array($args)) {
@@ -400,7 +400,7 @@ trait FilterAction
      * @param LengthAwarePaginator $collection
      * @return \Gomee\Masks\MaskCollectionExamples
      */
-    public function parseCollection($collection)
+    final public function parseCollection($collection)
     {
         return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : ($this->responseMode == 'resource' ? $this->resourceCollection($collection) : ($collection
         )
@@ -413,7 +413,7 @@ trait FilterAction
      * @param Model|SQLModel|MongoModel $data
      * @return mixed
      */
-    public function parseDetail($data)
+    final public function parseDetail($data)
     {
         if (!$data) return null;
         return $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data
@@ -425,7 +425,7 @@ trait FilterAction
 
 
 
-    protected function getResourceClass($class = null)
+    final protected function getResourceClass($class = null)
     {
         if (!$class) $class = $this->resourceClass;
         if (class_exists($class)) {
@@ -436,7 +436,7 @@ trait FilterAction
         return null;
     }
 
-    protected function getResourceCollectionClass($class = null)
+    final protected function getResourceCollectionClass($class = null)
     {
         if (!$class) $class = $this->collectionClass;
         if (class_exists($class)) {
@@ -456,7 +456,7 @@ trait FilterAction
      * @param Model|SQLModel|MongoModel
      * @return resource
      */
-    public function resource($data)
+    final public function resource($data)
     {
         if (!$data) return $data;
 
@@ -475,7 +475,7 @@ trait FilterAction
      * 
      * @return ResourceCollection
      */
-    public function resourceCollection($data)
+    final public function resourceCollection($data)
     {
         if (!count($data)) return [];
         if ($collectionClass = $this->getResourceCollectionClass()) {
@@ -487,7 +487,7 @@ trait FilterAction
 
 
 
-    protected function getMaskClass($class = null)
+    final protected function getMaskClass($class = null)
     {
         if (!$class) $class = $this->maskClass;
         if (class_exists($class)) {
@@ -500,7 +500,7 @@ trait FilterAction
         return null;
     }
 
-    protected function getMaskCollectionClass($class = null)
+    final protected function getMaskCollectionClass($class = null)
     {
         if (!$class) $class = $this->maskCollectionClass;
         if (class_exists($class)) {
@@ -522,7 +522,7 @@ trait FilterAction
      * @param model
      * @return resource
      */
-    public function mask($data)
+    final public function mask($data)
     {
         if (!$data) return $data;
 
@@ -543,7 +543,7 @@ trait FilterAction
      * 
      * @return MaskCollection|null
      */
-    public function maskCollection($data, $total = 0)
+    final public function maskCollection($data, $total = 0)
     {
         if ($collectionClass = $this->getMaskCollectionClass()) {
             $rc = new ReflectionClass($collectionClass);
@@ -557,7 +557,7 @@ trait FilterAction
      * chuẩn bị để thực hiện filter
      * @param Request $request
      */
-    public function prepareFilter($request)
+    final public function prepareFilter($request)
     {
         $fields = array_merge([$this->required], $this->getFields());
         $this->buildOrderBy($request);
@@ -625,7 +625,7 @@ trait FilterAction
 
 
 
-    public function buildEager()
+    final public function buildEager()
     {
         if (count($this->withable)) {
             foreach ($this->withable as $key => $rela) {
@@ -652,7 +652,7 @@ trait FilterAction
      * @param Request
      * 
      */
-    protected function buildSearch($request)
+    final protected function buildSearch($request)
     {
         $s = strlen($request->search) ? $request->search : (strlen($request->s) ? $request->s : (strlen($request->keyword) ? $request->keyword : (strlen($request->keywords) ? $request->keywords : (strlen($request->tim) ? $request->tim : ($request->timkiem
         )
@@ -674,7 +674,7 @@ trait FilterAction
      * order by
      * @param Request
      */
-    protected function buildOrderBy($request)
+    final protected function buildOrderBy($request)
     {
         $odb = $request->orderby ?? $request->sortby;
         if ($this->sortByRules && isset($this->sortByRules[$odb])) {
@@ -752,7 +752,7 @@ trait FilterAction
     /**
      * join auto
      */
-    protected function buildJoin()
+    final protected function buildJoin()
     {
         if ($this->joinable) {
             foreach ($this->joinable as $join) {
@@ -766,7 +766,7 @@ trait FilterAction
     /**
      * build select
      */
-    protected function buildSelect()
+    final protected function buildSelect()
     {
         if ($this->selectable) {
             $select = [];
@@ -787,7 +787,7 @@ trait FilterAction
         }
     }
 
-    public function buildGroupBy()
+    final public function buildGroupBy()
     {
         if (count($this->groupable)) {
             foreach ($this->groupable as $column) {
@@ -802,7 +802,7 @@ trait FilterAction
     }
 
 
-    public function getSearchFields($request)
+    final public function getSearchFields($request)
     {
         $fields = $this->getFields();
         $sb = $this->searchable;
@@ -843,7 +843,7 @@ trait FilterAction
      * @param array|string $sortBy
      * @return void
      */
-    public function parseSortBy($sortBy)
+    final public function parseSortBy($sortBy)
     {
         if (is_array($sortBy)) {
             // truong hop mang toan index la so
@@ -873,7 +873,7 @@ trait FilterAction
      * @param string $type
      * @return void
      */
-    protected function checkSortBy($sortBy = null, $type = null)
+    final protected function checkSortBy($sortBy = null, $type = null)
     {
         if (in_array($sortBy, $this->sortByRules)) {
             $this->orderByRule($sortBy);
@@ -900,7 +900,7 @@ trait FilterAction
      * @param string $rule
      * @return void
      */
-    protected function orderByRule($rule)
+    final protected function orderByRule($rule)
     {
         if ($rule == 'rand()') {
             $this->orderByRaw($rule);
@@ -920,7 +920,7 @@ trait FilterAction
      * @param array $args
      * @param array
      */
-    public function parsePaginateParam($request, array $args = [])
+    final public function parsePaginateParam($request, array $args = [])
     {
         if (isset($args['@paginate']) || isset($args['@limit']) || !$this->paginate) return $args;
         if ($request->paginate && ($pn = to_number($request->paginate)) > 0) {
@@ -946,7 +946,7 @@ trait FilterAction
      * ]
      */
 
-    public function getPaginateInfo($request)
+    final public function getPaginateInfo($request)
     {
         $page = 1;
         $per_page = $this->perPage;
@@ -977,7 +977,7 @@ trait FilterAction
      * @return array      [vị trí bắt dâu, số lượng]
      */
 
-    public function getPaginateArgs($request)
+    final public function getPaginateArgs($request)
     {
         $args = []; // mảng truy vấn
         $paginate = $this->getPaginateInfo($request);
@@ -1001,7 +1001,7 @@ trait FilterAction
      *     'page_total' => integer // tất cả các trang
      * ]
      */
-    public function getPaginateData($request, $count = 0)
+    final public function getPaginateData($request, $count = 0)
     {
         $data = $this->getPaginateInfo($request);
         $page_total = (int) ($count / $data['per_page']);
@@ -1013,7 +1013,7 @@ trait FilterAction
         return $data;
     }
 
-    public function buildDateFilterQuery($request, $col = 'date', $ignore = null)
+    final public function buildDateFilterQuery($request, $col = 'date', $ignore = null)
     {
         $view_mode = 'all';
         $dateSet = 0;
