@@ -843,7 +843,7 @@ trait FilterAction
      * @param array|string $sortBy
      * @return void
      */
-    final public function parseSortBy($sortBy)
+    public function parseSortBy($sortBy)
     {
         if (is_array($sortBy)) {
             // truong hop mang toan index la so
@@ -873,7 +873,7 @@ trait FilterAction
      * @param string $type
      * @return void
      */
-    final protected function checkSortBy($sortBy = null, $type = null)
+    protected function checkSortBy($sortBy = null, $type = null)
     {
         if (in_array($sortBy, $this->sortByRules)) {
             $this->orderByRule($sortBy);
