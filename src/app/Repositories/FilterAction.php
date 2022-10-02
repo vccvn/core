@@ -900,7 +900,7 @@ trait FilterAction
      * @param string $rule
      * @return void
      */
-    final protected function orderByRule($rule)
+    protected function orderByRule($rule)
     {
         if ($rule == 'rand()') {
             $this->orderByRaw($rule);
