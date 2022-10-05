@@ -411,7 +411,7 @@ trait FilterAction
      * chuẩn hóa chi tiết bản ghi
      *
      * @param Model|SQLModel|MongoModel $data
-     * @return mixed
+     * @return Mask
      */
     final public function parseDetail($data)
     {

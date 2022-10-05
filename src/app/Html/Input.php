@@ -214,6 +214,7 @@ class Input extends HtmlDom
             case 'radio':
                 $opts = $this->getInputData();
                 $slt = '';
+                $className = $this->className??($this->class_name??($this->classname??$this->class));
                 $this->attr('type', null);
                 $this->tagName = 'div';
                 $this->className = 'inp-radio-group crazy-radio';
@@ -234,7 +235,7 @@ class Input extends HtmlDom
                     $properties = $this->_attrs;
                     $df = $this->defVal();
                     foreach ($opts as $k => $v) {
-                        $slt .= ' <label class="inp-label checkbox-label ' . $this->label_class . ' pr-3" id="radio-label-' . $this->name . '--' . $k . '"><input type="radio" name="' . $this->name . '" value="' . htmlentities($k) . '"' . (($df == $k) ? ' checked="checked"' : "") . ' class="' . $this->className . '"';
+                        $slt .= ' <label class="inp-label checkbox-label ' . $this->label_class . ' pr-3" id="radio-label-' . $this->name . '--' . $k . '"><input type="radio" name="' . $this->name . '" value="' . htmlentities($k) . '"' . (($df == $k) ? ' checked="checked"' : "") . ' class="' . $className . '"';
                         $slt .= '> <span></span> <i>' . htmlentities($v) . '</i></label>';
                     }
                     $this->html($slt);

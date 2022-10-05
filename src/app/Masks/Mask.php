@@ -475,6 +475,8 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
 
+
+
     public function toArray()
     {
         if (!$this->isLock) {
@@ -485,8 +487,19 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         foreach ($related as $key => $value) {
             $relations[$key] = $value->toArray();
         }
-
-        return array_merge($this->data, $relations);
+        $data = [];
+        $raw = array_merge($this->data, $relations);
+        $hidden = $this->hidden;
+        if($hidden && is_array($hidden)){
+            foreach ($raw as $key => $value) {
+                if(!in_array($key, $hidden)){
+                    $data[$key] = $value;
+                }
+            }
+        }else{
+            $data = $raw;
+        }
+        return $data;
     }
 
     public function toDeepArray()
