@@ -193,19 +193,15 @@ trait FilterAction
     final public function getResults($request, array $args = [])
     {
         $this->fire('preparegetResults', $this, $request, $args);
-
-
         // xu ly truc khi loc data
         $this->beforeFilter($request);
         // build query
         $this->buildFilter($request);
-
         // merge tham so vs paginate
         $args = $this->parsePaginateParam($request, $args);
         // lấy kết qua
         // dd($args);
         $this->fire('beforegetResults', $this, $request, $args);
-
 
         if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
@@ -223,6 +219,25 @@ trait FilterAction
         $this->fire('aftergetResults', $this, $request, $rs);
         return $rs;
     }
+    
+
+    /**
+     * tương tự filter
+     * lấy ra kết quả bao gồm paginate
+     * @param Illuminate\Http\Request $request
+     * @param array $args
+     * 
+     * @return \Gomee\Masks\MaskCollection
+     */
+    final public function countResults($request, array $args = [])
+    {
+        $this->fire('prepareCountResults', $this, $request, $args);
+        $this->beforeFilter($request);
+        $this->buildFilter($request);
+        $this->fire('beforeCountResults', $this, $request, $args);
+        return $this->count($args);
+    }
+    
 
     /**
      * lấy dữ liễu theo tham số 
@@ -416,9 +431,9 @@ trait FilterAction
     final public function parseDetail($data)
     {
         if (!$data) return null;
-        return $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data
-        )
-        );
+        $rs = $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data));
+        if($rs && is_object($rs) && method_exists($rs, '__lock')) $rs->__lock();
+        return $rs;
     }
 
 
@@ -654,11 +669,14 @@ trait FilterAction
      */
     final protected function buildSearch($request)
     {
-        $s = strlen($request->search) ? $request->search : (strlen($request->s) ? $request->s : (strlen($request->keyword) ? $request->keyword : (strlen($request->keywords) ? $request->keywords : (strlen($request->tim) ? $request->tim : ($request->timkiem
-        )
-        )
-        )
-        )
+        $s = strlen($request->search) ? $request->search : (
+            strlen($request->s) ? $request->s : (
+                strlen($request->keyword) ? $request->keyword : (
+                    strlen($request->keywords) ? $request->keywords : (
+                        strlen($request->tim) ? $request->tim : ($request->timkiem)
+                    )
+                )
+            )
         );
         if (strlen($s)) {
             if ($sb = $this->getSearchFields($request)) {

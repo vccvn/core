@@ -106,6 +106,7 @@ trait BaseQuery
 
         'withcount' => 'withCount',
 
+        'when' => 'when',
     ];
 
 
