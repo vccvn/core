@@ -499,7 +499,6 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         }else{
             $data = $raw;
         }
-        dd($data);
         return $data;
     }
 
