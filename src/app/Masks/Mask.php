@@ -97,6 +97,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $this->data = $model->getAttrData();
         } elseif (method_exists($model, 'toArray')) {
             $this->data = $model->toArray();
+        }elseif(is_object($model)){
+            $this->data = object_to_array($model);
+        }elseif(is_array($model)){
+            $this->data = $model;
         }
 
         // gọi hàm onloaded khi hoàn tất quá trình
