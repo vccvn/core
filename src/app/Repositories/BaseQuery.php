@@ -107,6 +107,8 @@ trait BaseQuery
         'withcount' => 'withCount',
 
         'when' => 'when',
+        'union' => 'union',
+        'unionall' => 'unionAll'
     ];
 
 

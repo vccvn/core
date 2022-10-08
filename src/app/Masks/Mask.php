@@ -225,7 +225,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      */
     final protected function checkRelationLoaded()
     {
-        if (!$this->model) return [];
+        if (!$this->model || !is_object($this->model) || !method_exists($this->model, 'getRelations')) return [];
         $relations = $this->model->getRelations();
         if ($relations && count($relations)) {
             foreach ($relations as $key => $relation) {
@@ -413,7 +413,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if (array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
-        if (!$this->isLock && array_key_exists($name, $this->relationMap) && $this->hasRelation($name)) {
+        if (!$this->isLock && array_key_exists($name, $this->relationMap) && $this->hasRelation($name) && method_exists($this->model, 'getRelations')) {
             return $this->relation($name);
         }
         if (!$this->isLock || in_array($name, $this->accessAllowed)) {
@@ -589,7 +589,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if (array_key_exists($name, $this->alias)) {
             $name = $this->alias[$name];
         }
-        if (!$this->isLock || in_array($name, $this->accessAllowed)) {
+        if ((!$this->isLock || in_array($name, $this->accessAllowed)) && method_exists($this->model, $name)) {
             if (!in_array($name, ['init', 'onLoaded'])) {
                 return call_user_func_array([$this->model, $name], $arguments);
             }
