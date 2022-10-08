@@ -8,6 +8,7 @@ use Countable;
 use ArrayAccess;
 
 use ArrayIterator;
+use Gomee\Models\Model;
 use IteratorAggregate;
 use JsonSerializable;
 
@@ -108,7 +109,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $this->onBeforeLoadRelations();
         }
 
-        // kiểm tra các quan hệ dữ liệu. nếu được thiết lập map thì sẽ tạo ra các mặt mna5 tương ứng
+        // kiểm tra các quan hệ dữ liệu. nếu được thiết lập map thì sẽ tạo ra các mặt  tương ứng
         $this->checkRelationLoaded();
         // gọi hàm onloaded khi hoàn tất quá trình
         if (method_exists($this, 'onLoaded')) {
@@ -420,7 +421,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if (!$this->isLock && array_key_exists($name, $this->relationMap) && $this->hasRelation($name)) {
             return $this->relation($name);
         }
-        if (!$this->isLock || in_array($name, $this->accessAllowed)) {
+        if (!$this->isLock || in_array($name, $this->accessAllowed) && is_a($this->model, Model::class)) {
             return $this->model->{$name};
         }
         if (array_key_exists($name, $this->relationMap)) {
