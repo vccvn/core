@@ -416,7 +416,7 @@ class HtmlDom implements Htmlable
             }
 
             if(method_exists($this, 'onSetAttribute')){
-                $status = $this->onSetAttribute($name);
+                $status = $this->onSetAttribute($name, $value);
 
                 if(is_array($status)){
                     if(array_key_exists('name', $status) && array_key_exists('value', $status) ){
