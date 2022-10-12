@@ -91,7 +91,7 @@ class Input extends HtmlDom
 
     public function onSetAttribute($attr, $value)
     {
-        if(count($action = explode(':', $attr))){
+        if(count($action = explode(':', $attr)) == 2){
             if(in_array($ac = strtodate($action[1]), ['create', 'update'])){
                 if($this->parent && $this->parent->data('action-type') == $ac){
                     return ['name' => $action[0], 'value' => $value];
