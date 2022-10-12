@@ -483,8 +483,13 @@ class MenuItem extends HtmlDom
             // ko nếu sử dụng content
             if(!$use_content){
                 if(!$this->attr("{$slug}_full_class")){
-                    
-                    $tag->addClass($props->get("{$slug}_prefix_class").$data->get($slug));
+                    $iconClass = $data->get($slug);
+                    if(preg_match('/^(fa\s+fa|fab\s+fa|fas\s+fa|far\s+fa|la\s+la|socicon|flaticon)\-/', $iconClass)){
+                        //
+                    }else{
+                        $iconClass = $props->get("{$slug}_prefix_class").$iconClass;
+                    }
+                    $tag->addClass($iconClass);
                 }else{
                     $tag->addClass($icon);
                 }

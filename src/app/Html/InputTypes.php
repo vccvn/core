@@ -258,6 +258,7 @@ trait InputTypes
         if ($dis = $this->d->get('disable-search')) {
             $this->data('disable-search', 'true');
         }
+        
     }
 
 

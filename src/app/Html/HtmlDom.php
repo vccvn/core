@@ -414,6 +414,19 @@ class HtmlDom implements Htmlable
                 $this->_hiddenData[substr($name, 1)] = $value;
                 return $this;
             }
+
+            if(method_exists($this, 'onSetAttribute')){
+                $status = $this->onSetAttribute($name);
+
+                if(is_array($status)){
+                    if(array_key_exists('name', $status) && array_key_exists('value', $status) ){
+                        extract($status);
+                    }
+                    
+                }
+                elseif($status === false) return $this;
+            }
+
             if (is_array($value)) {
                 foreach ($value as $key => $val) {
                     $this->_attrs[$name . '-' . $key] = $val;
@@ -785,6 +798,11 @@ class HtmlDom implements Htmlable
             return $this->_attrs[$name];
         }
         return null;
+    }
+
+    public function __call($name, $arguments)
+    {
+        return $this;
     }
 
     public function __isset($name)
