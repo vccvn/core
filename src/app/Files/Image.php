@@ -360,7 +360,7 @@ class Image
     {
         $image = $this->data;
         if ($image) {
-            $bg = self::create(null, $width, $height);
+            $bg = self::create(null, $width, $height, [255, 255, 255]);
             if (self::isImageFile($image)) {
                 $img = self::create($image);
             } else {
@@ -371,7 +371,7 @@ class Image
         } else {
             $afterresize = $image;
         }
-        return $afterresize;
+        $this->data = $afterresize;
         $this->refresh();
         return $this;
     }
