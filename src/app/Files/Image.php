@@ -360,13 +360,14 @@ class Image
     {
         $image = $this->data;
         if ($image) {
-            $bg = self::create(null, $width, $height, [255, 255, 255]);
+            $bg = imagecreatetruecolor($width, $height);;
             if (self::isImageFile($image)) {
                 $img = self::create($image);
             } else {
                 $img = $image;
             }
-            imagecopy($bg, $img, 0, 0, $width, $height, imagesx($image), imagesy($image));
+            // imagecopy($bg, $img, 0, 0, $width, $height, imagesx($image), imagesy($image));
+            imagecopyresized($bg, $img, 0, 0, 0, 0, $width, $height, imagesx($image), imagesy($image));
             $afterresize = $bg;
         } else {
             $afterresize = $image;
