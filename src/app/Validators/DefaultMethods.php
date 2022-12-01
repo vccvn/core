@@ -264,7 +264,7 @@ trait DefaultMethods{
             if(is_null($value)) return true;
             if(!is_array($value)) return false;
             $selectData = [
-                "text","number","email","textarea","select","radio", "checkbox", "checklist", "switch", "crazyselect", "crazytag", "options", "touchspin", "file", "media"
+                "text","number","email","textarea","select","radio", "checkbox", "checklist", "switch", "crazyselect", "crazytag", "options", "touchspin", "file", "media", 'coloris'
             ];
             
             if(count($value)){
