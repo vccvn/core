@@ -157,7 +157,7 @@ class Email{
 	 */
 	public function _sendMail($body = null, $vars = [])
 	{
-		if($this->__canSend__) return false;
+		if(!$this->__canSend__) return false;
 		Config::set('mail', static::$config);
 		if(method_exists($this,'beforeSend')){
 			$this->beforeSend();
