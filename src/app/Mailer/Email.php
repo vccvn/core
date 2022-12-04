@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Mail;
  * @method bool send($to = null, $dubject = null, $body = null, $data = [], $attachments = []) gui đi
  * @method bool sendAfter(int $time = 1) gui sau n phut
  * @method bool queue(int $time = 1) gui sau n phut
+ * @method bool beforeSend() Thuc hiện hành dộng trước khi gửi
  *
  */
 class Email{
@@ -158,12 +159,12 @@ class Email{
 	{
 		if($this->__canSend__) return false;
 		Config::set('mail', static::$config);
+		if(method_exists($this,'beforeSend')){
+			$this->beforeSend();
+		}
 		if(static::$__oneTimeData){
 			$vars = array_merge(static::$__oneTimeData, $vars);
 			static::$__oneTimeData = [];
-		}
-		if(method_exists($this,'beforeSend')){
-			$this->beforeSend();
 		}
 		if(!$body) $body = $this->__body;
 		Mail::send($body, $vars, function ($message){
