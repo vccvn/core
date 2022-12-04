@@ -47,7 +47,14 @@ class Email{
 		'bcc' => [],
 		'replyTo' => []
 	];
+
+	protected $__canSend__ = true;
+
+
 	protected static $config = [];
+
+	protected static $__oneTimeData = [];
+
 	/**
 	 * khoi tao
 	 */
@@ -147,10 +154,15 @@ class Email{
 	 * @param array $var
 	 * @return void
 	 */
-	public function _sendMail($body = null, $var = [])
+	public function _sendMail($body = null, $vars = [])
 	{
+		if($this->__canSend__) return false;
 		Config::set('mail', static::$config);
-		Mail::send($body, $var, function ($message){
+		if(static::$__oneTimeData){
+			$vars = array_merge(static::$__oneTimeData, $vars);
+			static::$__oneTimeData = [];
+		}
+		Mail::send($body, $vars, function ($message){
 			$data = $this->addressData;
 			foreach ($data as $key => $value) {
 				$this->callMessageMethod($message, $key, $value);
@@ -176,7 +188,8 @@ class Email{
 			$this->__subject = $subject;
 		}
 		if(!$body) $body = $this->__body;
-		$var = array_merge($this->__data,$data);
+		$var = array_merge($this->__data, static::$__oneTimeData,$data);
+		static::$__oneTimeData = [];
 		if(is_string($to) && filter_var($to, FILTER_VALIDATE_EMAIL)){
 			$this->addAddress('to', $to);
 		}elseif(is_array($to)){
