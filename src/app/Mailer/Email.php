@@ -162,6 +162,10 @@ class Email{
 			$vars = array_merge(static::$__oneTimeData, $vars);
 			static::$__oneTimeData = [];
 		}
+		if(method_exists($this,'beforeSend')){
+			$this->beforeSend();
+		}
+		if(!$body) $body = $this->__body;
 		Mail::send($body, $vars, function ($message){
 			$data = $this->addressData;
 			foreach ($data as $key => $value) {
