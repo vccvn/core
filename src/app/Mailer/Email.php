@@ -12,25 +12,28 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Tiện ích gửi mail
- * @method static Email from($email, $name = null) fake email gui di
- * @method static Email to($email, $name = null) set email nhan
- * @method static Email cc($email, $name = null) set cc
- * @method static Email bcc($email, $name = null) set bcc
- * @method static Email replyTo($email, $name = null) set dia chi reply
- * @method static Email subject($subject) set subject
- * @method static Email body($blade) set blade view 
- * @method static Email data($data = []) data truyen vao view
- * @method static Email attachment($files = []) file dinh kem
-
- * @method Email to($email, $name = null) fake email gui di
- * @method Email cc($email, $name = null) set dia chi emai nguoi nhan
- * @method Email bcc($email, $name = null) set bcc
- * @method Email replyTo($email, $name = null) set dia chi nguoio nhn tra loi
- * @method Email subject($subject) set subject
- * @method Email body($blade) set blade view
- * @method Email data($data = []) set data truyen vao view
- * @method Email attachment($files = []) file dinh kem
- * @method bool send($to = null, $dubject = null, $body = null, $data = [], $attachments = []) gui đi
+ * @method static static from($email, $name = null) fake email gui di
+ * @method static static to(string|array $email, $name = null) set email nhan
+ * @method static static cc(string|array $email, $name = null) set cc
+ * @method static static bcc(string|array $email, $name = null) set bcc
+ * @method static static replyTo(string $email, $name = null) set dia chi reply
+ * @method static static subject(string $subject) set subject
+ * @method static static body(string $blade) set blade view 
+ * @method static static message(string $message) set message
+ * @method static static data($data = []) data truyen vao view
+ * @method static static attachment($files = []) file dinh kem
+ * @method static bool send(string|array $to = null, string $dubject = null, string $body = null, array $data = [], string|array $attachments = []) gui đi
+ * 
+ * @method $this to(string|array $email, $name = null) fake email gui di
+ * @method $this cc(string|array$email, $name = null) set dia chi emai nguoi nhan
+ * @method $this bcc(string|array $email, $name = null) set bcc
+ * @method $this replyTo(string $email, string $name = null) set dia chi nguoio nhn tra loi
+ * @method $this subject(string $subject) set subject
+ * @method $this body(string $blade) set blade view
+ * @method $this message(string $message) message noi dung
+ * @method $this data($data = []) set data truyen vao view
+ * @method $this attachment($files = []) file dinh kem
+ * @method bool send(string|array $to = null, string $dubject = null, string $body = null, array $data = [], string|array $attachments = []) gui đi
  * @method bool sendAfter(int $time = 1) gui sau n phut
  * @method bool queue(int $time = 1) gui sau n phut
  * @method bool beforeSend() Thuc hiện hành dộng trước khi gửi
@@ -235,6 +238,12 @@ class Email{
 	protected function _data($data=null)
 	{
 		$this->__data = $data;
+		return $this;
+	}
+	
+	protected function _message($message=null)
+	{
+		$this->__data['message'] = $message;
 		return $this;
 	}
 
