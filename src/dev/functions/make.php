@@ -286,6 +286,112 @@ function make_model($args = [], $name = null, $table = null)
     }
 }
 
+
+
+
+
+if (!function_exists('make_mask')) {
+    /**
+     * make_mask
+     * 
+     */
+    function make_mask($args = [], $name = null, $model = null, $make_collection = null)
+    {
+        if (!$name) {
+            echo "Tham so:\n\t\$name (required): Ten mask (nên sử dụng [Folder]/[name])\n\t\$model (option): Tên Model\n\t\$make_collection (option): có tạo collection hay ko";
+            return null;
+        }
+
+        $names = explode('/', str_replace("\\", "/", $name));
+        $name = ucfirst(array_pop($names));
+        if (!$model) {
+            $model = $name;
+        }
+        $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
+        $sub = null;
+        if ($folder) {
+            $folder = '/' . trim($folder, '/');
+            $sub = str_replace("/", "\\", $folder);
+        }
+
+        $table = Str::tableName($name);
+
+        $find = ['NAME', 'MODEL', '$model', 'SUB', 'PROPERTIES'];
+        
+        $replace = [$name, $model, '$' . strtolower(substr($model, 0, 1)) . substr($model, 1), $sub, getProperties($table)];
+        
+        $template = file_get_contents(DEVPATH . '/templates/mask.php');
+        $code = str_replace($find, $replace, $template);
+        $filemanager = new Filemanager();
+        $filemanager->setDir((BASEDIR . '/app/Masks' . $folder . '/'));
+        if ($a = $filemanager->save($name . 'Mask.php', $code, 'php')) {
+            echo "Tạo {$name}Mask thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        } else {
+            echo "Lỗi không xác định\n";
+        }
+        if (!in_array($make_collection, ['-n', '--n', '-no', 'no', 'k', 'khong', 'đéo'])) {
+            $find[] = 'MASK';
+            $replace[] = $name;
+            make_mask_collection_file($name, $folder, $find, $replace);
+        }
+    }
+}
+
+
+if (!function_exists('make_mask_collection')) {
+    /**
+     * make_mask
+     * 
+     */
+    function make_mask_collection($name = null, $mask = null)
+    {
+        if (!$name) {
+            echo "Tham so:\n\t\$name (required): Tên collection (nên sử dụng [Folder]/[name])\n\t\$mask (option): Tên mask";
+            return null;
+        }
+
+        $names = explode('/', str_replace("\\", "/", $name));
+        $name = ucfirst(array_pop($names));
+        if (!$mask) {
+            $mask = $name;
+        }
+        $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
+        $sub = null;
+        if ($folder) {
+            $folder = '/' . trim($folder, '/');
+            $sub = str_replace("/", "\\", $folder);
+        }
+
+
+        $find = ['NAME', 'MASK', 'SUB'];
+        $replace = [$name, $mask, $sub];
+
+        make_mask_collection_file($name, $folder, $find, $replace);
+    }
+}
+
+
+if (!function_exists('make_mask_collection_file')) {
+    /**
+     * make_mask
+     * 
+     */
+    function make_mask_collection_file($name, $folder, $find, $replace)
+    {
+        $template = file_get_contents(DEVPATH . '/templates/mask-collection.php');
+        $code = str_replace($find, $replace, $template);
+        $filemanager = new Filemanager();
+        $filemanager->setDir((BASEDIR . '/app/Masks' . $folder . '/'));
+        if ($a = $filemanager->save($name . 'Collection.php', $code, 'php')) {
+            echo "Tạo {$name}Collection thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+        } else {
+            echo "Lỗi không xác định\n";
+        }
+    }
+}
+
+
+
 function make_resource($args = [], $name = null, $table = null)
 {
     if (!$name) {
@@ -430,110 +536,6 @@ function make_json_module($args = [], $module = null, $table = null, $moduleName
         echo "create list success\nPath: $file->path\n";
     }
 }
-
-
-
-
-if (!function_exists('make_mask')) {
-    /**
-     * make_mask
-     * 
-     */
-    function make_mask($args = [], $name = null, $model = null, $make_collection = null)
-    {
-        if (!$name) {
-            echo "Tham so:\n\t\$name (required): Ten mask (nên sử dụng [Folder]/[name])\n\t\$model (option): Tên Model\n\t\$make_collection (option): có tạo collection hay ko";
-            return null;
-        }
-
-        $names = explode('/', str_replace("\\", "/", $name));
-        $name = ucfirst(array_pop($names));
-        if (!$model) {
-            $model = $name;
-        }
-        $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
-        $sub = null;
-        if ($folder) {
-            $folder = '/' . trim($folder, '/');
-            $sub = str_replace("/", "\\", $folder);
-        }
-
-
-        $find = ['NAME', 'MODEL', '$model', 'SUB'];
-        $replace = [$name, $model, '$' . strtolower(substr($model, 0, 1)) . substr($model, 1), $sub];
-
-        $template = file_get_contents(DEVPATH . '/templates/mask.php');
-        $code = str_replace($find, $replace, $template);
-        $filemanager = new Filemanager();
-        $filemanager->setDir((BASEDIR . '/app/Masks' . $folder . '/'));
-        if ($a = $filemanager->save($name . 'Mask.php', $code, 'php')) {
-            echo "Tạo {$name}Mask thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
-        } else {
-            echo "Lỗi không xác định\n";
-        }
-        if (!in_array($make_collection, ['-n', '--n', '-no', 'no', 'k', 'khong', 'đéo'])) {
-            $find[] = 'MASK';
-            $replace[] = $name;
-            make_mask_collection_file($name, $folder, $find, $replace);
-        }
-    }
-}
-
-
-if (!function_exists('make_mask_collection')) {
-    /**
-     * make_mask
-     * 
-     */
-    function make_mask_collection($name = null, $mask = null)
-    {
-        if (!$name) {
-            echo "Tham so:\n\t\$name (required): Tên collection (nên sử dụng [Folder]/[name])\n\t\$mask (option): Tên mask";
-            return null;
-        }
-
-        $names = explode('/', str_replace("\\", "/", $name));
-        $name = ucfirst(array_pop($names));
-        if (!$mask) {
-            $mask = $name;
-        }
-        $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
-        $sub = null;
-        if ($folder) {
-            $folder = '/' . trim($folder, '/');
-            $sub = str_replace("/", "\\", $folder);
-        }
-
-
-        $find = ['NAME', 'MASK', 'SUB'];
-        $replace = [$name, $mask, $sub];
-
-        make_mask_collection_file($name, $folder, $find, $replace);
-    }
-}
-
-
-if (!function_exists('make_mask_collection_file')) {
-    /**
-     * make_mask
-     * 
-     */
-    function make_mask_collection_file($name, $folder, $find, $replace)
-    {
-        $template = file_get_contents(DEVPATH . '/templates/mask-collection.php');
-        $code = str_replace($find, $replace, $template);
-        $filemanager = new Filemanager();
-        $filemanager->setDir((BASEDIR . '/app/Masks' . $folder . '/'));
-        if ($a = $filemanager->save($name . 'Collection.php', $code, 'php')) {
-            echo "Tạo {$name}Collection thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
-        } else {
-            echo "Lỗi không xác định\n";
-        }
-    }
-}
-
-
-
 
 
 function update_storage_data()

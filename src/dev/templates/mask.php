@@ -3,7 +3,10 @@ namespace App\MasksSUB;
 
 use App\Models\MODEL;
 use Gomee\Masks\Mask;
-
+/**
+ * NAMEMask class
+ * PROPERTIES
+ */
 class NAMEMask extends Mask
 {
 

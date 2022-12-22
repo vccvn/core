@@ -3,13 +3,10 @@
 namespace App\Repositories\FOLDER;
 
 use Gomee\Repositories\BaseRepository;
-/**
- * validator 
- * 
- */
-use App\Validators\FOLDER\NAMEValidator;
 use App\Masks\FOLDER\MODELMask;
 use App\Masks\FOLDER\MODELCollection;
+use App\Models\MODEL;
+use App\Validators\FOLDER\NAMEValidator;
 
 /**
  * @method MODELCollection|MODEL[] getData(array $args = []) lấy danh sách MODEL được gán Mask
@@ -17,8 +14,9 @@ use App\Masks\FOLDER\MODELCollection;
  * @method MODELMask|MODEL detail(array $args = []) lấy MODEL được gán Mask
  * @method MODELCollection|MODEL[] get(array $args = []) lấy danh sách MODEL
  * @method MODELCollection|MODEL[] getBy(string $column, mixed $value) lấy danh sách MODEL
- * @method MODELCollection|MODEL[] findBy(string $column, mixed $value) lấy MODEL
- * @method MODELCollection|MODEL[] first(string $column, mixed $value) lấy MODEL
+ * @method MODELMask|MODEL find(integer $id) lấy MODEL
+ * @method MODELMask|MODEL findBy(string $column, mixed $value) lấy MODEL
+ * @method MODELMask|MODEL first(string $column, mixed $value) lấy MODEL
  * 
  */
 class NAMERepository extends BaseRepository
