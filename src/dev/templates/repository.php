@@ -17,6 +17,10 @@ use App\Validators\FOLDER\NAMEValidator;
  * @method MODELMask|MODEL find(integer $id) lấy MODEL
  * @method MODELMask|MODEL findBy(string $column, mixed $value) lấy MODEL
  * @method MODELMask|MODEL first(string $column, mixed $value) lấy MODEL
+ * @method MODEL create(array $data = []) Thêm bản ghi
+ * @method MODEL update(integer $id, array $data = []) Cập nhật
+ * @method MODEL $model model dai dien
+ * 
  * 
  */
 class NAMERepository extends BaseRepository
