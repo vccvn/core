@@ -7,13 +7,17 @@ use App\Masks\FOLDER\MODELMask;
 use App\Masks\FOLDER\MODELCollection;
 use App\Models\MODEL;
 use App\Validators\FOLDER\NAMEValidator;
+use Illuminate\Http\Request;
 
 /**
- * @method MODELCollection|MODEL[] getData(array $args = []) lấy danh sách MODEL được gán Mask
+ * @method MODELCollection<MODELMask>|MODEL[] filter(Request $request, array $args = []) lấy danh sách MODEL được gán Mask
+ * @method MODELCollection<MODELMask>|MODEL[] getFilter(Request $request, array $args = []) lấy danh sách MODEL được gán Mask
+ * @method MODELCollection<MODELMask>|MODEL[] getResults(Request $request, array $args = []) lấy danh sách MODEL được gán Mask
+ * @method MODELCollection<MODELMask>|MODEL[] getData(array $args = []) lấy danh sách MODEL được gán Mask
+ * @method MODELCollection<MODELMask>|MODEL[] get(array $args = []) lấy danh sách MODEL
+ * @method MODELCollection<MODELMask>|MODEL[] getBy(string $column, mixed $value) lấy danh sách MODEL
  * @method MODELMask|MODEL getDetail(array $args = []) lấy MODEL được gán Mask
  * @method MODELMask|MODEL detail(array $args = []) lấy MODEL được gán Mask
- * @method MODELCollection|MODEL[] get(array $args = []) lấy danh sách MODEL
- * @method MODELCollection|MODEL[] getBy(string $column, mixed $value) lấy danh sách MODEL
  * @method MODELMask|MODEL find(integer $id) lấy MODEL
  * @method MODELMask|MODEL findBy(string $column, mixed $value) lấy MODEL
  * @method MODELMask|MODEL first(string $column, mixed $value) lấy MODEL
@@ -21,7 +25,7 @@ use App\Validators\FOLDER\NAMEValidator;
  * @method MODEL update(integer $id, array $data = []) Cập nhật
  * @method MODEL $model model dai dien
  * 
- * 
+ * @property MODEL $_model Model tu request
  */
 class NAMERepository extends BaseRepository
 {
