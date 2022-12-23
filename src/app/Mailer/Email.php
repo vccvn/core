@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
  * @method static static body(string $blade) set blade view 
  * @method static static message(string $message) set message
  * @method static static data($data = []) data truyen vao view
- * @method static static attachment($files = []) file dinh kem
+ * @method static static attach($files = []) file dinh kem
  * @method static bool send(string|array $to = null, string $dubject = null, string $body = null, array $data = [], string|array $attachments = []) gui đi
  * 
  * @method $this to(string|array $email, $name = null) fake email gui di
@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Mail;
  * @method $this body(string $blade) set blade view
  * @method $this message(string $message) message noi dung
  * @method $this data($data = []) set data truyen vao view
- * @method $this attachment($files = []) file dinh kem
+ * @method $this attach($files = []) file dinh kem
  * @method bool send(string|array $to = null, string $dubject = null, string $body = null, array $data = [], string|array $attachments = []) gui đi
  * @method bool sendAfter(int $time = 1) gui sau n phut
  * @method bool queue(int $time = 1) gui sau n phut
@@ -97,7 +97,7 @@ class Email{
 	 * @param string $type
 	 * @param array|string $email
 	 * @param string $name
-	 * @return static
+	 * @return $this
 	 */
 	public function addAddress($type = 'to', $email = null, $name = null)
 	{
@@ -176,6 +176,13 @@ class Email{
 				$this->callMessageMethod($message, $key, $value);
 			}
 			$message->subject($this->__subject);
+			if($this->__attachments){
+				$files = $this->__attachments;
+				foreach ($files as $file){
+					$message->attach($file);
+				}
+			}
+			
 		});
 
 	}
@@ -244,6 +251,18 @@ class Email{
 	protected function _message($message=null)
 	{
 		$this->__data['message'] = $message;
+		return $this;
+	}
+
+	protected function _attach($files=null)
+	{
+		if($files){
+			if(is_array($files)){
+				foreach ($files as $i => $file) {
+					if(is_file($file)) $this->__attachments[] = $file;
+				}
+			}elseif(is_file($files)) $this->__attachments[] = $files;
+		}
 		return $this;
 	}
 
