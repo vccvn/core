@@ -23,7 +23,8 @@ use Gomee\Services\Traits\MagicMethods;
  * @method $this join(string $table, string $tableColumn, string $operator = '=', string $leftTableColumn) join vs 1 bang khac
  * @method $this leftJoin($table, $tableColumn, $operator, $leftTableColumn)
  * @method $this crossJoin($_ = null)
- * @method $this where($_ = null)
+ * @method $this when(bool $condittion, \Clourse $callable) thêm điều kiện query
+ * @method $this where($_ = null) truy vấn where
  * @method $this whereRaw($_ = null)
  * @method $this whereIn($column, $values = [])
  * @method $this whereNotIn($column, $values = [])

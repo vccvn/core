@@ -119,6 +119,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         return $this;
     }
 
+
     final public function __lock()
     {
         if ($this->isLock) return;

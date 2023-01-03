@@ -43,4 +43,27 @@ class SQLModel extends BaseModel
     {
         return $this->defaultValues;
     }
+
+    
+    /**
+     * Get all of the allLanguageContents for the Model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function allLanguageContents()
+    {
+        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table??'data');
+        return $this->hasMany('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref);
+    }
+
+    /**
+     * Get the localeContents associated with the Model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function localeContents()
+    {
+        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table??'data');
+        return $this->hasOne('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref)->where('locale', config('app.locale'));
+    }
 }

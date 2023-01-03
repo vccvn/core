@@ -31,6 +31,7 @@ trait GettingAction
     public function getAll()
     {
         $this->fire('beforegetAll', $this);
+        $this->checkIfMultiLangContents();
         $rs = $this->_model->all();
         $this->fire('aftergetAll', $this, $rs);
         return $rs;
@@ -54,6 +55,13 @@ trait GettingAction
             return $rs;
         }
         return null;
+    }
+
+    public function checkIfMultiLangContents()
+    {
+        if($this->_model->multilang){
+            $this->with('localeContent');
+        }
     }
 
     public function beforeGetData($data = [])
@@ -93,6 +101,7 @@ trait GettingAction
             
         $this->hasPaginateParam = false;
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
+        $this->checkIfMultiLangContents();
         $paginate = null;
         $limit = null;
         if (is_array($args)) {
@@ -140,6 +149,7 @@ trait GettingAction
     {
         $this->hasPaginateParam = false;
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
+        $this->checkIfMultiLangContents();
         $paginate = null;
         $limit = null;
         if (is_array($args)) {
@@ -179,7 +189,7 @@ trait GettingAction
     {
         $this->fire('preparefirst', $this, $args);
         if (is_array($a = $this->beforeGetData($args))) $args = $a;
-        
+        $this->checkIfMultiLangContents();
         $this->fire('beforefirst', $this, $args);
         $query = $this->query($args);
         // $this->last_query_builder = $query;
@@ -337,11 +347,13 @@ trait GettingAction
 
     public function chunkById(...$args)
     {
+        $this->checkIfMultiLangContents();
         return $this->query()->chunkById(...$args);
     }
 
     public function chunk(...$args)
     {
+        $this->checkIfMultiLangContents();
         return $this->query()->chunk(...$args);
     }
 
