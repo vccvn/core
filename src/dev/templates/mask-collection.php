@@ -4,6 +4,9 @@ namespace App\MasksSUB;
 use Gomee\Masks\MaskCollection;
 
 /**
+ * @method MASKMask getItem($attr, $value)
+ */
+/**
  * @property MASKMask[] $items
  */
 class NAMECollection extends MaskCollection
