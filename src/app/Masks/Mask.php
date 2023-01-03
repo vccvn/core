@@ -85,6 +85,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if ($this->isLock) return $this;
         // vòng đời được bắt đầu khi gán model
         $this->model = $model;
+        $this->model->rewriteDataIfHasMLC();
         $this->collectionClass = $collectionClass;
 
         // đầu tiên phải chạy qua init để thiết lập thông sớ
@@ -104,10 +105,14 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $this->data = $model;
         }
 
+        $this->checkDataIfHasMLC();
+
         // gọi hàm onloaded khi hoàn tất quá trình
         if (method_exists($this, 'onBeforeLoadRelations')) {
             $this->onBeforeLoadRelations();
         }
+
+
 
         // kiểm tra các quan hệ dữ liệu. nếu được thiết lập map thì sẽ tạo ra các mặt  tương ứng
         $this->checkRelationLoaded();
@@ -137,6 +142,23 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
 
     }
 
+    
+    public function checkDataIfHasMLC()
+    {
+        if($this->model->multilang && ($localeContent = $this->model->localeContent)){
+            if($localeContent->title && $this->model->localeTitleColumn){
+                $this->{$this->model->localeTitleColumn} = $localeContent->title;
+            }
+            if($data = $localeContent->content){
+                foreach ($data as $key => $value) {
+                    $this->{$key} = $value;
+                }
+            }
+            
+        }
+    }
+
+    
 
     /**
      * thêm danh sách cho phép truy cập vào model

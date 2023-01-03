@@ -70,8 +70,11 @@ class Model extends BaseModel
     
     public function rewriteDataIfHasMLC()
     {
-        if($this->multilang && ($localeContent = $this->localeContent) && ($slug = $localeContent->slug)){
-            if()
+        if($this->multilang && ($localeContent = $this->localeContent)){
+            if($slug = $localeContent->slug){
+                $this->slug = $slug;
+            }
+            
         }
     }
 }
