@@ -7,8 +7,9 @@
 // use Exception;
 
 
-trait FileMethods{
-    
+trait FileMethods
+{
+
     protected $_filename = null;
 
     protected $_content = null;
@@ -30,10 +31,10 @@ trait FileMethods{
         $this->_filename = $filename;
         $this->_filetype = null;
         $this->_filedata = null;
-        
-        if(file_exists($path = $this->getPath($filename))){
+
+        if (file_exists($path = $this->getPath($filename))) {
             $this->_filetype = $this->getType($filename);
-            if($info = $this->getMimeType($this->_filetype)){
+            if ($info = $this->getMimeType($this->_filetype)) {
                 $this->_extension = $info->extension;
             }
         }
@@ -64,7 +65,7 @@ trait FileMethods{
     public function getType($filename = null)
     {
         // return $this->getPath($filename);
-        return file_exists($path = $this->getPath($filename))?mime_content_type($path):null;
+        return file_exists($path = $this->getPath($filename)) ? mime_content_type($path) : null;
     }
 
     /**
@@ -76,10 +77,10 @@ trait FileMethods{
     public function size($filename = null)
     {
         // return $this->getPath($filename);
-        return file_exists($path = $this->getPath($filename))?filesize($path)/1024:0;
+        return file_exists($path = $this->getPath($filename)) ? filesize($path) / 1024 : 0;
     }
 
-    
+
 
     /**
      * thiết lập định dạng file
@@ -87,7 +88,7 @@ trait FileMethods{
      */
     public function setType($type)
     {
-        if($info = $this->getMimeType($type)){
+        if ($info = $this->getMimeType($type)) {
             $this->_extension = $info->extension;
             $this->_filetype = $type;
         }
@@ -101,7 +102,7 @@ trait FileMethods{
      */
     public function type($type = null)
     {
-        return is_null($type)?$this->getType():$this->setType($type);
+        return is_null($type) ? $this->getType() : $this->setType($type);
     }
     /**
      * lấy nội dung file
@@ -114,7 +115,7 @@ trait FileMethods{
     {
         $f = $this->parseFilenameByType($filename, $mime_type);
 
-        if(file_exists($f)){
+        if (file_exists($f)) {
             return file_get_contents($f);
         }
         return null;
@@ -142,7 +143,7 @@ trait FileMethods{
      */
     public function content($content = null)
     {
-        return is_null($content)?$this->getContent():$this->setContent($content);
+        return is_null($content) ? $this->getContent() : $this->setContent($content);
     }
 
     /**
@@ -157,7 +158,7 @@ trait FileMethods{
     {
         $f = $this->parseFilenameByType($filename, $mime_type);
         // lấy nội dung
-        $c = is_null($content)?$this->_content:$content;
+        $c = is_null($content) ? $this->_content : $content;
 
         // lưu nội dung filw
         // fopen($f, 'w');
@@ -166,15 +167,15 @@ trait FileMethods{
         $path = explode('/', $f);
         $fn = array_pop($path);
         $p = implode('/', $path);
-        if(!is_dir($p) && !$this->makeDir($p, 0755, true)) return false ;
+        if (!is_dir($p) && !$this->makeDir($p, 0755, true)) return false;
         file_put_contents($f, $c);
         $return_value = false;
         // nếu lưu thành ông
-        if(file_exists($f)){
+        if (file_exists($f)) {
             $ext = pathinfo($f, PATHINFO_EXTENSION);
-            
-            $size = filesize($f)/1024;
-            if($info = $this->getMimeType($ext)){
+
+            $size = filesize($f) / 1024;
+            if ($info = $this->getMimeType($ext)) {
                 $data = [
                     'filename' => $this->_filename,
                     'path' => $f,
@@ -182,7 +183,7 @@ trait FileMethods{
                     'extension' => $info->extension,
                     'size' => $size
                 ];
-            }else{
+            } else {
                 $data = [
                     'filename' => $this->_filename,
                     'path' => $f,
@@ -204,33 +205,32 @@ trait FileMethods{
      */
     protected function parseFilename($filename = null)
     {
-        $name = $filename?$filename:$this->_filename;
-        if(!$name) return false;
+        $name = $filename ? $filename : $this->_filename;
+        if (!$name) return false;
         $filepath = $this->getPath($name);
         $pp = explode('/', $filepath);
         $fn = array_pop($pp);
         $dir = implode('/', $pp);
 
-        
-        
+
+
         $stt = $this->setDir($dir, true);
-        if($this->_filetype){
-            if($info = $this->getMimeType($this->_filetype)){
+        if ($this->_filetype) {
+            if ($info = $this->getMimeType($this->_filetype)) {
                 $ext = $info->extension;
-                if(!preg_match('/\.'.$ext.'$/i', $fn)){
-                    $fn .= '.'.$ext;
+                if (!preg_match('/\.' . $ext . '$/i', $fn)) {
+                    $fn .= '.' . $ext;
                 }
             }
-        }else{
+        } else {
             $fs = explode('.', $fn);
-            if(($t = count($fs))>=2){
-                if($fs[$t-1]){
-                    if($info = $this->getMimeType($fs[$t-1])){
+            if (($t = count($fs)) >= 2) {
+                if ($fs[$t - 1]) {
+                    if ($info = $this->getMimeType($fs[$t - 1])) {
                         $this->_filetype = $info->type;
-                        
                     }
                 }
-                $this->_extension = $fs[$t-1];
+                $this->_extension = $fs[$t - 1];
             }
         }
         $this->_filename = $fn;
@@ -250,7 +250,7 @@ trait FileMethods{
     {
         $current_dir = $this->_dir;
         $old_type = $this->_filetype;
-        if($mime_type && $info = $this->getMimeType($mime_type)){
+        if ($mime_type && $info = $this->getMimeType($mime_type)) {
             $this->_filetype = $info->type;
         }
         // chuẩn hóa tên file và lấy dường dẫn
@@ -282,7 +282,7 @@ trait FileMethods{
      */
     public function deleteFile($filename = null)
     {
-        if(file_exists($f = $this->getPath($filename))){
+        if (file_exists($f = $this->getPath($filename))) {
             return unlink($f);
         }
         return false;
@@ -300,16 +300,15 @@ trait FileMethods{
     {
         $path = $this->parseFilenameByType($filename, 'json');
         $data = [];
-        if(file_exists($path)){
-            
+        if (file_exists($path)) {
+
             try {
                 $content = file_get_contents($path);
                 $json = json_decode($content, true);
                 // $data = Arr::parse($json);
-                if($json && $convert_to_array_object){
+                if ($json && $convert_to_array_object) {
                     $data = new Arr($json);
-                }
-                else{
+                } else {
                     $data = $json;
                 }
             } catch (Exception $e) {
@@ -327,7 +326,7 @@ trait FileMethods{
      */
     public function saveJson($filename = null, $data = null)
     {
-        if(is_array($data) || is_object($data)){
+        if (is_array($data) || is_object($data)) {
             return $this->save($filename, json_encode($data), 'json');
         }
         return false;
@@ -340,14 +339,14 @@ trait FileMethods{
      */
     public function json($filename = null, $data = null)
     {
-        if(is_array($filename) || is_object($filename)){
+        if (is_array($filename) || is_object($filename)) {
             return $this->saveJson(null, $filename);
-        }elseif(is_array($data) || is_object($data)){
+        } elseif (is_array($data) || is_object($data)) {
             return $this->saveJson($filename, $data);
-        }elseif (is_bool($filename)) {
-            return $this->getJson(null,$filename);
-        }else {
-            return $this->getJson($filename, is_bool($data)?$data:false);
+        } elseif (is_bool($filename)) {
+            return $this->getJson(null, $filename);
+        } else {
+            return $this->getJson($filename, is_bool($data) ? $data : false);
         }
     }
 
@@ -362,7 +361,7 @@ trait FileMethods{
     {
         $path = $this->parseFilenameByType($filename, 'ser');
         $data = null;
-        if(file_exists($path)){
+        if (file_exists($path)) {
             try {
                 $content = file_get_contents($path);
                 $data = unserialize($content);
@@ -399,7 +398,7 @@ trait FileMethods{
      */
     public function serialize($filename = null, $data = null)
     {
-        if(is_null($data)) return $this->getSerialize($filename);
+        if (is_null($data)) return $this->getSerialize($filename);
         return $this->saveSerialize($filename, $data);
     }
 
@@ -407,6 +406,4 @@ trait FileMethods{
     {
         return $this->serialize($filename, $data);
     }
-
-
 }
