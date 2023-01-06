@@ -185,7 +185,7 @@ trait FileMethods{
         $b = array_pop($a);
         $d = implode('/', $a);
         if(!is_dir($d)){
-            $this->makeDir($d, 0755);
+            $this->makeDir($d, 0755,true);
         }
         file_put_contents($f, $c);
         $return_value = false;
