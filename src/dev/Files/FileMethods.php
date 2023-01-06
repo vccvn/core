@@ -166,7 +166,7 @@ trait FileMethods{
         $path = explode('/', $f);
         $fn = array_pop($path);
         $p = implode('/', $path);
-        if(!is_dir($p)) $this->makeDir($p);
+        if(!is_dir($p)) $this->makeDir($p, 0755);
         file_put_contents($f, $c);
         $return_value = false;
         // nếu lưu thành ông
