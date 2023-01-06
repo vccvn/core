@@ -487,7 +487,7 @@ function make_modules($args = [], $make_list = null, $name = null, $table = null
     }
 }
 
-function make_json($args = [], $table, $filename)
+function make_json($args = [], $table = null, $filename = null)
 {
     $filemanager = new Filemanager(base_path('json'));
     if ($file = $filemanager->save($filename, Str::jsonVi(json_encode(defaultJson($table))), 'json')) {
