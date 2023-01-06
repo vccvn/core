@@ -2,7 +2,6 @@
 // namespace Gomee\Files;
 
 // use Gomee\Helpers\Any;
-
 trait DirMethods
 {
     protected $_dir = null;
@@ -42,7 +41,8 @@ trait DirMethods
                 // $this->_dir = $dir;
             } elseif ($make_dir_if_not_exists) {
                 // nếu thư mục không tồn tại và có yêu cầu tạo thư mục
-                $this->makeDir($dir, 777, true);
+                
+                $this->makeDir($dir, 0777, true);
                 // $this->_dir = $dir;
             }
 
@@ -75,6 +75,25 @@ trait DirMethods
         return $f;
     }
 
+
+    /**
+     * Create a directory.
+     *
+     * @param  string  $path
+     * @param  int  $mode
+     * @param  bool  $recursive
+     * @param  bool  $force
+     * @return bool
+     */
+    public function makeDirectory($path, $mode = 0755, $recursive = false, $force = false)
+    {
+        if ($force) {
+            return @mkdir($path, $mode, $recursive);
+        }
+
+        return mkdir($path, $mode, $recursive);
+    }
+
     /**
      * tạo dường dẫn mới
      * @param string $dir
@@ -97,10 +116,11 @@ trait DirMethods
                 foreach ($dlist as $subPath) {
                     if (strlen($subPath)) {
                         if (!is_dir($xdir .= '/' . $subPath)) {
-                            $oldumask = umask(0);
-                            // mkdir('mydir', 0777); // or even 01777 so you get the sticky bit set
-                            @mkdir($xdir, $mode, $recursive);
-                            umask($oldumask);
+                            $this->makeDirectory($xdir, $mode, $recursive, true);
+                            // $oldumask = umask(0);
+                            // // mkdir('mydir', 0777); // or even 01777 so you get the sticky bit set
+                            // @mkdir($xdir, $mode, $recursive);
+                            // umask($oldumask);
                         }
                         // chmod($xdir, 0766);
                     }

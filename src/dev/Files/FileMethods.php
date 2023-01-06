@@ -147,6 +147,19 @@ trait FileMethods
     }
 
     /**
+     * Write the contents of a file.
+     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  bool  $lock
+     * @return int|bool
+     */
+    public function put($path, $contents, $lock = false)
+    {
+        return file_put_contents($path, $contents, $lock ? LOCK_EX : 0);
+    }
+
+    /**
      * lưu file
      * @param string $filename
      * @param mixed $content
@@ -168,7 +181,7 @@ trait FileMethods
         $fn = array_pop($path);
         $p = implode('/', $path);
         if (!is_dir($p) && !$this->makeDir($p, 0755, true)) return false;
-        file_put_contents($f, $c);
+        $this->put($f, $c);
         $return_value = false;
         // nếu lưu thành ông
         if (file_exists($f)) {
