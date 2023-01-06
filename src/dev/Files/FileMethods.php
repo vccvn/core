@@ -163,6 +163,10 @@ trait FileMethods{
         // fopen($f, 'w');
         // fwrite($f, $c);
         // fclose($f);
+        $path = explode('/', $f);
+        $fn = array_pop($path);
+        $p = implode('/', $path);
+        if(!is_dir($p)) $this->makeDir($p);
         file_put_contents($f, $c);
         $return_value = false;
         // nếu lưu thành ông
