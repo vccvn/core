@@ -3,7 +3,8 @@
 
 // use Gomee\Helpers\Any;
 
-trait DirMethods{
+trait DirMethods
+{
     protected $_dir = null;
 
     protected $basePath = null;
@@ -15,12 +16,12 @@ trait DirMethods{
 
     public function acceptPath($dir = null)
     {
-        return $this->_dir.($dir?'/'.ltrim($dir):'');
+        return $this->_dir . ($dir ? '/' . ltrim($dir) : '');
     }
 
     public function publicPath($dir = null)
     {
-        return $this->basePath.'/public'.($dir?'/'.ltrim($dir):'');
+        return $this->basePath . '/public' . ($dir ? '/' . ltrim($dir) : '');
     }
     /**
      * thiết lập dường dẫn để quản lý file
@@ -31,15 +32,15 @@ trait DirMethods{
      */
     public function setDir($dir = null, $make_dir_if_not_exists = false)
     {
-        if($dir && is_string($dir)){
-            $dir = rtrim(rtrim($dir,"\\"),'/');
+        if ($dir && is_string($dir)) {
+            $dir = rtrim(rtrim($dir, "\\"), '/');
             // nếu không bắt dầu từ thư mục gốc
-            if(!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
-            $dir = rtrim(rtrim($dir,"\\"),'/');
-            
-            if(is_dir($dir)){
+            if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
+            $dir = rtrim(rtrim($dir, "\\"), '/');
+
+            if (is_dir($dir)) {
                 // $this->_dir = $dir;
-            }elseif($make_dir_if_not_exists){
+            } elseif ($make_dir_if_not_exists) {
                 // nếu thư mục không tồn tại và có yêu cầu tạo thư mục
                 $this->makeDir($dir, 777, true);
                 // $this->_dir = $dir;
@@ -84,20 +85,24 @@ trait DirMethods{
      */
     public function makeDir(string $dir, $mode = 777, $recursive = false)
     {
-        if($dir && is_string($dir)){
+        if ($dir && is_string($dir)) {
             // nếu không bắt dầu từ thư mục gốc
-            if(!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
-            
-            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->basePath,"\\"),'/'), '', $dir)));
+            if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
 
-            $xdir = rtrim(rtrim($this->basePath,"\\"),'/');
+            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->basePath, "\\"), '/'), '', $dir)));
 
-            if(count($dlist)){
-                foreach($dlist as $subPath){
-                    if(strlen($subPath)){
-                        if(!is_dir($xdir.='/'.$subPath)){
+            $xdir = rtrim(rtrim($this->basePath, "\\"), '/');
+
+            if (count($dlist)) {
+                foreach ($dlist as $subPath) {
+                    if (strlen($subPath)) {
+                        if (!is_dir($xdir .= '/' . $subPath)) {
+                            $oldumask = umask(0);
+                            // mkdir('mydir', 0777); // or even 01777 so you get the sticky bit set
                             @mkdir($xdir, $mode, $recursive);
+                            umask($oldumask);
                         }
+                        // chmod($xdir, 0766);
                     }
                 }
             }
@@ -114,8 +119,8 @@ trait DirMethods{
      */
     public function checkDirAccepted(string $dir)
     {
-        $base = rtrim(rtrim($this->basePath,"\\"),'/');
-        if(count($p = explode($base, $dir)) == 2) return true;
+        $base = rtrim(rtrim($this->basePath, "\\"), '/');
+        if (count($p = explode($base, $dir)) == 2) return true;
         return false;
     }
 
@@ -127,12 +132,12 @@ trait DirMethods{
      */
     public function canDelete(string $dir)
     {
-        $dir = rtrim(str_replace("\\", "/", $dir),'/');
+        $dir = rtrim(str_replace("\\", "/", $dir), '/');
         $ban_list = [
             rtrim(str_replace("\\", "/", $this->basePath), '/'),
             rtrim(str_replace("\\", "/", $this->publicPath('')), '/'),
         ];
-        if(in_array($dir, $ban_list)) return false;
+        if (in_array($dir, $ban_list)) return false;
         return true;
     }
 
@@ -146,9 +151,9 @@ trait DirMethods{
      */
     public function cd($dir = null, $make_dir_if_not_exists = false)
     {
-        if($this->checkDirAccepted($dir)) return $this->setDir($dir);
-        $fullDir = $this->_dir.'/'.trim($dir, '/');
-        if(!is_dir($fullDir) && $make_dir_if_not_exists){
+        if ($this->checkDirAccepted($dir)) return $this->setDir($dir);
+        $fullDir = $this->_dir . '/' . trim($dir, '/');
+        if (!is_dir($fullDir) && $make_dir_if_not_exists) {
             $this->makeDir($fullDir, 777, false);
         }
         $this->_dir = $fullDir;
@@ -168,38 +173,39 @@ trait DirMethods{
      * @param 
      */
 
-    public function getList($dir=null,$ext=null,$sort = false){
-        if(!$dir) $dir = $this->_dir;
+    public function getList($dir = null, $ext = null, $sort = false)
+    {
+        if (!$dir) $dir = $this->_dir;
         $list = [];
         $abc = [];
         $result = [];
-        $e = is_string($ext)?strtolower($ext):null;
-        if($e){
-            $e = explode(',',$e);
+        $e = is_string($ext) ? strtolower($ext) : null;
+        if ($e) {
+            $e = explode(',', $e);
             $b = [];
-            for($i = 0; $i < count($e); $i++){
+            for ($i = 0; $i < count($e); $i++) {
                 $ei = trim($e[$i]);
-                if($ei){
+                if ($ei) {
                     $b[] = $ei;
                 }
             }
             $e = $b;
         }
         if (is_string($dir) && is_dir($dir)) {
-            try{
+            try {
                 if ($dh = opendir($dir)) {
                     while (($file = readdir($dh)) !== false) {
                         $t = 1;
-                        if($e){
-                            $fs = explode('.',$file);
-                            $ex = strtolower($fs[count($fs)-1]);
-                            if(in_array($ex,$e)){
-                                $t=1;
-                            }else{
+                        if ($e) {
+                            $fs = explode('.', $file);
+                            $ex = strtolower($fs[count($fs) - 1]);
+                            if (in_array($ex, $e)) {
+                                $t = 1;
+                            } else {
                                 $t = 0;
                             }
-                            if($t && $file!='..' && $file!='.'){
-                                $path = $this->joinPath($dir,$file);
+                            if ($t && $file != '..' && $file != '.') {
+                                $path = $this->joinPath($dir, $file);
                                 $sd = strtolower($file);
                                 $abc[] = $sd;
                                 $list[$sd] = new Arr([
@@ -209,12 +215,12 @@ trait DirMethods{
                                     'extension' => $ex
                                 ]);
                             }
-                        }else{
-                            if($file!='..' && $file!='.'){
-                                $path = $this->joinPath($dir,$file);
-                                $fs = explode('.',$file);
-                                $ex = strtolower($fs[count($fs)-1]);
-                                $type = is_dir($path)?'folder':'file';
+                        } else {
+                            if ($file != '..' && $file != '.') {
+                                $path = $this->joinPath($dir, $file);
+                                $fs = explode('.', $file);
+                                $ex = strtolower($fs[count($fs) - 1]);
+                                $type = is_dir($path) ? 'folder' : 'file';
                                 $sd = strtolower($file);
                                 $abc[] = $sd;
                                 $list[$sd] = new Arr([
@@ -224,18 +230,16 @@ trait DirMethods{
                                     'path' => $path
                                 ]);
                             }
-                            
                         }
-                        
                     }
                     closedir($dh);
                 }
-            }catch(exception $e){
+            } catch (exception $e) {
                 // $this->errors[__METHOD__] = $e->getMessage();
             }
         }
-        if($list && $abc){
-            if($sort){
+        if ($list && $abc) {
+            if ($sort) {
                 sort($abc);
             }
             $t = count($abc);
@@ -243,13 +247,13 @@ trait DirMethods{
                 'folder' => [],
                 'file' => []
             ];
-            
-            for($i = 0; $i < $t; $i++){
+
+            for ($i = 0; $i < $t; $i++) {
                 $item = $list[$abc[$i]];
                 $type_list[$item->type][] = $item;
             }
-            foreach($type_list as $list_type){
-                foreach($list_type as $it){
+            foreach ($type_list as $list_type) {
+                foreach ($list_type as $it) {
                     $result[] = $it;
                 }
             }
@@ -262,22 +266,22 @@ trait DirMethods{
      * xóa tất cả
      * @param string $dirname
      */
-    public function delete($dirname=null){
-        if(is_string($dirname)){
+    public function delete($dirname = null)
+    {
+        if (is_string($dirname)) {
             $tt = $this->checkDirAccepted($dirname);
-            if(is_file($dirname) && $tt) return unlink($dirname);
-            elseif(is_dir($dirname) && $tt && $this->canDelete($dirname)){
+            if (is_file($dirname) && $tt) return unlink($dirname);
+            elseif (is_dir($dirname) && $tt && $this->canDelete($dirname)) {
                 return $this->removeDir($dirname);
-            }else{
-                $dirname = $this->joinPath($this->_dir,$dirname);
-                if(is_file($dirname)) return unlink($dirname);
-                elseif(is_dir($dirname) && $this->canDelete($dirname)){
+            } else {
+                $dirname = $this->joinPath($this->_dir, $dirname);
+                if (is_file($dirname)) return unlink($dirname);
+                elseif (is_dir($dirname) && $this->canDelete($dirname)) {
                     return $this->removeDir($dirname);
                 }
             }
             return false;
-        }
-        else{
+        } else {
             return $this->deleteFile();
         }
     }
@@ -287,48 +291,44 @@ trait DirMethods{
      */
     protected function removeDir($dirname)
     {
-        try{
-            if($list = $this->getList($dirname)){
-                foreach($list as $item){
+        try {
+            if ($list = $this->getList($dirname)) {
+                foreach ($list as $item) {
                     $d = $item->path;
-                    if(is_dir($d)) $this->delete($d);
+                    if (is_dir($d)) $this->delete($d);
                     else unlink($d);
                 }
             }
             return rmdir($dirname);
-        }
-        catch(exception $e){
+        } catch (exception $e) {
             // $this->errors[__METHOD__] = $e->getMessage();
             return false;
         }
-        
     }
 
     /**
      * sao chep thu muc
      */
-    public function copyFolder($src,$dst, $check_src = true, $check_dst = true) { 
-        
-        if(is_string($src) && is_string($dst) && $src != $dst){
-            if(!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_dir,$src);
-            if(!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_dir,$dst);
-            if(!is_dir($src)) return false;
-            if(!is_dir($dst)) $this->makeDir($dst, 0777);
-            if($list = $this->getList($src)){
+    public function copyFolder($src, $dst, $check_src = true, $check_dst = true)
+    {
+
+        if (is_string($src) && is_string($dst) && $src != $dst) {
+            if (!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_dir, $src);
+            if (!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_dir, $dst);
+            if (!is_dir($src)) return false;
+            if (!is_dir($dst)) $this->makeDir($dst, 0777);
+            if ($list = $this->getList($src)) {
                 foreach ($list as $file) {
-                    if($file->type == 'folder'){
-                        $this->copyFolder($src.'/'.$file->name, $dst.'/'.$file->name);
-                    }else{
-                        copy($src.'/'.$file->name, $dst.'/'.$file->name);
+                    if ($file->type == 'folder') {
+                        $this->copyFolder($src . '/' . $file->name, $dst . '/' . $file->name);
+                    } else {
+                        copy($src . '/' . $file->name, $dst . '/' . $file->name);
                     }
-                    
                 }
             }
             return true;
-        }
-        else{
+        } else {
             return false;
         }
-    } 
-    
+    }
 }
