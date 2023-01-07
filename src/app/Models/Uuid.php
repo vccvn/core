@@ -30,8 +30,7 @@ trait Uuid
         static::creating(function ($model) {
 
             if (!$model->useUuid || $model->useUuid === 'no') return;
-            $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid
-            );
+            $uuidName = $model->useUuid === true ? 'uuid' : ($model->useUuid === 'primary' ? $model->getKeyName() : $model->useUuid);
             $uuidValue = $model->{$uuidName};
             // Check if the primary key doesn't have a value
             if (!$uuidValue) {

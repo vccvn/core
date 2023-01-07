@@ -66,6 +66,25 @@ trait DirMethods
         return $f;
     }
 
+
+    /**
+     * Create a directory.
+     *
+     * @param  string  $path
+     * @param  int  $mode
+     * @param  bool  $recursive
+     * @param  bool  $force
+     * @return bool
+     */
+    public function makeDirectory($path, $mode = 0755, $recursive = false, $force = false)
+    {
+        if ($force) {
+            return @mkdir($path, $mode, $recursive);
+        }
+
+        return mkdir($path, $mode, $recursive);
+    }
+
     /**
      * tạo dường dẫn mới
      * @param string $dir
@@ -74,33 +93,30 @@ trait DirMethods
      * 
      * @return boolean
      */
-    public function makeDir(string $dir, $mode = 0755, $recursive = false)
+    public function makeDir(string $dir, $mode = 777, $recursive = false)
     {
         if ($dir && is_string($dir)) {
-            $mng = app(static::class); // tao doi tuong moi tranh bi conflict
-            $date = date('Y-m-d');
-
             // nếu không bắt dầu từ thư mục gốc
-            if (!$this->checkDirAccepted($dir)) $dir = Helper::publicPath($dir);
-            $parseDir = rtrim(str_replace("\\",  "/",  $dir), '/');
-            // chia thành các part
+            if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
 
-            $dlist = explode('/', $parseDir);
-            $end = array_pop($dlist);
-            $parent = implode('/', $dlist);
-            if (!is_dir($parseDir)) {
-                if (!$this->mkdir($parseDir, $mode, $recursive)) {
-                    $msg = "Crazy Make dir $parseDir fail!";
-                    $mng->append("\n" . $msg, storage_path('crazy/logs/' . $date . '.log'));
-                    chmod($parent, 0755);
-                    if (!$this->mkdir($parseDir, $mode, $recursive)) {
-                        $msg = "Crazy re-Make dir $parseDir fail!";
-                        $mng->append("\n" . $msg, storage_path('crazy/logs/' . $date . '.log'));
+            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->basePath, "\\"), '/'), '', $dir)));
+
+            $xdir = rtrim(rtrim($this->basePath, "\\"), '/');
+
+            if (count($dlist)) {
+                foreach ($dlist as $subPath) {
+                    if (strlen($subPath)) {
+                        if (!is_dir($xdir .= '/' . $subPath)) {
+                            $this->makeDirectory($xdir, $mode, $recursive, true);
+                            // $oldumask = umask(0);
+                            // // mkdir('mydir', 0777); // or even 01777 so you get the sticky bit set
+                            // @mkdir($xdir, $mode, $recursive);
+                            // umask($oldumask);
+                        }
+                        // chmod($xdir, 0766);
                     }
                 }
             }
-
-
             return true;
         }
         return false;

@@ -162,7 +162,18 @@ trait FileMethods{
     {
         return is_null($content)?$this->getContent():$this->setContent($content);
     }
-
+    /**
+     * Write the contents of a file.
+     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  bool  $lock
+     * @return int|bool
+     */
+    public function put($path, $contents, $lock = false)
+    {
+        return file_put_contents($path, $contents, $lock ? LOCK_EX : 0);
+    }
     /**
      * lưu file
      * @param string $filename
@@ -187,7 +198,7 @@ trait FileMethods{
         if(!is_dir($d)){
             $this->makeDir($d, 0755,true);
         }
-        file_put_contents($f, $c);
+        $this->put($f, $c);
         $return_value = false;
         // nếu lưu thành ông
         if(file_exists($f)){
