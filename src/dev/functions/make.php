@@ -85,7 +85,7 @@ if (!function_exists('make_controller')) {
             'api' => 'Apis',
             'web' => 'Web',
             'frontend' => 'Frontend',
-            
+            'merchant' => 'Merchant',
             'custom' => null
         ];
         $ac = explode('/', str_replace("\\", "/", $name));
