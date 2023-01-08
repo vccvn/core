@@ -839,6 +839,9 @@ trait FormMethods
         // nếu là object
         elseif (is_object($data)) {
 
+            if (method_exists($data, 'getKeyName')) {
+                $form_data = $data->toFormData();
+            }
             if (method_exists($data, 'toFormData')) {
                 $form_data = $data->toFormData();
             }
@@ -850,6 +853,10 @@ trait FormMethods
             elseif (is_array($fdata = Arr::parse($data))) {
                 $form_data = $fdata;
             }
+            if (method_exists($data, 'getKeyName')) {
+                $form_data['id'] = $data->{$data->getKeyName()};
+            }
+
         }
         $return = compact(
             'form_config',
