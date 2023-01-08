@@ -99,9 +99,9 @@ trait DirMethods
             // nếu không bắt dầu từ thư mục gốc
             if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
 
-            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->basePath, "\\"), '/'), '', $dir)));
+            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->_dir, "\\"), '/'), '', $dir)));
 
-            $xdir = rtrim(rtrim($this->basePath, "\\"), '/');
+            $xdir = rtrim(rtrim($this->_dir, "\\"), '/');
 
             if (count($dlist)) {
                 foreach ($dlist as $subPath) {
