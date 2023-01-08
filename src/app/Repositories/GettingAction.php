@@ -335,6 +335,7 @@ trait GettingAction
         if ($request->ignore && is_array($request->ignore)) {
             $this->whereNotIn($valueKey, $request->ignore);
         }
+        if($valueKey == MODEL_PRIMARY_KEY) $valueKey = $this->_primaryKeyName;
         $this->buildFilter($request);
         $args = array_merge($this->getPaginateArgs($request), $args);
         $this->fire('beforegetRequestDataOptions', $this, $request, $args);

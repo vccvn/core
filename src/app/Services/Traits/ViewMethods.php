@@ -218,7 +218,8 @@ trait ViewMethods
         }
         $this->callViewEvent('beforeGetDetailData', $request);
 
-        if ($id && $detail = $this->repository->getDetail([MODEL_PRIMARY_KEY => $id])) {
+        $keyName = $this->repository->getKeyName();
+        if ($id && $detail = $this->repository->getDetail([$keyName => $id])) {
             $data = [];
             $data['detail'] = $detail;
             $arrData = new Arr($data);
@@ -282,7 +283,7 @@ trait ViewMethods
         $this->repository->notTrashed();
         $keyName = $this->repository->getKeyName();
         if ($request->id && $detail = $this->repository->getFormData([$keyName => $request->id])) {
-            $this->repository->setActiveID($detail->{MODEL_PRIMARY_KEY});
+            $this->repository->setActiveID($detail->{$keyName});
             $this->activeMenu($this->module . '.update');
             return $this->getCrudForm($request, ['type' => 'update'], $detail);
         }
