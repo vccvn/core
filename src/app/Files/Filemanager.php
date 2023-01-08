@@ -227,7 +227,7 @@ class Filemanager{
      */
     public function saveBase64($base64, $filenameWithoutExtension = null, $path = null)
     {
-        if($file = $this->filemanager->getBase64Data($base64)){
+        if($file = $this->getBase64Data($base64)){
             if($path){
                 $this->setDir($path);
             }

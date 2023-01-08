@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\File;
 trait DirMethods
 {
     protected $_dir = null;
-
+    public $_basePath = null;
     public function dirInit()
     {
-        $this->_dir = Helper::basePath();
+        $this->_basePath = Helper::basePath();
+        $this->_dir = $this->_basePath;
+
     }
     /**
      * thiết lập dường dẫn để quản lý file
@@ -99,9 +101,9 @@ trait DirMethods
             // nếu không bắt dầu từ thư mục gốc
             if (!$this->checkDirAccepted($dir)) $dir = $this->publicPath($dir);
 
-            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->_dir, "\\"), '/'), '', $dir)));
+            $dlist = explode('/', str_replace("\\", "/", str_replace(rtrim(rtrim($this->_basePath, "\\"), '/'), '', $dir)));
 
-            $xdir = rtrim(rtrim($this->_dir, "\\"), '/');
+            $xdir = rtrim(rtrim($this->_basePath, "\\"), '/');
 
             if (count($dlist)) {
                 foreach ($dlist as $subPath) {
@@ -435,8 +437,8 @@ trait DirMethods
     {
 
         if (is_string($src) && is_string($dst) && $src != $dst) {
-            if (!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_dir, $src);
-            if (!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_dir, $dst);
+            if (!$this->checkDirAccepted($src)) $src = $this->joinPath($this->_basePath, $src);
+            if (!$this->checkDirAccepted($dst)) $dst = $this->joinPath($this->_basePath, $dst);
             if (!is_dir($src)) return false;
             if (!is_dir($dst)) $this->makeDir($dst, 0755, true);
             // $this->chmod($src, 777);
