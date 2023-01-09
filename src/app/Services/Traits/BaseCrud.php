@@ -157,7 +157,7 @@ trait BaseCrud
         } elseif ($is_update) {
             $r = $redirect->back();
         } else {
-            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->id]);
+            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->{$model->getKeyName()}]);
         }
         if ($this->redirectData) {
             return $r->with($this->redirectData);
