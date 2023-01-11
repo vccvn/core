@@ -59,6 +59,8 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
      */
     protected $relationMap = [];
 
+    protected $hidden = [];
+
     /**
      * hàm khởi tạo
      * @param Gomee\Models\Model
@@ -99,9 +101,9 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $this->data = $model->getAttrData();
         } elseif (method_exists($model, 'toArray')) {
             $this->data = $model->toArray();
-        }elseif(is_object($model)){
+        } elseif (is_object($model)) {
             $this->data = object_to_array($model);
-        }elseif(is_array($model)){
+        } elseif (is_array($model)) {
             $this->data = $model;
         }
 
@@ -139,26 +141,24 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if (method_exists($this, 'onCompleted')) {
             $this->onCompleted();
         }
-
     }
 
-    
+
     public function checkDataIfHasMLC()
     {
-        if($this->model->multilang && ($localeContent = $this->model->localeContent)){
-            if($localeContent->title && $this->model->localeTitleColumn){
+        if ($this->model->multilang && ($localeContent = $this->model->localeContent)) {
+            if ($localeContent->title && $this->model->localeTitleColumn) {
                 $this->{$this->model->localeTitleColumn} = $localeContent->title;
             }
-            if($data = $localeContent->content){
+            if ($data = $localeContent->content) {
                 foreach ($data as $key => $value) {
                     $this->{$key} = $value;
                 }
             }
-            
         }
     }
 
-    
+
 
     /**
      * thêm danh sách cho phép truy cập vào model
@@ -512,19 +512,27 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         }
         $related = $this->getRelationsLoaded();
         $relations = [];
-        foreach ($related as $key => $value) {
-            $relations[$key] = $value->toArray();
-        }
         $data = [];
-        $raw = array_merge($this->data, $relations);
+
         $hidden = $this->hidden;
-        if($hidden && is_array($hidden)){
-            foreach ($raw as $key => $value) {
-                if(!in_array($key, $hidden)){
-                    $data[$key] = $value;
+        if ($hidden && is_array($hidden)) {
+            foreach ($related as $key => $value) {
+                if (!in_array($key, $hidden)) {
+                    $relations[$key] = $value->toArray();
                 }
             }
-        }else{
+            $raw = [];
+            foreach ($this->data as $key => $value) {
+                if (!in_array($key, $hidden)) {
+                    $raw[$key] = $value;
+                }
+            }
+            $data = array_merge($raw, $relations);
+        } else {
+            foreach ($related as $key => $value) {
+                $relations[$key] = $value->toArray();
+            }
+            $raw = array_merge($this->data, $relations);
             $data = $raw;
         }
         return $data;
