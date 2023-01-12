@@ -112,9 +112,15 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
         $data = $this->form_data;
         $errors = $this->errors;
         $i = 0;
+        $actionType = $this->data('action-type');
         foreach ($inputs as $nsp => $inp) {
             // tao doi tuong truy cap input
+
             $input = new Arr($inp);
+
+            if (($actionType == 'create' && ($input->HideOnCreate || $input->showOnUpdate)) || ($actionType == 'updadte' && ($input->HideOnUpdate || $input->showOnCreate))){
+                continue;
+            }
             if (!$input->name) $input->name = $nsp;
             // lay tên input
             $name = $input->name;
@@ -132,7 +138,6 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
                     $input->label = $input->name;
                 }
             }
-
 
             // set placholder
             if (!$input->placeholder && in_array($this->type, ['text', 'textarea', 'email', 'number', 'search'])) {
