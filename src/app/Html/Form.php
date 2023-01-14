@@ -194,6 +194,11 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
         return $namespace;
     }
 
+    public function setArrayRootName($name)
+    {
+        # code...
+    }
+
     /**
      * set thuoc tinh cho input
      * @param string|array $attr thuoc tinh
