@@ -330,10 +330,10 @@ class HtmlDom implements Htmlable
             if ($k != 'style') {
                 foreach ($arr as $key => $value) {
                     $kk = $k . '-' . $key;
-                    if ((is_string($value) && strlen($value) > 0) || is_numeric($value) || $value == true) {
-                        $html .= ' ' . $kk . '="' . $value . '"';
-                    } elseif (is_array($value)) {
+                    if (is_array($value)) {
                         $html .= static::arrayToAttrs($html, $value, $kk);
+                    } elseif ((is_string($value) && strlen($value) > 0) || is_numeric($value) || $value == true) {
+                        $html .= ' ' . $kk . '="' . $value . '"';
                     }
                 }
             } else {
