@@ -66,6 +66,9 @@ class Input extends HtmlDom
 
     public $appendColumns = [];
 
+    protected $config = [];
+
+
 
 
     /**
@@ -78,6 +81,7 @@ class Input extends HtmlDom
         if (is_array($args)) {
             parent::__construct(isset($args['type']) ? $args['type'] : 'input');
             $this->orginalData = $args;
+            $this->config = $args;
             if($form){
                 $this->parent = $form;
             }
@@ -88,6 +92,10 @@ class Input extends HtmlDom
         }
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
 
     public function onSetAttribute($attr, $value)
     {
