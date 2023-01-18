@@ -2,6 +2,7 @@
 
 namespace Gomee\Validators;
 
+use Arr;
 use Gomee\Files\Filemanager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -161,6 +162,13 @@ trait DefaultMethods{
 
         static::extend('arrdate', function($name, $value, $params){
             if(!$value) return true;
+            if(is_array($value)){
+                $d = new Arr($value);
+                if(( !$d->day || $d->day == 'day' || $d->day == '0' ) && ( !$d->month || $d->month == 'month' || $d->month == '0' ) && ( !$d->year || $d->year == 'year' || $d->year == '0' )){
+                    
+                    return true;
+                }
+            }
             $status = $this->checkArrDate($name, $value);
             if($status && $value && $params && $p = $this->parseParameters($params)){
                 if(in_array(strtolower($p[0]), ['string', 'str'])){

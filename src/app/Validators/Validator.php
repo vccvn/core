@@ -233,7 +233,7 @@ abstract class Validator{
                         $datetimes[] = $key;
                         $data[$key] = $this->datetimes[$key]??null;
                         continue;
-                    }elseif(in_array('arrdate', $rs)){
+                    }elseif(in_array('arrdate', $rs) && array_key_exists($key, $this->arrdate)){
                         $arrdate[] = $key;
                         $data[$key] = $this->arrdate[$key]??null;
                         continue;
