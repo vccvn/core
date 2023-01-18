@@ -150,6 +150,12 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
             $inputonly = $input->get('@inputonly');
             if (!$inputonly || $inputonly != "false") {
                 $old = old($namespace);
+                if($input->key){
+                    $v = $data->get($input->key);
+                    if(is_array($v) || is_bool($v) || strlen($v)){
+                        $old = $v;
+                    }
+                }
                 $vl = ($old !== null) ? $old : $data->get($namespace);
                 if ($vl !== null) $input->value = $vl;
             }else{
