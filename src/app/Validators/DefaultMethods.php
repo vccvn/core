@@ -2,7 +2,7 @@
 
 namespace Gomee\Validators;
 
-use Arr;
+use Gomee\Helpers\Arr;
 use Gomee\Files\Filemanager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
