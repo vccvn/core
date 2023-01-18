@@ -105,7 +105,7 @@ trait ApiFilter{
     }
 
     /**
-     * lay thong tin bản ghi thông qua id
+     * lay Thông tin bản ghi thông qua id
      * @param int $id
      *
      * @return response

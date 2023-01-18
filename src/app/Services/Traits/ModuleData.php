@@ -6,7 +6,7 @@ trait ModuleData
 {
 
     /**
-     * lay thong tin file cache hoac json
+     * lay Thông tin file cache hoac json
      * @param string $file ten file hoac sub path khong chua phan mo rong
      * @param array|null
      */

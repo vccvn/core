@@ -99,7 +99,7 @@ trait ResponseMethods
     }
 
     /**
-     * lấy thong tin slug
+     * lấy Thông tin slug
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -113,7 +113,7 @@ trait ResponseMethods
     }
 
     /**
-     * kiem tra thong tin slug
+     * kiem tra Thông tin slug
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */

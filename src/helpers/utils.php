@@ -270,7 +270,7 @@ if(!function_exists('isSecure')){
 
 if (!function_exists('get_video_from_url')) {
     /**
-     * lây thong tin video từ url.
+     * lây Thông tin video từ url.
      * hỗ trợ youtube là chính =)))
      * @param string $url
      * 

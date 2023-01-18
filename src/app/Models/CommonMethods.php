@@ -141,8 +141,8 @@ trait CommonMethods
 
 
     /**
-     * lay ra 1 hoac tat ca cac thong tin trong bang user_meta
-     * @param  string $meta_name ten cua meta can lay thong tin
+     * lay ra 1 hoac tat ca cac Thông tin trong bang user_meta
+     * @param  string $meta_name ten cua meta can lay Thông tin
      * @return mixed             du lieu trong bang meta
      */
     public function meta($meta_name = null)

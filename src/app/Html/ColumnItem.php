@@ -149,7 +149,7 @@ class ColumnItem
         return $newData;
     }
     /**
-     * duyệt thong tin cho template
+     * duyệt Thông tin cho template
      * @param array $data
      * 
      * @return array

@@ -3,7 +3,7 @@
 /**
  * @author DoanLN
  * @date 2019-03-01
- * cho phép lay thong tin cac route cua laravel
+ * cho phép lay Thông tin cac route cua laravel
  * 
  */
 
@@ -29,7 +29,7 @@ class Router{
     }
 
     /**
-     * lay thong tin route
+     * lay Thông tin route
      * @param Route
      * @return array
      */

@@ -321,7 +321,7 @@ trait FormMethods
 
 
     /**
-     * kiểm tra xem có full thong tin form trong một file hay không
+     * kiểm tra xem có full Thông tin form trong một file hay không
      * @param array $args
      * 
      * @return array
@@ -425,7 +425,7 @@ trait FormMethods
             if ($form_data = $this->checkFullFormModule($inputs)) {
                 return $this->checkExtendsAndInclude($filename, $form_data);
             }
-            // chuẩn hóa thong tin input để generate ra view
+            // chuẩn hóa Thông tin input để generate ra view
             $data['form_inputs'] = $this->parseInputArr($inputs, $this->module);
             $cfgfile = $configfile ? $configfile : $filename . '.config';
             // lấy thông tin config
@@ -528,7 +528,7 @@ trait FormMethods
             if ($form_data = $this->checkFullFormModule($inputs)) {
                 return $form_data;
             }
-            // chuẩn hóa thong tin input để generate ra view
+            // chuẩn hóa Thông tin input để generate ra view
             $data['form_inputs'] = $this->parseInputArr($inputs, $filename);
             $cfgfile = $configfile ? $configfile : $filename . '.config';
             $data = array_merge($data, $this->getConfigDataArray($this->getStorageData($cfgfile)));
@@ -720,7 +720,7 @@ trait FormMethods
             }
         } else {
 
-            // lay thong tin danh sach input tu file json
+            // lay Thông tin danh sach input tu file json
             $cfg = $this->getFormData($c);
             if ($cfg['form_inputs']) {
                 $form_inputs = $cfg['form_inputs'];

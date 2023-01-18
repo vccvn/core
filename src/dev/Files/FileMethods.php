@@ -69,7 +69,7 @@ trait FileMethods
     }
 
     /**
-     * lấy thong tin size
+     * lấy Thông tin size
      * @param string $filename
      * 
      * @return number
