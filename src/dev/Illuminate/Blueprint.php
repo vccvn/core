@@ -8,6 +8,7 @@ class BlueprintDataConfig
 {
     public $data = [];
 
+    protected $indexes = [];
     protected $column = '';
     /**
      * table
@@ -29,7 +30,19 @@ class BlueprintDataConfig
 
     public function __call($name, $params)
     {
+        $sk = strtolower($name);
+        if($sk == 'index'){
+            if(count($params)){
+                if(is_array($params[0])){
+                    $this->indexes = array_merge($this->indexes, $params[0]);
+                }else{
+                    $this->indexes = array_merge($this->indexes, $params);   
+                }
 
+            }
+            
+            return $this;
+        }
         $this->data[$name] = $params[0]??true;
         $this->table->config[$this->column][$name] = $params[0]??true;
         return $this;
