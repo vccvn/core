@@ -15,6 +15,8 @@ abstract class BaseApi
     protected $responseType = 'raw';
     protected $oneTimeType = null;
 
+    protected $exception = null;
+
     function __construct()
     {
         $this->url = env('API_URL');
@@ -164,10 +166,7 @@ abstract class BaseApi
             }
             return $response;
         } catch (BadResponseException $th) {
-
-            
-            dd($th);//
-
+            $this->exception = $th;
             return null;
         }
     }
@@ -176,6 +175,11 @@ abstract class BaseApi
     public function getHttpCode()
     {
         return $this->http_code;
+    }
+
+    public function getException()
+    {
+        return $this->exception;
     }
 
 }
