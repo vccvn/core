@@ -17,6 +17,8 @@ abstract class BaseApi
 
     protected $exception = null;
 
+    protected $response = null;
+
     function __construct()
     {
         $this->url = env('API_URL');
@@ -80,6 +82,7 @@ abstract class BaseApi
                 ]
             ]);
     
+            $this->response = $response;
             return $response;
         } catch (BadResponseException $th) {
             return null;
@@ -104,6 +107,8 @@ abstract class BaseApi
         if ($url) {
             $headerData = array_merge(['content-type' => 'Application/json'], $headers);
             if ($response = $this->sendRequest($url, $method, $data, $headerData)) {
+
+            $this->response = $response;
                 $data = json_decode($response->getBody()->getContents(), true);
             }
         }
@@ -157,7 +162,7 @@ abstract class BaseApi
 
             $response = $client->request($method, $url, $params);
             
-
+            $this->response = $response;
             if ($type == 'json') {
                 return json_decode($response->getBody()->getContents(), true);
             }
@@ -180,6 +185,11 @@ abstract class BaseApi
     public function getException()
     {
         return $this->exception;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
     }
 
 }
