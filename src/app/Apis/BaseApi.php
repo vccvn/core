@@ -164,6 +164,8 @@ abstract class BaseApi
             }
             return $response;
         } catch (BadResponseException $th) {
+
+            
             dd($th);//
 
             return null;
