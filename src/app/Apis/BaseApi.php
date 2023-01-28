@@ -100,7 +100,7 @@ abstract class BaseApi
     {
         $data = [];
         if ($url) {
-            $headerData = array_merge(['content-type' => 'application/json'], $headers);
+            $headerData = array_merge(['content-type' => 'Application/json'], $headers);
             if ($response = $this->sendRequest($url, $method, $data, $headerData)) {
                 $data = json_decode($response->getBody()->getContents(), true);
             }
@@ -135,7 +135,7 @@ abstract class BaseApi
         $type = $this->oneTimeType ? $this->oneTimeType : $this->responseType;
         $this->oneTimeType = null;
         if ($type == 'json') {
-            $defaultOptions['content-type'] = 'application/json';
+            $defaultOptions['Content-Type'] = 'application/json';
         }
         try {
             $headerData = array_merge($defaultOptions, (array) $headers);
@@ -164,6 +164,7 @@ abstract class BaseApi
             }
             return $response;
         } catch (BadResponseException $th) {
+            dd($th);
             return null;
         }
     }
