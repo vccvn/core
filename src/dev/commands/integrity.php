@@ -14,25 +14,25 @@ if (!function_exists('integrityGenerate')) {
 
     function integrityGenerate($file)
     {
-        if (preg_match('/^(http|https)\"\/\//', $file)) $content = file_get_contents($file);
+        if (preg_match('/^(http|https)\:\/\//', $file)) $content = file_get_contents($file);
         elseif (file_exists($file)) $content = file_get_contents($file);
         elseif (file_exists($path = base_path($file))) $content = file_get_contents($path);
         else $content = null;
 
-	echo generate_sri_hash($content, 'sha256');
-	echo "\n";
-	echo generate_sri_hash($content, 'sha384');
-	echo "\n";
-	echo generate_sri_hash($content, 'sha512');
+        echo generate_sri_hash($content, 'sha256');
+        echo "\n";
+        echo generate_sri_hash($content, 'sha384');
+        echo "\n";
+        echo generate_sri_hash($content, 'sha512');
 
-	echo "\n\n";
+        echo "\n\n";
 
-	echo generate_sri_openssl($content, 'sha256');
-	echo "\n";
-	echo generate_sri_openssl($content, 'sha384');
-	echo "\n";
-	echo generate_sri_openssl($content, 'sha512');
+        echo generate_sri_openssl($content, 'sha256');
+        echo "\n";
+        echo generate_sri_openssl($content, 'sha384');
+        echo "\n";
+        echo generate_sri_openssl($content, 'sha512');
 
-	echo "\n";
+        echo "\n";
     }
 }
