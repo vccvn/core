@@ -87,7 +87,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if ($this->isLock) return $this;
         // vòng đời được bắt đầu khi gán model
         $this->model = $model;
-        $this->model->rewriteDataIfHasMLC();
+        if(method_exists($this->model, 'rewriteDataIfHasMLC')){
+            $this->model->rewriteDataIfHasMLC();
+        }
+        
         $this->collectionClass = $collectionClass;
 
         // đầu tiên phải chạy qua init để thiết lập thông sớ
