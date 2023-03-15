@@ -19,7 +19,7 @@ class Image
      * @var GdImage
      */
     protected $data;
-    protected $Original;
+    protected $original;
     protected $type = null;
     protected $mime = null;
     protected $width = 0;
@@ -41,7 +41,7 @@ class Image
                 $i = self::getsity($image);
                 $im  = self::create($image);
                 $this->data = $im;
-                $this->Original = $im;
+                $this->original = $im;
                 $this->height = $i['h'];
                 $this->width = $i['w'];
                 $this->type = $i['type'];
@@ -78,9 +78,9 @@ class Image
      *
      * @return GD
      */
-    public function getOriginal()
+    public function getoriginal()
     {
-        return $this->Original;
+        return $this->original;
     }
     /**
      * lấy loại tập tin ảnh
