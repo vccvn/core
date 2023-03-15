@@ -199,7 +199,7 @@ class Image
     public function save($filename, $mime = null)
     {
         if (!is_string($filename)) throw new \Exception("filename you gived is not a string", 1);
-        elseif((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
+        elseif ((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
             $m = $mime ? $mime : ($this->mime ? $this->mime : 'image/png');
             $ext = $this->getExt($m);
             if (!preg_match('/\.' . $ext . '$/si', $filename)) {
@@ -332,6 +332,57 @@ class Image
             $transparent = imagecolorallocatealpha($newImg, 255, 255, 255, 127);
             imagefilledrectangle($newImg, 0, 0, $nWidth, $nHeight, $transparent);
         }
+        $targ_w = $w;
+        $targ_h = $h;
+        $jpeg_quality = 90;
+
+
+        $ix = imagesx($img);
+        $iy = imagesy($img);
+
+
+        imagecopyresampled($newImg, $img, 0, 0, $x, $y, $nWidth, $nHeight, $w, $h);
+        //imagecopyresampled($dst_r,$img_r,0,0,$x,$y,$targ_w,$targ_h,$w,$h);
+        $this->data = $newImg;
+        $this->refresh();
+        return $this;
+    }
+
+    /**
+     * cat hinh anh
+     * @param int $width Độ rộng
+     * @param int $height Chiều cao
+     * @param int $x Tọa độ x
+     * @param int $y Tọa đô y
+     * @return Image
+     */
+
+    public function insertbackground()
+    {
+        $width = $this->getWidth();
+        $height = $this->getHeight();
+        $x = 0;
+        $y = 0;
+        $transparent_bg = true;
+        $w = $width;
+        $h = $height;
+        if (is_array($width)) {
+            $i = $width;
+            if (isset($i['width'])) $w = $i['width'];
+            else $w = null;
+            if (isset($i['height'])) $h = $i['height'];
+            if (isset($i['x'])) $x = $i['x'];
+            if (isset($i['y'])) $y = $i['y'];
+        }
+        $img = $this->data;
+        // $x = self::cropX($img, $x, $w);
+        // $y = self::cropY($img, $y, $h);
+
+        $nWidth = $w;
+        $nHeight = $h;
+        $newImg = imagecreatetruecolor($nWidth, $nHeight);
+        $transparent = imagecolorallocate($newImg, 255, 255, 255);
+        imagefilledrectangle($newImg, 0, 0, $nWidth, $nHeight, $transparent);
         $targ_w = $w;
         $targ_h = $h;
         $jpeg_quality = 90;
