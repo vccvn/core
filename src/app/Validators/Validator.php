@@ -118,6 +118,7 @@ abstract class Validator{
     public function getRules()
     {
         $rules = $this->rules();
+        dd($rules, $attrs = $this->repository->getValidateAttrs());
         // kiểm tra các trường thông tin dược set hoặc bỏ qua
         if($this->repository && $attrs = $this->repository->getValidateAttrs()){
             $data = [];
