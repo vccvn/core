@@ -248,7 +248,7 @@ abstract class Validator{
                 $keys[] = $explode[0];
                 
             }
-
+            dd($mixed);
             foreach ($raw as $name => $value) {
                 if(in_array($name, $keys) && !is_null($value)){
                     $data[$name] = $value;
