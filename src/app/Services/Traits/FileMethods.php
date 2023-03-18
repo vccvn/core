@@ -392,11 +392,7 @@ trait FileMethods
      */
     public function uploadImageAttachFile(Request $request, Arr $data, string $field = 'image', $path = null, $width = null, $height = null)
     {
-        if ($request->id && $fn = $this->repository->getAttachFilename($request->id)) {
-            $filename = $this->getFilenameWithoutExtension($fn);
-            $filename = str_replace(['{', '}'], '-', $filename);
-            $filename = str_replace('--', $request->id?$request->id:$field, $filename);
-        } elseif ($request->hasFile($field)) {
+        if ($request->hasFile($field)) {
             $file = $request->file($field);
             $extension = strtolower($file->getClientOriginalExtension());
             $otge = $extension;
