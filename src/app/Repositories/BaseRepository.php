@@ -97,6 +97,8 @@ abstract class BaseRepository
             $this->required = $this->_primaryKeyName;
         }
         $this->modelType = $this->_model->__getModelType__();
+
+        $this->ownerInit();
         $this->init();
         if (!$this->defaultValues) {
             $this->defaultValues = $this->_model->getDefaultValues();
