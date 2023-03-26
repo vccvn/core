@@ -175,6 +175,8 @@ trait FilterAction
     protected $defaultSortBy = [];
 
     protected $responseMode = 'default';
+    protected $isBuildJoin = false;
+    protected $isBuildSelect = false;
 
     final public function mode($mode = null)
     {
@@ -772,6 +774,7 @@ trait FilterAction
      */
     final protected function buildJoin()
     {
+        if ($this->isBuildJoin) return $this;
         if ($this->joinable) {
             foreach ($this->joinable as $join) {
                 $args = $join;
@@ -779,6 +782,8 @@ trait FilterAction
                 call_user_func_array([$this, $fun], $args);
             }
         }
+        $this->isBuildJoin = true;
+        return $this;
     }
 
     /**
@@ -786,6 +791,7 @@ trait FilterAction
      */
     final protected function buildSelect()
     {
+        if ($this->isBuildSelect) return $this;
         if ($this->selectable) {
             $select = [];
             foreach ($this->selectable as $mask => $column) {
@@ -803,6 +809,8 @@ trait FilterAction
                 $this->selectRaw($select);
             }
         }
+        $this->isBuildSelect = true;
+        return $this;
     }
 
     final public function buildGroupBy()
