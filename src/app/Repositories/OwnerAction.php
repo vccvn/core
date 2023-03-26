@@ -11,13 +11,13 @@ trait OwnerAction
     protected $system = 'default';
     public static function addOwnerID($id = 0)
     {
-        if($id){
+        if ($id) {
             self::$_owner_id = $id;
         }
     }
     public function setOwnerID($id = 0)
     {
-        if($id){
+        if ($id) {
             self::$_owner_id = $id;
         }
     }
@@ -34,19 +34,27 @@ trait OwnerAction
 
     public function ownerInit()
     {
-        if(in_array('owner_id', $this->getFields())){
+        if (in_array('owner_id', $this->getFields())) {
             $owner = self::$_owner_id;
-            if($owner || $this->system == 'both'){
+            if ($owner || $this->system == 'both') {
                 $this->addDefaultValue('owner_id', $owner);
                 $this->addDefaultParam('owner', 'owner_id', $owner);
             }
         }
     }
 
-    
+
+
     protected static $master_id = 0;
-    public static function setMasterId($id){
+    public static function setMasterId($id)
+    {
         static::$master_id = $id;
     }
 
+    public function unOwnerQuery()
+    {
+        $this->addDefaultValue('owner_id', 0);
+        $this->addDefaultParam('owner', 'owner_id', 0);
+        return $this;
+    }
 }

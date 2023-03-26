@@ -205,7 +205,6 @@ trait BaseQuery
             }
         } elseif ($t > 1) {
             if ($paramKey) {
-
                 $this->defaultParams[$paramKey] = $params;
             } else {
                 $this->defaultParams[] = $params;
