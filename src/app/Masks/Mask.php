@@ -521,7 +521,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if ($hidden && is_array($hidden)) {
             foreach ($related as $key => $value) {
                 if (!in_array($key, $hidden)) {
-                    $relations[$key] = $value->toArray();
+                    $relations[$key] = $value->toArrayData();
                 }
             }
             $raw = [];
@@ -533,7 +533,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $data = array_merge($raw, $relations);
         } else {
             foreach ($related as $key => $value) {
-                $relations[$key] = $value->toArray();
+                $relations[$key] = $value->toArrayData();
             }
             $raw = array_merge($this->data, $relations);
             $data = $raw;
