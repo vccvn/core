@@ -87,10 +87,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if ($this->isLock) return $this;
         // vòng đời được bắt đầu khi gán model
         $this->model = $model;
-        if(method_exists($this->model, 'rewriteDataIfHasMLC')){
+        if (method_exists($this->model, 'rewriteDataIfHasMLC')) {
             $this->model->rewriteDataIfHasMLC();
         }
-        
+
         $this->collectionClass = $collectionClass;
 
         // đầu tiên phải chạy qua init để thiết lập thông sớ
@@ -521,7 +521,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         if ($hidden && is_array($hidden)) {
             foreach ($related as $key => $value) {
                 if (!in_array($key, $hidden)) {
-                    $relations[$key] = $value->toArrayData();
+                    if (method_exists($value, 'toArrayData'))
+                        $relations[$key] = $value->toArrayData();
+                    else
+                        $relations[$key] = $value->toArray();
                 }
             }
             $raw = [];
@@ -533,7 +536,10 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $data = array_merge($raw, $relations);
         } else {
             foreach ($related as $key => $value) {
-                $relations[$key] = $value->toArrayData();
+                if (method_exists($value, 'toArrayData'))
+                    $relations[$key] = $value->toArrayData();
+                else
+                    $relations[$key] = $value->toArray();
             }
             $raw = array_merge($this->data, $relations);
             $data = $raw;
