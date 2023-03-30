@@ -55,6 +55,24 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         }
     }
 
+    public function newData($data = [])
+    {
+        $this->data = [];
+        if(is_array($data) || is_object($data)){
+            foreach ($data as $key => $value) {
+                // duyệt qua mảng hoặc object để gán key, value ở level 0 cho biến data
+                $this->data[$key] = $value;
+            }
+        }
+        return $this;
+    }
+
+    public function empty()
+    {
+        $this->data = [];
+        return $this;
+    }
+
     /**
      * lấy data theo mảng key theo thứ tự trong mảng
      * chỉ lấy giá trị của thằng con sau cùng
