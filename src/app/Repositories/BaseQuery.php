@@ -724,6 +724,8 @@ trait BaseQuery
     {
         $this->params = [];
         $this->actions = [];
+        $this->isBuildJoin = false;
+        $this->isBuildSelect = false;
     }
 
 
