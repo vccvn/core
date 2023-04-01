@@ -301,6 +301,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
 
     public function toArray()
     {
+        if(!$this->isPaginator) return $this->toArrayData();
         return [
             'data' => $this->toArrayData(),
             'total' => $this->total(),
@@ -339,21 +340,7 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
     public function toJson($options = 0)
     {
         return json_encode(
-            [
-                'current_page' => $this->currentPage(),
-                'data' => $this->toArrayData(),
-                'first_page_url' => $this->url(1),
-                'from' => $this->firstItem(),
-                'last_page' => $this->lastPage(),
-                'last_page_url' => $this->url($this->lastPage()),
-                'links' => ($lc = $this->linkCollection())?$lc->toArray():[],
-                'next_page_url' => $this->nextPageUrl(),
-                'path' => $this->path(),
-                'per_page' => $this->perPage(),
-                'prev_page_url' => $this->previousPageUrl(),
-                'to' => $this->lastItem(),
-                'total' => $this->total(),
-            ], JSON_PRETTY_PRINT
+            $this->toArray(), JSON_PRETTY_PRINT
         );
     }
 
