@@ -212,6 +212,10 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
         return null;
     }
 
+    final public function getItems()
+    {
+        return $this->items;
+    }
     /**
      * Determine if an item exists at an offset.
      *
