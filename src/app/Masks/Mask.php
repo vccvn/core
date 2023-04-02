@@ -545,14 +545,14 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             $data = $raw;
         }
         return array_map(function ($value) {
-            
+
             if (is_a($value, static::class)) {
                 return $value->toDeepArray();
-            } elseif (is_object($value)){
-                if(is_callable([$value, 'toDeepArray'])) {
-                    return $value->toDeepArray();
-                }  elseif (is_object($value) && is_callable([$value, 'toArrayData'])) {
+            } elseif (is_object($value)) {
+                if (is_callable([$value, 'toArrayData'])) {
                     return $value->toArrayData();
+                } elseif (is_callable([$value, 'toDeepArray'])) {
+                    return $value->toDeepArray();
                 } elseif ($value instanceof Arrayable) {
                     return $value->toArray();
                 } elseif (is_callable([$value, 'toArray'])) {
@@ -567,13 +567,13 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
     public function toDeepArray()
     {
         return array_map(function ($value) {
-            
+
             if (is_a($value, static::class)) {
                 return $value->toDeepArray();
-            } elseif (is_object($value)){
-                if(is_callable([$value, 'toDeepArray'])) {
+            } elseif (is_object($value)) {
+                if (is_callable([$value, 'toDeepArray'])) {
                     return $value->toDeepArray();
-                }  elseif (is_object($value) && is_callable([$value, 'toArrayData'])) {
+                } elseif (is_object($value) && is_callable([$value, 'toArrayData'])) {
                     return $value->toArrayData();
                 } elseif ($value instanceof Arrayable) {
                     return $value->toArray();

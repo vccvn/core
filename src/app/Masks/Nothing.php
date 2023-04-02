@@ -33,7 +33,7 @@ abstract class Nothing implements Countable, ArrayAccess, IteratorAggregate, Jso
      *
      * @return \ArrayIterator
      */
-    public function getIterator()
+    public function getIterator():ArrayIterator
     {
         return new ArrayIterator($this->data);
     }
@@ -81,13 +81,13 @@ abstract class Nothing implements Countable, ArrayAccess, IteratorAggregate, Jso
      * đếm phần tử
      * @return int
      */
-    public function count()
+    public function count():int
     {
         return count($this->data);
     }
 
      
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value):void {
         if (is_null($offset)) {
             $this->data[] = $value;
         } else {
@@ -95,11 +95,11 @@ abstract class Nothing implements Countable, ArrayAccess, IteratorAggregate, Jso
         }
     }
 
-    public function offsetExists($offset) {
+    public function offsetExists($offset): bool {
         return isset($this->data[$offset]);
     }
 
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset):void {
         unset($this->data[$offset]);
     }
 
