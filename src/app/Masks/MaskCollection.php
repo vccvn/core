@@ -20,6 +20,7 @@ use ReflectionClass;
 abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable
 {
 
+    private $isLock = false;
     protected $mask = '';
 
     /**
@@ -98,7 +99,14 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
             array_map(function($item){$item->__lock();}, $this->items);
         }
     }
+    public function __lock()
+    {
+        if ($this->isLock) return;
+        // cuối cùng là khóa truy cập
 
+        $this->isLock = true;
+        array_map(function($item){$item->__lock();}, $this->items);
+    }
     /**
      * lấy link phân trang
      *

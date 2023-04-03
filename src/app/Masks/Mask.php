@@ -137,6 +137,7 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
 
         $this->isLock = true;
         // đầu tiên phải chạy qua init để thiết lập thông sớ
+        $this->lockChildren();
         if (method_exists($this, 'onSetupCompleted')) {
             $this->onSetupCompleted();
         }
@@ -269,7 +270,12 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
             }
         }
     }
-
+    public function lockChildren()
+    {
+        foreach ($this->relations as $key => $relation) {
+            if(method_exists($relation, '__lock')) $relation->__lock();
+        }
+    }
 
     /**
      * chuẩn hóa dữ liệu quan hệ
