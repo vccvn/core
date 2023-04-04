@@ -732,6 +732,22 @@ class Input extends HtmlDom
         return (array_key_exists($name, $this->_data) ? $this->_data[$name] : (array_key_exists($name, $this->_attrs) ? $this->_attrs[$name] : null));
     }
 
+
+
+    public function set($name, $value = null)
+    {
+        if (is_null($name)) {
+            return false;
+        }
+        if(array_key_exists($name, $this->_data)){
+            $this->_data[$name] = $value;
+        }
+        else{
+            $this->_attrs[$name] = $value;
+        }
+        return true;
+    }
+
     public function reset()
     {
         return $this->setOption($this->orginalData);
