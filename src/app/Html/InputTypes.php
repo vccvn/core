@@ -208,36 +208,36 @@ trait InputTypes
         $this->data('id', $this->id);
         // nếu có search url trực tiếp
         $this->parseRouteUrl('search');
-        if ($sf = $this->d->get('search-field')) {
+        if ($sf = $this->hidden('search-field')) {
             $this->data('search-field', $sf);
         } else {
             $this->data('search-field', 'search');
         }
         $this->parseDataEvent('change');
 
-        if ($sp = $this->d->get('search-params')) {
+        if ($sp = $this->hidden('search-params')) {
             $this->data('search-params', $sp);
         }
 
 
         if ($this->parseRouteUrl('add')) {
-            if ($af = $this->d->get('add-field')) {
+            if ($af = $this->hidden('add-field')) {
                 $this->data('add-field', $af);
             } else {
                 $this->data('add-field', 'name');
             }
 
-            if ($add_params = $this->d->get('add-params')) {
+            if ($add_params = $this->hidden('add-params')) {
                 $arr = [];
                 if ($params = $this->parseInputParams($add_params)) {
                     $this->data('add-params', $params);
                 }
             }
         }
-        if (in_array(strtolower($type = $this->d->get('select-type')), ['dynamic', 'search'])) {
+        if (in_array(strtolower($type = $this->hidden('select-type')), ['dynamic', 'search'])) {
             $this->data('select-type', $type);
-            $this->data('advance-click', $this->d->get('advance-click'));
-            if ($at = $this->d->get('advance-text')) {
+            $this->data('advance-click', $this->hidden('advance-click'));
+            if ($at = $this->hidden('advance-text')) {
                 $this->data('advance-text', $at);
             } else {
                 $this->data('advance-text', 'Thêm');
@@ -246,16 +246,16 @@ trait InputTypes
             $this->data('select-type', 'static');
         }
 
-        if (in_array(strtolower($typ = $this->d->get('label-type')), ['header', 'value', 'label'])) {
+        if (in_array(strtolower($typ = $this->hidden('label-type')), ['header', 'value', 'label'])) {
             $this->data('label-type', $typ);
         } else {
             $this->data('label-type', 'label');
         }
 
-        if ($cc = $this->d->get('confirm-change')) {
+        if ($cc = $this->hidden('confirm-change')) {
             $this->data('confirm-change', $cc);
         }
-        if ($dis = $this->d->get('disable-search')) {
+        if ($dis = $this->hidden('disable-search')) {
             $this->data('disable-search', 'true');
         }
         
@@ -271,13 +271,13 @@ trait InputTypes
         $this->data('id', $this->id);
         $this->parseDataEvent('check');
 
-        if (in_array(strtolower($typ = $this->d->get('label-type')), ['header', 'value', 'label'])) {
+        if (in_array(strtolower($typ = $this->hidden('label-type')), ['header', 'value', 'label'])) {
             $this->data('label-type', $typ);
         } else {
             $this->data('label-type', 'label');
         }
 
-        if ($cc = $this->d->get('confirm-change')) {
+        if ($cc = $this->hidden('confirm-change')) {
             $this->data('confirm-change', $cc);
         }
     }
@@ -305,11 +305,11 @@ trait InputTypes
         $this->parseDataEvent('day-change');
         $this->parseDataEvent('year-change');
         $this->parseDataEvent('month-change');
-        if ($sortType = $this->d->get('sort-type')) {
+        if ($sortType = $this->hidden('sort-type')) {
             $st = strtolower($sortType) == 'en' ? 'en' : 'vi';
             $this->data('sort-type', $st);
         }
-        if ($dis = $this->d->get('disable-search')) {
+        if ($dis = $this->hidden('disable-search')) {
             $this->data('disable-search', 'true');
         }
 
@@ -349,12 +349,12 @@ trait InputTypes
         // nếu có search url trực tiếp
         $this->parseRouteUrl('search');
 
-        if ($sf = $this->d->get('search-field')) {
+        if ($sf = $this->hidden('search-field')) {
             $this->data('search-field', $sf);
         } else {
             $this->data('search-field', 'search');
         }
-        if ($searchParams = $this->d->get('search-params')) {
+        if ($searchParams = $this->hidden('search-params')) {
             $this->data('search-params', $searchParams);
         }
 
@@ -366,13 +366,13 @@ trait InputTypes
 
 
         if ($this->parseRouteUrl('create')) {
-            if ($af = $this->d->get('create-field')) {
+            if ($af = $this->hidden('create-field')) {
                 $this->data('create-field', $af);
             } else {
                 $this->data('create-field', 'name');
             }
 
-            if ($create_params = $this->d->get('create-params')) {
+            if ($create_params = $this->hidden('create-params')) {
                 $arr = [];
                 if ($params = $this->parseInputParams($create_params)) {
                     $this->data('create-params', $params);
@@ -380,14 +380,14 @@ trait InputTypes
             }
         }
 
-        if (in_array(strtolower($type = $this->d->get('type')), ['dynamic', 'search', 'default'])) {
+        if (in_array(strtolower($type = $this->hidden('type')), ['dynamic', 'search', 'default'])) {
             $this->data('type', $type);
         } else {
             $this->data('type', 'default');
         }
 
-        $this->data('value-key', $this->d->get('value-key') ?? 'id');
-        $this->data('text-key', $this->d->get('text-key') ?? 'name');
+        $this->data('value-key', $this->hidden('value-key') ?? 'id');
+        $this->data('text-key', $this->hidden('text-key') ?? 'name');
 
         $this->addClass($this->data('type'));
     }
@@ -404,7 +404,7 @@ trait InputTypes
         $this->data('name', $this->name);
         $this->addClass('crazy-attribute');
         $this->parseRouteUrl('load');
-        $this->data('load-param-selectors', $this->d->get('load-param-selectors'));
+        $this->data('load-param-selectors', $this->hidden('load-param-selectors'));
 
         $this->parseRouteUrl('add-value');
         $this->parseRouteUrl('detail');
@@ -423,7 +423,7 @@ trait InputTypes
         $this->data('name', $this->name);
         $this->addClass('crazy-attribute');
         $this->parseRouteUrl('load');
-        $this->data('load-param-selectors', $this->d->get('load-param-selectors'));
+        $this->data('load-param-selectors', $this->hidden('load-param-selectors'));
 
         $this->parseRouteUrl('add-value');
         $this->parseRouteUrl('detail');
@@ -445,7 +445,7 @@ trait InputTypes
         $this->addClass('crazy-products');
 
         $this->parseRouteUrl('add');
-        $this->data('add-param-selectors', $this->d->get('add-param-selectors'));
+        $this->data('add-param-selectors', $this->hidden('add-param-selectors'));
 
         $this->parseDataEvent('add');
         $this->parseDataEvent('remove');
@@ -518,18 +518,18 @@ trait InputTypes
         $this->data('id', $this->id);
         $this->data('name', $this->name);
         $this->addClass('crazy-slug');
-        $this->data('check-field', $this->d->get('check-field') ?? 'custom_slug');
+        $this->data('check-field', $this->hidden('check-field') ?? 'custom_slug');
 
         $this->parseDataEvent('check');
-        $this->data('extension', $this->d->get('extension'));
-        $this->data('slug-field', $this->d->get('slug-field') ?? 'slug');
-        $this->data('source-id', $this->d->get('source-id'));
-        $this->data('ajax-param-selectors', $this->d->get('ajax-param-selectors'));
-        $this->data('ajax-get-name', $this->d->get('ajax-get-name'));
-        $this->data('ajax-check-name', $this->d->get('ajax-check-name'));
+        $this->data('extension', $this->hidden('extension'));
+        $this->data('slug-field', $this->hidden('slug-field') ?? 'slug');
+        $this->data('source-id', $this->hidden('source-id'));
+        $this->data('ajax-param-selectors', $this->hidden('ajax-param-selectors'));
+        $this->data('ajax-get-name', $this->hidden('ajax-get-name'));
+        $this->data('ajax-check-name', $this->hidden('ajax-check-name'));
         foreach (['get-slug', 'check-slug'] as $key) {
             if ($this->parseRouteUrl($key)) {
-                if ($slug_params = $this->d->get($key . '-params')) {
+                if ($slug_params = $this->hidden($key . '-params')) {
                     if ($params = $this->parseInputParams($slug_params)) {
                         $this->data($key . '-params', $params);
                     }
@@ -577,13 +577,13 @@ trait InputTypes
         $url = null;
 
         // nếu có search url trực tiếp
-        if ($a = $this->d->get($key . '-url')) {
+        if ($a = $this->hidden($key . '-url')) {
             $url = $a;
         }
         // nếu dùng route
-        elseif ($ar = $this->d->get($key . '-route')) {
+        elseif ($ar = $this->hidden($key . '-route')) {
             if (Router::getByName($ar)) {
-                if ($arp = $this->d->get($key . '-route-params')) {
+                if ($arp = $this->hidden($key . '-route-params')) {
                     if (is_array($arp)) {
                         $url = route($ar, $arp);
                     } else {
@@ -593,11 +593,11 @@ trait InputTypes
                     $url = route($ar, $arp);
                 }
             }
-        } elseif ($get_url = $this->d->get('get-' . $key . '-url')) {
+        } elseif ($get_url = $this->hidden('get-' . $key . '-url')) {
             if (is_callable($get_url)) {
-                if ($gp = $this->d->get('get-' . $key . '-url-param')) {
+                if ($gp = $this->hidden('get-' . $key . '-url-param')) {
                     $url = $get_url($this->getInputDataFromString($gp));
-                } elseif ($gps = $this->d->get('get-' . $key . '-url-params')) {
+                } elseif ($gps = $this->hidden('get-' . $key . '-url-params')) {
                     if ($gpsx = $this->parseInputParams($gps)) {
                         if (Arr::isNumericKeys($gpsx)) {
                             $url = $get_url(...$gpsx);
@@ -630,7 +630,7 @@ trait InputTypes
     public function parseDataEvent($key)
     {
         foreach ([$key, 'on' . ucfirst($key), 'on-' . $key, rtrim($key, 'e') . 'ed', $key . '-callback'] as $k) {
-            if ($c = $this->d->get($k)) {
+            if ($c = $this->hidden($k)) {
                 $this->data('on-' . $key, $c);
                 return true;
             }
