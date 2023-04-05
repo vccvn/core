@@ -151,12 +151,12 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
     public function checkDataIfHasMLC()
     {
         if ($this->model->multilang && ($localeContent = $this->model->localeContent)) {
-            dd($localeContent);
+            // dd($localeContent);
             if ($localeContent->title && $this->model->fillable && in_array('title', $this->model->fillable))
                 $this->title = $localeContent->title;
             if ($localeContent->keywords && $this->model->fillable && in_array('keywords', $this->model->fillable))
                 $this->keywors = $localeContent->title;
-            if ($data = $localeContent->content) {
+            if (is_array($data = $localeContent->contents)) {
                 foreach ($data as $key => $value) {
                     $this->{$key} = $value;
                 }
