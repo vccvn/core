@@ -158,7 +158,8 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
                 $this->keywors = $localeContent->title;
             if (is_array($data = $localeContent->contents)) {
                 foreach ($data as $key => $value) {
-                    $this->{$key} = $value;
+                    if ($value !== null && $value != "")
+                        $this->{$key} = $value;
                 }
             }
         }
