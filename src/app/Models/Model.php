@@ -78,8 +78,18 @@ class Model extends BaseModel
             $this->title = $localeContent->title;
             if($localeContent->keywors && $this->fillable && in_array('keywors', $this->fillable))
             $this->keywors = $localeContent->title;
-            
-            
         }
+    }
+
+    public function getMLCFormData()
+    {
+        if($this->multilang && ($alc = $this->allLanguageContents) && count($alc)){
+            $mlc = [];
+            foreach ($alc as $i => $lc) {
+                $mlc[$lc->locale] = array_merge($lc->toArray(), $lc->contents);
+            }
+            return $mlc;
+        }
+        return [];
     }
 }
