@@ -5,6 +5,7 @@ namespace Gomee\Models;
 use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 /**
  * @property bool $multilang chế độ đa ngôn ngữ
  * @property string $localeTitleColumn cột tiêu đề đa ngôn ngữ sẽ dc 
@@ -17,7 +18,7 @@ class Model extends BaseModel
     const UNTRASHED = 0;
     const TRASHED = 1;
 
-    
+
     public $multilang = false;
 
     public $localeTitleColumn = null;
@@ -44,7 +45,7 @@ class Model extends BaseModel
     {
         return $this->defaultValues;
     }
-    
+
     /**
      * Get all of the allLanguageContents for the Model
      *
@@ -52,7 +53,7 @@ class Model extends BaseModel
      */
     public function allLanguageContents(): HasMany
     {
-        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table??'data');
+        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table ?? 'data');
         return $this->hasMany('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref);
     }
 
@@ -63,27 +64,33 @@ class Model extends BaseModel
      */
     public function localeContent(): HasOne
     {
-        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table??'data');
+        $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table ?? 'data');
         return $this->hasOne('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref)->where('locale', config('app.locale'));
     }
 
-    
+
     public function rewriteDataIfHasMLC()
     {
-        if($this->multilang && ($localeContent = $this->getRelation('localeContent'))){
-            if($slug = $localeContent->slug){
+        if ($this->multilang && ($localeContent = $this->getRelation('localeContent'))) {
+            if ($slug = $localeContent->slug) {
                 $this->slug = $slug;
             }
-            if($localeContent->title && $this->fillable && in_array('title', $this->fillable))
-            $this->title = $localeContent->title;
-            if($localeContent->keywors && $this->fillable && in_array('keywors', $this->fillable))
-            $this->keywors = $localeContent->title;
+            if ($localeContent->title && $this->fillable && in_array('title', $this->fillable))
+                $this->title = $localeContent->title;
+            if ($localeContent->keywords && $this->fillable && in_array('keywords', $this->fillable))
+                $this->keywords = $localeContent->keywords;
+            if (is_array($data = $localeContent->contents)) {
+                foreach ($data as $key => $value) {
+                    if ($value !== null && $value != "")
+                        $this->{$key} = $value;
+                }
+            }
         }
     }
 
     public function getMLCFormData()
     {
-        if($this->multilang && ($alc = $this->allLanguageContents) && count($alc)){
+        if ($this->multilang && ($alc = $this->allLanguageContents) && count($alc)) {
             $mlc = [];
             foreach ($alc as $i => $lc) {
                 $mlc[$lc->locale] = array_merge($lc->toArray(), $lc->contents);
