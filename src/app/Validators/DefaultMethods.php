@@ -283,7 +283,6 @@ trait DefaultMethods{
                     || !preg_match('/^[@A-z0-9_\.\-]+[A-z0-9_\.\-]*$/', $value['name']) 
                     || !isset($value['type']) 
                     || !$value['type']
-                    || !in_array($value['type'], $selectData)
                 ) return false;
             }
             return true;
