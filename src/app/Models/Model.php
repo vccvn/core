@@ -71,18 +71,7 @@ class Model extends BaseModel
 
     public function rewriteDataIfHasMLC()
     {
-        $localeContent = null;
-        $relations = $this->model->getRelations();
-        if ($relations && count($relations)) {
-            foreach ($relations as $key => $relation) {
-                if ($relation) {
-                    $this->relations[$key] = $this->parseRelation(
-                        $relation,
-                        array_key_exists($key, $this->relationMap) ? $this->relationMap[$key] : null
-                    );
-                }
-            }
-        }
+
         if ($this->multilang) {
             $localeContent = null;
             $relations = $this->getRelations();
