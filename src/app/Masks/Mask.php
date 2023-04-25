@@ -557,11 +557,11 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
         return array_map(function ($value) {
 
             if (is_a($value, static::class)) {
-                return $value->toDeepArray();
+                return $value->toArray();
             } elseif (is_object($value)) {
-                if (is_callable([$value, 'toArrayData'])) {
+                if (method_exists($value, 'toArrayData')) {
                     return $value->toArrayData();
-                } elseif (is_callable([$value, 'toDeepArray'])) {
+                } elseif (method_exists($value, 'toDeepArray')) {
                     return $value->toDeepArray();
                 } elseif ($value instanceof Arrayable) {
                     return $value->toArray();
