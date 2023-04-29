@@ -11,7 +11,7 @@ namespace Gomee\Helpers;
 
 use Gomee\Files\Filemanager;
 
-define('CRAZY_LANGUAGE_PATH', dirname(dirname(dirname(__FILE__))).'/language');
+define('CRAZY_LANGUAGE_PATH', dirname(dirname(dirname(dirname(__FILE__)))).'/language');
 
 class Str {
     protected static $lang = 'vi';
