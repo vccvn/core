@@ -62,6 +62,11 @@ abstract class Validator{
         return [];
     }
 
+    public function addErrorMessage($attr, $message)
+    {
+        $this->__errors[$attr] = $message;
+    }
+
     /**
      * kiểm tra rrquest
      * @param mixed $extraRules
@@ -93,7 +98,7 @@ abstract class Validator{
                 //     $errors = $this->checkArrayErrors($err, $attr, $this->{$attr}, $errors);
                 // }
             }
-            $this->__errors = $errors;
+            $this->__errors = array_merge($this->__errors, $errors);
         }else{
             $this->__status = true;
         }
