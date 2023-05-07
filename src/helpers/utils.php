@@ -280,7 +280,7 @@ if (!function_exists('get_video_from_url')) {
     {
         if (!$url) return null;
         $a = [];
-        $protoccol = isSecure()?'https':'http';
+        $protoccol = 'https';
         if (preg_match_all('/.*youtu\.be\/(.*?)($|\?|#)/si', $url, $m)) {
             $a['id'] = $m[1][0];
             $a['server'] = 'youtube';
