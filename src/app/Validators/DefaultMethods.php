@@ -257,7 +257,7 @@ trait DefaultMethods{
         
         static::extend('phone_number', function($attr, $value){
             if(!$value) return true;
-            return preg_match('/^(\+84|0)+[0-9]{9,10}$/si', $value);
+            return preg_match('/^(\+84|0|1)+[0-9]{7,14}$/si', $value);
         });
         
 
