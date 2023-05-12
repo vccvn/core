@@ -151,7 +151,7 @@ trait FileType{
             if($info = $this->getMimeType($type)){
                 $data = base64_decode($m[2][0]);
                 $extension  = $info->extension;
-                $ctype = explode('/', $type);
+                $ctype = explode('/', $info->type);
                 $filetype = $ctype[0];
                 $mime = $ctype[1];
                 return new Arr(compact('type', 'data', 'extension', 'filetype', 'mime', 'filename'));
