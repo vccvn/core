@@ -116,6 +116,7 @@ trait FileType{
     function getMimeType($type){
         $mimes = $this->mimes;
         $s = strtolower($type);
+        if($s == 'image/jpg') $s = 'image/jpeg';
         if(isset($mimes[$s])){
             return new Arr([
                 'extension' => $s,
