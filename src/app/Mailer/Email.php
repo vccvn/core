@@ -37,6 +37,8 @@ use Illuminate\Support\Facades\Mail;
  * @method bool sendAfter(int $time = 1) gui sau n phut
  * @method bool queue(int $time = 1) gui sau n phut
  * @method bool beforeSend() Thuc hiện hành dộng trước khi gửi
+ * 
+ * @method $this *($value) set giá trị
  *
  */
 class Email{
@@ -291,6 +293,11 @@ class Email{
 		}
 		elseif(method_exists($this,'_'.$method)){
 			return call_user_func_array([$this,'_'.$method],$params);
+		}
+		else{
+			if(preg_match('/^[A-z0-9_]+$/i', $method)){
+				$this->__data[$method] = $params[0]??'';
+			}
 		}
 		return $this;
 	}
