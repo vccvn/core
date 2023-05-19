@@ -114,7 +114,7 @@ trait GettingAction
                 unset($args['@limit']);
             }
         }
-        if (!$paginate) $paginate = $this->_paginate;
+        if ($paginate === null) $paginate = $this->_paginate;
         $this->fire('beforget', $this, $args);
         $query = $this->query($args);
         // $this->lastQueryBuilder = $query;
@@ -129,6 +129,7 @@ trait GettingAction
             $this->totalCount = $collection->total();
         } else {
             $collection = $query->get();
+            $this->totalCount = count($collection);
         }
 
         // if($this->mode == 'mask') return $this->parseCollection($collection);
