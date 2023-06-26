@@ -225,6 +225,36 @@ function make_model($args = [], $name = null, $table = null)
         $props[] = "public \$timestamps = false;";
     }
 
+    $hasPK = false;
+    $hasKT = false;
+    if(isset($params['primaryKey']) && $params['primaryKey']){
+        $props[] = "protected \$primaryKey = '$params[primaryKey]';";
+        $hasPK = true;
+    }
+    elseif(isset($params['primarykey']) && $params['primarykey']){
+        $props[] = "protected \$primaryKey = '$params[primarykey]';";
+        $hasPK = true;
+    }
+    elseif(isset($params['pk']) && $params['pk']){
+        $props[] = "protected \$primaryKey = '$params[py]';";
+        $hasPK = true;
+    }
+
+    if(isset($params['keyType']) && $params['keyType']){
+        $props[] = "protected \$keyType = '$params[keyType]';";
+        $hasKT = true;
+    }
+    elseif(isset($params['keytype']) && $params['keytype']){
+        $props[] = "protected \$keyType = '$params[keytype]';";
+        $hasKT = true;
+    }
+    elseif(isset($params['kt']) && $params['kt']){
+        $props[] = "protected \$keyType = '$params[kt]';";
+        $hasKT = true;
+    }
+
+    
+
     if (isset($params['useuuid']) || isset($params['useUuid'])) {
 
         $v = isset($params['useuuid']) ? $params['useuuid'] : (isset($params['useUuid']) ? $params['useUuid'] : true);
@@ -233,6 +263,12 @@ function make_model($args = [], $name = null, $table = null)
                 $v === 'false'?'false': ($v === 'true' || $v=='' ? 'true' : ($v == 'primary' || $v == 'id' ? "'primary'": "'$v'"))
             )
         ).";";
+
+        if($v === 'true' || $v == true){
+            if(!$hasPK) $props[] = "protected \$primaryKey = 'uuid';";
+            if(!$hasKT) $props[] = "protected \$keyType = 'string';";
+        }
+
     }
 
     $connection = false;
