@@ -38,7 +38,7 @@ if (is_string($dir) && is_dir($dir)) {
                 $fs = explode('.',$file);
                 $ex = array_pop($fs);
                 $fc = $fs[0];
-                if($ex == 'php'){
+                if($ex == 'php' && !preg_match('/create_oauth_/i', $file)){
                     $mig = require_once $dir.'/'.$file;
                     if($mig && is_a($mig, Illuminate\Database\Migrations\Migration::class)){
                         $mig->up();
