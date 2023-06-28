@@ -8,7 +8,7 @@ class Schema_{
     {
         $blueprint = new Blueprint($table);
         $callback($blueprint);
-        Schemac::$tables[$table] = $blueprint;
+        Schema::$tables[$table] = $blueprint;
     }
 }
 class Schema {
