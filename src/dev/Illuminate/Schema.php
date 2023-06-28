@@ -26,6 +26,10 @@ class Schema {
         }
     }
 
+    public static function connection(...$args){
+        
+    }
+
     /**
      * xóa bảng
      *

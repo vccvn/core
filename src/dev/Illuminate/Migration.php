@@ -13,4 +13,8 @@ class Migration {
 
     }
 
+    public function getConnection() {
+        return null;
+    }
+
 }
