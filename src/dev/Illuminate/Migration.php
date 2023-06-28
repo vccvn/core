@@ -17,4 +17,8 @@ class Migration {
         return null;
     }
 
+    public function config() {
+        
+    }
+
 }
