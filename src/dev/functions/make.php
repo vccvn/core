@@ -851,3 +851,6 @@ if (!function_exists('make_route')) {
     }
 }
 
+function config() {
+    return true;
+}
