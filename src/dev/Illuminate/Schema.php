@@ -3,7 +3,14 @@
 namespace Illuminate\Support\Facades;
 
 use Illuminate\Database\Schema\Blueprint;
-
+class Schema_{
+    function create($table, $callback)
+    {
+        $blueprint = new Blueprint($table);
+        $callback($blueprint);
+        Schemac::$tables[$table] = $blueprint;
+    }
+}
 class Schema {
     public static $tables = [];
 
@@ -27,7 +34,7 @@ class Schema {
     }
 
     public static function connection(...$args){
-        
+        return new Schema_(...$args);
     }
 
     /**
