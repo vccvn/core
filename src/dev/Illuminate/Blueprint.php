@@ -89,7 +89,7 @@ class Blueprint
 
     public function __call($name, $params)
     {
-        if (isset($params[0]) && $params[0] && !in_array($name, ['increment', 'bigIncrements', 'foreign', 'index'])) {
+        if (isset($params[0]) && $params[0] && !in_array($name, ['increment', 'bigIncrements', 'foreign', 'index', 'primary', 'foreign', 'references', 'on', 'onUpdate', 'onDelete'])) {
             if ($name == 'decimal') $name = 'float';
             elseif ($name == 'json') $name = 'array';
             elseif ($name == 'text' || $name == 'longText' || $name == 'tinyText' || $name == 'uuid' || $name == 'timestamp' || $name == 'date' || $name == 'datetime' || $name == 'time') $name = 'string';
