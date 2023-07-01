@@ -43,6 +43,7 @@ class BlueprintDataConfig
             
             return $this;
         }
+        elseif(in_array($name, ['primary', 'foreign', 'references', 'on', 'onUpdate', 'onDelete'])) return $this;
         $this->data[$name] = $params[0]??true;
         $this->table->config[$this->column][$name] = $params[0]??true;
         return $this;
