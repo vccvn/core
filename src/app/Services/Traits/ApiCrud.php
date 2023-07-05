@@ -33,6 +33,7 @@ trait ApiCrud
                 $action = 'Update';
                 $is_update = true;
             }else{
+                $data = $request->all();
                 $message = 'Đã có lỗi xảy ra. Cập nhật không hợp lệ';
                 return $this->json(compact(...$this->apiSystemVars), 404);
             }
