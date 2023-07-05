@@ -88,7 +88,7 @@ trait ApiCrud
                     $message = 'Lỗi không xác định';
                 }else{
                     $status = true;
-                    $data = $model;
+                    $data = $this->repository->detail($model->{$this->repository->getKeyName()});
                 }
 
             }else{
