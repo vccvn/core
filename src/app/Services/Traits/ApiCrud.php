@@ -20,12 +20,12 @@ trait ApiCrud
      * @return json
      */
 
-    public function save(Request $request)
+    public function save(Request $request, $id = null)
     {
         extract($this->apiDefaultData);
         $this->repository->resetDefaultParams('trashed_status');
         // gan id de sac minh la update hay them moi
-        $id = $request->{$this->repository->getKeyName()};
+        $id = $id?$id: $id = $request->{$this->repository->getKeyName()};
         // is update
         if($id){
             if($record = $this->repository->find($id)){
