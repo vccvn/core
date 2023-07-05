@@ -144,6 +144,8 @@ trait CrudMethods
      */
     public function update(Request $request, $id = null)
     {
+        $id = $id?$id: $id = $request->{$this->repository->getKeyName()};
+        if(!$id) $id = '_404_';
         return $this->save($request, $id);
     }
 
