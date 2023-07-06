@@ -161,7 +161,7 @@ trait FilterAction
      */
 
     protected $sortByRules = [
-        1 => 'id-DESC'
+        1 => 'created_at-DESC'
     ];
     /**
      * phương thức sap91 xếp
@@ -1007,9 +1007,10 @@ trait FilterAction
     {
         $args = []; // mảng truy vấn
         $paginate = $this->getPaginateInfo($request);
-        $pos = ($paginate['page'] - 1) * $paginate['per_page'];
+        // $pos = ($paginate['page'] - 1) * $paginate['per_page'];
         // limit bang skip và take 
-        $args['@limit'] = [$pos, $paginate['per_page']];
+        // $args['@limit'] = [$pos, $paginate['per_page']];
+        $args['@paginate'] = $paginate['per_page'];
         return $args;
     }
 

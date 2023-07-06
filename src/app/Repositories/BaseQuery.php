@@ -863,24 +863,47 @@ trait BaseQuery
     {
         if (is_string($keywords) && strlen($keywords) > 0) {
             if ($search_by) {
-                if (is_string($search_by)) {
-                    // tim mot cot
-                    $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
-                    $query->where($f, 'like', "%$keywords%");
-                } elseif (is_array($search_by)) {
-                    // tim theo nhieu cot
-                    $query->where(function ($q) use ($keywords, $search_by, $prefix) {
+
+                $query->where(function ($query) use ($keywords, $search_by, $prefix) {
+
+
+                    $keywordClean = vnclean($keywords);
+                    $slug = str_slug($keywordClean);
+
+                    $kd = [
+                        $keywords,
+                        $keywordClean,
+                        $slug,
+                        str_replace('-', '', $slug)
+                    ];
+                    if (is_string($search_by)) {
+                        // tim mot cot
+                        $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
+
+                        $query->where($f, 'like', "%$kd[0]%")
+                            ->orWhere($f, 'like', "%$kd[1]%")
+                            ->orWhere($f, 'like', "%$kd[2]%")
+                            ->orWhere($f, 'like', "%$kd[3]%");
+                    } elseif (is_array($search_by)) {
+                        // tim theo nhieu cot
+
                         $b = $search_by;
                         $c = array_shift($b);
                         $f2 = (count(explode('.', $c)) > 1) ? $c : $prefix . $c;
                         $k2 = str_slug($keywords);
-                        $q->where($f2, 'like', "%$keywords%");
+                        $query->where($f2, 'like', "%$kd[0]%")
+                            ->orWhere($f2, 'like', "%$kd[1]%")
+                            ->orWhere($f2, 'like', "%$kd[2]%")
+                            ->orWhere($f2, 'like', "%$kd[3]%");
                         foreach ($b as $col) {
                             $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                            $q->orWhere($f3, 'like', "%$keywords%")->orWhere($f3, 'like', "%$k2%");
+                            $query->orWhere($f3, 'like', "%$kd[0]%")
+                                ->orWhere($f3, 'like', "%$kd[1]%")
+                                ->orWhere($f3, 'like', "%$kd[2]%")
+                                ->orWhere($f3, 'like', "%$kd[3]%");
                         }
-                    });
-                }
+                    }
+                });
             }
         }
         return $query;
