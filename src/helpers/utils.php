@@ -711,6 +711,13 @@ if (!function_exists('get_validation_params')) {
 
 
 if (!function_exists('strtodate')) {
+    /**
+     * convert to date format
+     *
+     * @param string $string
+     * @param string $returnType
+     * @return string|array
+     */
     function strtodate(string $string, $returnType = 'array')
     {
         $string = trim($string);
