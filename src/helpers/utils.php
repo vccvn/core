@@ -711,7 +711,7 @@ if (!function_exists('get_validation_params')) {
 
 
 if (!function_exists('strtodate')) {
-    function strtodate(string $string)
+    function strtodate(string $string, $returnType = 'array')
     {
         $string = trim($string);
         $y = 0;
@@ -755,12 +755,12 @@ if (!function_exists('strtodate')) {
                 $d = $dd[0];
             }
         }
-        if ($y && $m && $d) return [
+        if ($y && $m && $d) return $returnType == 'string' ? "$y-$m-$d": [
             'day' => $d,
             'month' => $m,
             'year' => $y
         ];
-        return [];
+        return $returnType == 'string'?'':[];
     }
 }
 
