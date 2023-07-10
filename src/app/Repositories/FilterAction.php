@@ -98,6 +98,8 @@ trait FilterAction
      */
     protected $loadable = [];
 
+    
+    protected $disableFromRequest = [];
 
     /**
      * @var int $perPage số kết quả dc show ra mỗi request
@@ -578,8 +580,8 @@ trait FilterAction
     {
         $fields = array_merge([$this->required], $this->getFields());
         $this->buildOrderBy($request);
+        $disableWhereColumns = is_array($this->disableFromRequest)?$this->disableFromRequest:[];
         if ($data = $request->all()) {
-
             $prefix = '';
             $modelType = $this->_model->__getModelType__();
             if ($modelType == 'default' && ($pre = $this->getTable())) {
@@ -612,7 +614,7 @@ trait FilterAction
                     }
                 } elseif (is_string($value) && strlen($value)) {
                     // lấy theo tham số request (set where)
-                    if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value)))) {
+                    if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value))) && !in_array($key, $disableWhereColumns)) {
                         if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
                             if (isset($this->whereable[$key])) {
                                 $this->where($this->whereable[$key], $value);
@@ -620,13 +622,6 @@ trait FilterAction
                                 $this->where($key, $value);
                             }
                         }
-                        // elseif($this->searchable && is_array($this->searchable) && (isset($this->searchable[$f]) || in_array($f, $this->searchable))){
-                        //     if(isset($this->searchable[$f])){
-                        //         $this->where($this->searchable[$f], $value);
-                        //     }else{
-                        //         $this->where($f, $value);
-                        //     }
-                        // }
                         elseif (in_array($key, $fields)) {
                             $this->where($prefix . $key, $value);
                         }
