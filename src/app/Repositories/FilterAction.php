@@ -98,8 +98,8 @@ trait FilterAction
      */
     protected $loadable = [];
 
-    
-    protected $disableFromRequest = [];
+
+    protected $ignoreRequestParams = [];
 
     /**
      * @var int $perPage số kết quả dc show ra mỗi request
@@ -580,7 +580,7 @@ trait FilterAction
     {
         $fields = array_merge([$this->required], $this->getFields());
         $this->buildOrderBy($request);
-        $disableWhereColumns = is_array($this->disableFromRequest)?$this->disableFromRequest:[];
+        $disableWhereColumns = is_array($this->ignoreRequestParams)?$this->ignoreRequestParams:[];
         if ($data = $request->all()) {
             $prefix = '';
             $modelType = $this->_model->__getModelType__();
