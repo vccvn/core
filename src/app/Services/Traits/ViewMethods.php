@@ -282,7 +282,8 @@ trait ViewMethods
     {
         $this->repository->notTrashed();
         $keyName = $this->repository->getKeyName();
-        if ($request->id && $detail = $this->repository->getFormData([$keyName => $id??($request->id??$request->uuid)])) {
+        $id = $id??($request->id??$request->uuid);
+        if ($id && $detail = $this->repository->getFormData([$keyName => $id])) {
             $this->repository->setActiveID($detail->{$keyName});
             $this->activeMenu($this->module . '.update');
             return $this->getCrudForm($request, ['type' => 'update'], $detail);
