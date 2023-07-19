@@ -8,7 +8,7 @@ use Gomee\DTOs\DTO;
  * NAME DTO class
  * PROPERTIES
  */
-class NAMEDRO extends DTO{
+class NAMEDTO extends DTO{
     protected $accessible = ACCESSIBLE;
 }
     
