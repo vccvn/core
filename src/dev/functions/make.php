@@ -126,9 +126,7 @@ if (!function_exists('make_controller')) {
     }
 }
 
-
-
-function make_repository($args = [], $name = null, $model = null)
+function make_dto($args = [], $name = null, $model = null)
 {
     if (!$name) {
         echo "Tham so:\n\$name -- Ten Repository\n\$model -- Tên model\n";
@@ -141,6 +139,33 @@ function make_repository($args = [], $name = null, $model = null)
     if (!$model) $model = $name;
     $find = ['NAME', 'MODEL', 'FOLDER'];
     $replace = [$name, $model, $folder];
+    $filemanager = new Filemanager();
+    $template = file_get_contents(DEVPATH . '/templates/dto.php');
+    $filemanager->setDir(base_path('app/DTOs/' . $folder . '/'));
+    $code = str_replace($find, $replace, $template);
+    if ($a = $filemanager->save($name . 'DTO.php', $code, 'php')) {
+        echo "Tạo {$name}DTO thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
+    } else {
+        echo "Lỗi không xác định\n";
+    }
+}
+
+function make_repository($args = [], $name = null, $model = null, $table = null)
+{
+    if (!$name) {
+        echo "Tham so:\n\$name -- Ten Repository\n\$model -- Tên model\n";
+        return null;
+    }
+    $names = explode('/', str_replace("\\", "/", $name));
+    $name = ucfirst(array_pop($names));
+    $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
+
+    if (!$model) $model = $name;
+    $table = $table?$table: Str::tableName($name);
+    $find =    ['NAME', 'MODEL', 'FOLDER', 'PROPERTIES',           'ACCESSIBLE'];
+    $replace = [$name,  $model,  $folder,  getProperties($table),  getFields($table, true)];
+
+
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH . '/templates/repository.php');
     $filemanager->setDir(base_path('app/Repositories/' . $folder . '/'));

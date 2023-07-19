@@ -35,30 +35,27 @@ use Illuminate\Contracts\Support\Arrayable;
  * @method $this deepMerge(array $merge) deep merge for all element of array
  * @method static array deepMerge(array $root, array $merge) deep merge for all element of array
  */
-Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable {
+class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable, Jsonable, Arrayable
+{
     const DEFVAL = '<!-----------------s2--------2025----------->';
     /**
      * @var array $data
      */
     protected $data = [];
+    protected $accessible;
     /**
      * khoi tao doi tuong
      * @param array|object $data
      */
     function __construct($data = [])
     {
-        if(is_array($data) || is_object($data)){
-            foreach ($data as $key => $value) {
-                // duyệt qua mảng hoặc object để gán key, value ở level 0 cho biến data
-                $this->data[$key] = $value;
-            }
-        }
+        $this->newData($data);
     }
 
     public function newData($data = [])
     {
         $this->data = [];
-        if(is_array($data) || is_object($data)){
+        if (is_array($data) || is_object($data)) {
             foreach ($data as $key => $value) {
                 // duyệt qua mảng hoặc object để gán key, value ở level 0 cho biến data
                 $this->data[$key] = $value;
@@ -85,18 +82,28 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     public function getByKeyLevels(array $keys, $default = null)
     {
         $data = $this->data;
+        if ($this->accessible && is_array($this->accessible)) {
+            if (!in_array($keys[array_key_first($keys)], $this->accessible)) return $default;
+        }
         foreach ($keys as $n) {
             // duyệt mảng key
-            if(!is_array($data) || !array_key_exists($n, $data)){
+
+            if (!is_array($data) && !is_object($data)) {
                 // nếu data hiện tại không phải là mảng hoặc là không tồn tại key thứ n trong mãng thì trả về mặc định
                 return $default;
-            }
-            // ngược lại sẽ biến mảng data hiện tại thành giá trị tương ứng với key6 hiện tại trong mảng data hiện tại
-            $data = $data[$n];
+            } elseif (is_array($data)) {
+                if (!array_key_exists($n, $data))
+                    return $default;
+                // ngược lại sẽ biến mảng data hiện tại thành giá trị tương ứng với key6 hiện tại trong mảng data hiện tại
+                $data = $data[$n];
+            } elseif (!property_exists($data, $n)) 
+                return $default;
+            else
+                $data = $data->{$n};
         }
 
-        if((is_string($data) && strlen($data) == 0) || is_null($data)) return is_callable($default)?$default():$default;
-        if(is_array($data) && count($data) == 0) return is_array($default)? $default : $data;
+        if ((is_string($data) && strlen($data) == 0) || is_null($data)) return is_callable($default) ? $default() : $default;
+        if (is_array($data) && count($data) == 0) return is_array($default) ? $default : $data;
         return $data;
     }
 
@@ -106,22 +113,25 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      * @param mixed $default giá trị mặc định
      * @return mixed
      */
-    public function get($key = null,$default = null)
+    public function get($key = null, $default = null)
     {
-        if(is_null($key)) return $this->data;
-        if(is_array($key)){
+        if (is_null($key)) return $this->all();
+        if ($this->accessible && is_array($this->accessible)) {
+            if (!in_array($key, $this->accessible)) return $default;
+        }
+        if (is_array($key)) {
             foreach ($key as $k) {
                 if (array_key_exists($k, $this->data)) {
                     $a = $this->data[$k];
                     $b = (is_string($a) && strlen($a) == 0) || is_null($a) || (is_array($a) && !count($a) && is_array($default)) ? $default : $a;
                     return $b;
                 }
-                if(count($name_arr = explode('.', $k)) > 1){
+                if (count($name_arr = explode('.', $k)) > 1) {
                     $a = $this->getByKeyLevels($name_arr, static::DEFVAL);
-                    if($a != static::DEFVAL) return $a;
+                    if ($a != static::DEFVAL) return $a;
                 }
             }
-            return is_callable($default)?$default():$default;
+            return is_callable($default) ? $default() : $default;
         }
         // nếu tồn tải key name trong mang data
         if (array_key_exists($key, $this->data)) {
@@ -130,11 +140,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
             return $b;
         }
-        if(count($name_arr = explode('.', $key)) > 1){
+        if (count($name_arr = explode('.', $key)) > 1) {
             return $this->getByKeyLevels($name_arr, $default);
         }
-        return is_callable($default)?$default():$default;
-
+        return is_callable($default) ? $default() : $default;
     }
 
     /**
@@ -146,7 +155,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     public function first($default = null)
     {
         $d = $this->data;
-        if($d){
+        if ($d) {
             return array_shift($d);
         }
         return $default;
@@ -161,10 +170,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function firstOf($key = null, $default = null)
     {
-        if($key!== null){
+        if ($key !== null) {
             $a = null;
             $arr = $this->get($key);
-            if(is_array($arr)) return array_shift($arr);
+            if (is_array($arr)) return array_shift($arr);
             return $arr;
         }
 
@@ -180,7 +189,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     public function last($default = null)
     {
         $d = $this->data;
-        if($d){
+        if ($d) {
             return array_pop($d);
         }
         return $default;
@@ -194,15 +203,13 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function set($key, $value)
     {
-        if(is_array($key)){
+        if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->set($k, $v);
             }
-        }
-        elseif(count($keys = explode('.', $key)) > 1){
-            $this->data = $this->fillValue($keys, $value,$this->data);
-        }
-        else{
+        } elseif (count($keys = explode('.', $key)) > 1) {
+            $this->data = $this->fillValue($keys, $value, $this->data);
+        } else {
             $this->data[$key] = $value;
         }
 
@@ -214,21 +221,21 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      * push them giá trị vào sau cung của mảng
      * @param mixed $value
      * @param string $key
-     * @return Arr instance
+     * @return $this instance
      */
     public function push($value, $key = null)
     {
-        if(!is_null($key)){
+        if (!is_null($key)) {
             $arr = $this->get($key);
-            if(!is_array($arr)){
-                if($arr) $arr = [$arr];
-                else{
+            if (!is_array($arr)) {
+                if ($arr) $arr = [$arr];
+                else {
                     $arr = [];
                 }
             }
             $arr[] = $value;
             $this->set($key, $arr);
-        }else{
+        } else {
             $this->data[] = $value;
         }
         return $this;
@@ -244,18 +251,16 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     protected function fillValue($keys, $value = null, $array = null)
     {
-        if($keys){
+        if ($keys) {
             $k = array_shift($keys);
-            if(!is_array($array)) $array = [];
-            if(!count($keys)) {
+            if (!is_array($array)) $array = [];
+            if (!count($keys)) {
                 $array[$k] = $value;
-
-            }else{
-                $array[$k] = $this->fillValue($keys, $value, $array[$k]??[]);
+            } else {
+                $array[$k] = $this->fillValue($keys, $value, $array[$k] ?? []);
             }
         }
         return $array;
-
     }
 
 
@@ -268,18 +273,16 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     protected function removeTree($keys, $array = null)
     {
-        if($keys){
+        if ($keys) {
             $k = array_shift($keys);
-            if(!is_array($array)) return $array;
-            if(!count($keys)) {
+            if (!is_array($array)) return $array;
+            if (!count($keys)) {
                 unset($array[$k]);
-
-            }elseif(isset($array[$k]) && is_array($array[$k])){
+            } elseif (isset($array[$k]) && is_array($array[$k])) {
                 $array[$k] = $this->removeTree($keys, $array[$k]);
             }
         }
         return $array;
-
     }
 
     /**
@@ -289,17 +292,15 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function remove(...$keys)
     {
-        if(count($keys)){
+        if (count($keys)) {
             foreach ($keys as $key) {
-                if(count($array_key = explode('.', $key)) > 1){
+                if (count($array_key = explode('.', $key)) > 1) {
                     $this->data = $this->removeTree($array_key, $this->data);
-                }
-                else{
+                } else {
                     unset($this->data[$key]);
                 }
             }
-        }
-        else{
+        } else {
             $this->data = [];
         }
         return $this;
@@ -313,7 +314,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function copy(array $keys = [])
     {
-        if(count($keys)){
+        if (count($keys)) {
             $data = [];
             foreach ($keys as $key) {
                 $data[$key] = $this->get($key);
@@ -331,7 +332,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function cut(array $keys = [])
     {
-        if(count($keys)){
+        if (count($keys)) {
             $data = [];
             foreach ($keys as $key) {
                 $data[$key] = $this->get($key);
@@ -350,10 +351,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function cutWithout(array $keys = [])
     {
-        if(count($keys)){
+        if (count($keys)) {
             $data = [];
             foreach ($this->data as $key => $value) {
-                if(!in_array($key, $keys)){
+                if (!in_array($key, $keys)) {
                     $data[$key] = $value;
                     $this->remove($key);
                 }
@@ -373,10 +374,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function copyWithout(array $keys = [])
     {
-        if(count($keys)){
+        if (count($keys)) {
             $data = [];
             foreach ($this->data as $key => $value) {
-                if(!in_array($key, $keys)){
+                if (!in_array($key, $keys)) {
                     $data[$key] = $value;
                 }
             }
@@ -403,7 +404,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      * đếm phần tử
      * @return int
      */
-    public function count():int
+    public function count(): int
     {
         return count($this->data);
     }
@@ -411,7 +412,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     /**
      * trộn mảng
      * @param array $arrays
-     * @return Arr
+     * @return $this
      */
     public function merge(...$arrays)
     {
@@ -427,8 +428,8 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function in($value, $key = null)
     {
-        if(!is_null($key)){
-            if(is_array($parent = $this->get($key))){
+        if (!is_null($key)) {
+            if (is_array($parent = $this->get($key))) {
                 return in_array($value, $parent);
             }
             return false;
@@ -455,11 +456,11 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function hasAny($keys)
     {
-        if(!is_array($keys)){
+        if (!is_array($keys)) {
             return $this->has($keys);
         }
         foreach ($keys as $key) {
-            if($this->has($key)) return true;
+            if ($this->has($key)) return true;
         }
         return false;
     }
@@ -469,18 +470,18 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      * @param string $key
      * @return bool
      */
-    public function isset($key) : bool
+    public function isset($key): bool
     {
         // nếu key tồn tại sẽ trả về true
-        if(array_key_exists($key, $this->data)) return true;
+        if (array_key_exists($key, $this->data)) return true;
         // nếu key là chuỗi hoặc số
         elseif (is_string($key)) {
             // nếu key được phân cách bằng dấu chấm
-            if(count($keys = explode('.', $key)) > 1){
+            if (count($keys = explode('.', $key)) > 1) {
                 $data = $this->data;
                 foreach ($keys as $k) {
                     // nếu $data không phải mảng, hoặc key ko tồn tại trong mảng data thì trả về false
-                    if(!is_array($data) || !array_key_exists($k, $data)) return false;
+                    if (!is_array($data) || !array_key_exists($k, $data)) return false;
                     else $data = $data[$k];
                 }
                 return true;
@@ -504,7 +505,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function map($func = null)
     {
-        if(is_callable($func)){
+        if (is_callable($func)) {
             return array_map($func, $this->data);
         }
         return [];
@@ -512,7 +513,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
     public function filter($func = null)
     {
-        if(is_callable($func)){
+        if (is_callable($func)) {
             return array_filter($this->data, $func);
         }
         return [];
@@ -521,7 +522,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     public function flip($set = false)
     {
         $data = array_flip($this->data);
-        if($set){
+        if ($set) {
             $this->data = $data;
             return $this;
         }
@@ -546,7 +547,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function makeByPrefix(string $prefix = null, $has_value = false, $parse_value = null, $delete_prefix = true)
     {
-        if($data = $this->prefix($prefix, $has_value, $parse_value, $delete_prefix)){
+        if ($data = $this->prefix($prefix, $has_value, $parse_value, $delete_prefix)) {
             return new static($data);
         }
         return new static();
@@ -598,7 +599,8 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         unset($this->data[$key]);
     }
 
-    public function offsetSet($offset, $value):void {
+    public function offsetSet($offset, $value): void
+    {
         if (is_null($offset)) {
             $this->data[] = $value;
         } else {
@@ -606,15 +608,18 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         }
     }
 
-    public function offsetExists($offset):bool {
+    public function offsetExists($offset): bool
+    {
         return isset($this->data[$offset]);
     }
 
-    public function offsetUnset($offset):void {
+    public function offsetUnset($offset): void
+    {
         unset($this->data[$offset]);
     }
 
-    public function offsetGet($offset):mixed {
+    public function offsetGet($offset): mixed
+    {
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
 
@@ -624,7 +629,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      *
      * @return \ArrayIterator
      */
-    public function getIterator():\ArrayIterator
+    public function getIterator(): \ArrayIterator
     {
         return new ArrayIterator($this->data);
     }
@@ -633,6 +638,15 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
     public function toArray()
     {
+        if ($this->accessible && is_array($this->accessible)) {
+            $data = [];
+            foreach ($this->data as $key => $value) {
+                if (in_array($key, $this->accessible))
+                    // duyệt qua mảng hoặc object để gán key, value ở level 0 cho biến data
+                    $data[$key] = $value;
+            }
+            $data;
+        } 
         return $this->data;
     }
 
@@ -641,14 +655,11 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         return array_map(function ($value) {
             if (is_a($value, static::class)) {
                 return $value->toDeepArray();
-            }
-            elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
+            } elseif (is_object($value) && is_callable([$value, 'toDeepArray'])) {
                 return $value->toArray();
-            }
-            elseif ($value instanceof Arrayable) {
+            } elseif ($value instanceof Arrayable) {
                 return $value->toArray();
-            }
-            elseif (is_object($value) && is_callable([$value, 'toArray'])) {
+            } elseif (is_object($value) && is_callable([$value, 'toArray'])) {
                 return $value->toArray();
             }
 
@@ -670,7 +681,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize():mixed
+    public function jsonSerialize(): mixed
     {
         return array_map(function ($value) {
             if ($value instanceof JsonSerializable) {
@@ -698,65 +709,58 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         $results = [];
 
         $val = $this->get($key);
-        if($delimiter && $val && is_string($val)){
-            if(!is_array($delimiter)) $delimiter = [$delimiter];
+        if ($delimiter && $val && is_string($val)) {
+            if (!is_array($delimiter)) $delimiter = [$delimiter];
             $t = count($delimiter);
-            for ($i=0; $i < $t; $i++) {
+            for ($i = 0; $i < $t; $i++) {
                 $d = $delimiter[$i];
-                if($i == 0){
+                if ($i == 0) {
                     $a = explode($d, $val);
                     $results = $a;
-                }else{
+                } else {
                     $a = [];
                     $m = count($results);
-                    for ($j=0; $j < $m; $j++) {
+                    for ($j = 0; $j < $m; $j++) {
                         $b = explode($d, $results[$j]);
                         foreach ($b as $v) {
                             $a[] = $v;
                         }
-
                     }
                     $results = $a;
-
                 }
-
             }
 
-            if($trim){
+            if ($trim) {
                 $results = array_map('trim', $results);
             }
-            $results = array_filter($results, function($v){
+            $results = array_filter($results, function ($v) {
                 return strlen($v) > 0;
             });
-
-        }elseif(is_string($delimiter) && $val && is_string($val)){
+        } elseif (is_string($delimiter) && $val && is_string($val)) {
             $t = strlen($val);
-            for ($i=0; $i < $t; $i++) {
+            for ($i = 0; $i < $t; $i++) {
                 $results[] = substr($val, $i, 1);
             }
-        }
-        elseif(!is_array($val)) $results = [$val];
+        } elseif (!is_array($val)) $results = [$val];
         return $results;
     }
 
-    
-    
+
+
     protected static function __entities($array = [])
     {
 
-        if(is_array($array)){
+        if (is_array($array)) {
             $a = $array;
             foreach ($a as $key => $value) {
-                if(is_array($value)){
+                if (is_array($value)) {
                     $array[$key] = static::__entities($value);
-                }elseif(is_numeric($value)){
-
-                }elseif(is_string($value)){
+                } elseif (is_numeric($value)) {
+                } elseif (is_string($value)) {
                     $array[$key] = htmlentities($value);
                 }
             }
-        }
-        elseif(is_string($array)){
+        } elseif (is_string($array)) {
             return htmlentities($array);
         }
         return $array;
@@ -772,11 +776,10 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     public function __call($name, $arguments)
     {
-        if($name == 'entities') {
+        if ($name == 'entities') {
             $this->data = static::__entities($this->data, ...$arguments);
             return $this;
-        }
-        elseif (in_array($name, static::$funcs)) {
+        } elseif (in_array($name, static::$funcs)) {
             array_unshift($arguments, $this->data);
             return call_user_func_array('static::__' . $name, $arguments);
         }
@@ -807,8 +810,7 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
 
         if (is_array($d)) {
             return array_map(__METHOD__, $d);
-        }
-        else {
+        } else {
             return $d;
         }
     }
@@ -818,17 +820,17 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      * @param array $array
      * @return boolean
      */
-    public static function isNumericKeys(array $array = []) : Bool
+    public static function isNumericKeys(array $array = []): Bool
     {
         return (array_values($array) === $array);
     }
 
     public static function __setPrefix($array = [], $prefix = null)
     {
-        if($prefix){
+        if ($prefix) {
             $a = [];
-            foreach($array as $key => $value){
-                $a[$prefix.$key] = $value;
+            foreach ($array as $key => $value) {
+                $a[$prefix . $key] = $value;
             }
             return $a;
         }
@@ -848,43 +850,39 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     {
         $data = [];
         // nếu có prefix
-        if(strlen($prefix)){
+        if (strlen($prefix)) {
             // xóa vài kí tự đặc biệt
-            $pre = '/'.str_replace([".", " ", "/"], ["\.", "\s", "\/"], $prefix) .'/i';
+            $pre = '/' . str_replace([".", " ", "/"], ["\.", "\s", "\/"], $prefix) . '/i';
 
             foreach ($array as $key => $value) {
                 // nếu yêu cầu kiểm tra phải có giá trị
-                if($has_value){
-                    if(is_string($value) && !strlen($value)){
+                if ($has_value) {
+                    if (is_string($value) && !strlen($value)) {
                         continue;
                     }
                 }
                 // nếu khớp ve17 prefix
-                if(preg_match($pre, $key)){
-                    if($delete_prefix){
+                if (preg_match($pre, $key)) {
+                    if ($delete_prefix) {
                         $k = preg_replace($pre, '', $key);
-                    }
-                    else{
+                    } else {
                         $k = $key;
                     }
-                    $data[$k] = is_callable($parse_value)?$parse_value($value):$value;
+                    $data[$k] = is_callable($parse_value) ? $parse_value($value) : $value;
                 }
-
             }
-        }else{
-            if($parse_value && is_callable($parse_value)){
+        } else {
+            if ($parse_value && is_callable($parse_value)) {
                 foreach ($array as $key => $value) {
                     $d = $parse_value($value);
 
-                    if((is_array($d) && count($d)) || (is_string($d) && strlen($d)) || is_numeric($d) || $d){
+                    if ((is_array($d) && count($d)) || (is_string($d) && strlen($d)) || is_numeric($d) || $d) {
                         $data[$key] = $d;
                     }
                 }
-            }
-            else{
+            } else {
                 $data = $array;
             }
-
         }
 
         return $data;
@@ -899,15 +897,15 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     protected static function checkValue($value, $checkFunc = null)
     {
-        if(is_callable($checkFunc)){
+        if (is_callable($checkFunc)) {
             return $checkFunc($value);
         }
-        if(is_numeric($checkFunc)){
-            if($checkFunc == 0) return $value >= 0;
-            if($checkFunc < 0) return $value < 0;
+        if (is_numeric($checkFunc)) {
+            if ($checkFunc == 0) return $value >= 0;
+            if ($checkFunc < 0) return $value < 0;
             return $value > 0;
         }
-        if(is_array($checkFunc)){
+        if (is_array($checkFunc)) {
             return in_array($value, $checkFunc);
         }
         return false;
@@ -922,22 +920,22 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
      */
     protected static function __match(array $array = [], $key = null, $check = null)
     {
-        if(is_array($array) && count($array)){
-            if(is_array($key)){
+        if (is_array($array) && count($array)) {
+            if (is_array($key)) {
                 $a = [];
                 foreach ($array as $k => $v) {
-                    if(isset($key[$k])){
-                        if(static::checkValue($v, $key[$k])){
+                    if (isset($key[$k])) {
+                        if (static::checkValue($v, $key[$k])) {
                             $a[$k] = $v;
                         }
-                    }else{
+                    } else {
                         $a[$k] = $v;
                     }
                 }
                 return $a;
-            }elseif((is_string($key) || is_numeric($key)) && $check){
-                if(isset($array[$key])){
-                    if(!static::checkValue($array[$key], $check)) unset($array[$key]);
+            } elseif ((is_string($key) || is_numeric($key)) && $check) {
+                if (isset($array[$key])) {
+                    if (!static::checkValue($array[$key], $check)) unset($array[$key]);
                 }
             }
         }
@@ -954,14 +952,12 @@ Class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
     protected static function __deepMerge($root, $data)
     {
         foreach ($data as $key => $value) {
-            if(array_key_exists($key, $root) && is_array($value) && is_array($root[$key])){
+            if (array_key_exists($key, $root) && is_array($value) && is_array($root[$key])) {
                 $root[$key] = static::__deepMerge($root[$key], $value);
-            }
-            else{
+            } else {
                 $root[$key] = $value;
             }
         }
         return $root;
     }
-
 }

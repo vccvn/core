@@ -94,8 +94,11 @@ function __call__($args = [])
                                 case 'router':
                                     call_user_func_array("make_route", $args);
                                     break;
-
-
+                                case 'dto':
+                                case 'd':
+                                case 'rd':
+                                    call_user_func_array("make_dto", $args);
+                                    break;
                                 default:
                                     echo "what you want to make? \n\t - c, controller\n\t - m, -model\n\t - mk, mask\n\t - r, repository\n\t - v, validator\n\t - cmd, cl, command, command-line\n\t - s, service, sv, serv";
                                     break;
