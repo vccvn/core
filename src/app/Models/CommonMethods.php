@@ -17,6 +17,10 @@ trait CommonMethods
      */
     protected $jsonFields = [];
 
+    protected function getIdAttribute() {
+        return $this->attributes['id']??($this->attributes['uuid']??null);
+    }
+
     /**
      * lấy các cột json
      *
