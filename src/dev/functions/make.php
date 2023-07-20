@@ -622,7 +622,7 @@ function update_json_form($args = [], $module = null, $column = null, $type = nu
             }
             unset($data['ph']);
         }elseif(array_key_exists('placeholder', $data)){
-            $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['ph']);
+            $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['placeholder']);
         }
         $json['inputs'][$column] = array_merge($json['inputs'][$column]??[], $data);
         if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode($json, JSON_PRETTY_PRINT)), 'json')) {
