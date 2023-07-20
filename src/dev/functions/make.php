@@ -599,6 +599,30 @@ function make_json_module($args = [], $module = null, $table = null, $moduleName
     }
 }
 
+function update_json_form($args = [], $module = null, $column = null, $type = null, $label = null, $placeholder = null) {
+    if(!$module || !$column) 
+        echo "Bạn chưa nhập module hoặc tên field";
+    elseif(!($filemanager = new Filemanager(base_path('json'))))
+        echo "Không thể khởi tạo file manager";
+    elseif(!($json = $filemanager->json($module . '/form.json')))
+        echo "Module không tồn tại";
+    else{
+        $d = [];
+        if($type) $d['type'] = $type;
+        if($type) $d['label'] = $label;
+        if($type) $d['placeholder'] = $placeholder;
+        elseif($label) $d['placeholder'] = 'Nhập ' . strtolower($label);
+        $data = array_merge($d, $args);
+        $json['inputs'][$column] = array_merge($json['inputs'][$column]??[], $data);
+        if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode($json, JSON_PRETTY_PRINT)), 'json')) {
+            echo "update form success\nPath: $file->path";
+        }else{
+            echo "Lưu file không thành công";
+        }
+    }
+    echo "\n";
+
+}
 
 function update_storage_data()
 {

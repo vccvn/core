@@ -127,6 +127,18 @@ function __call__($args = [])
                     $args = array_merge([$p['params']], $p['args']);
                     call_user_func_array('show_list', $args);
                     break;
+                case 'update':
+                case 'ud':
+                    if (isset($param[0])) {
+                        $t = strtolower(array_shift($param));
+                        $p = get_args_params($param);
+                        $args = array_merge([$p['params']], $p['args']);
+                        print_r($args);
+                        if (in_array($t, ['jf', 'json-form', 'json_form', 'jsonform', 'jform'])) {
+                            call_user_func_array("update_json_form", $args);
+                        }
+                    }
+                    break;
                 default:
                     echo "What do you want to do?\n\t make or create somthing\n\t run command exists";
             }
