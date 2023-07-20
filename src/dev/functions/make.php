@@ -613,6 +613,17 @@ function update_json_form($args = [], $module = null, $column = null, $type = nu
         if($type) $d['placeholder'] = $placeholder;
         elseif($label) $d['placeholder'] = 'Nhập ' . strtolower($label);
         $data = array_merge($d, $args);
+        $data = array_merge($json['inputs'][$column]??[], $data);
+        if(array_key_exists('ph', $data)){
+            if(!array_key_exists('placeholder', $data)){
+                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['ph']);
+            }else{
+                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['placeholder']);
+            }
+            unset($data['ph']);
+        }elseif(array_key_exists('placeholder', $data)){
+            $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['ph']);
+        }
         $json['inputs'][$column] = array_merge($json['inputs'][$column]??[], $data);
         if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode($json, JSON_PRETTY_PRINT)), 'json')) {
             echo "update form success\nPath: $file->path";
