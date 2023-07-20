@@ -133,7 +133,6 @@ function __call__($args = [])
                         $t = strtolower(array_shift($param));
                         $p = get_args_params($param);
                         $args = array_merge([$p['params']], $p['args']);
-                        print_r($args);
                         if (in_array($t, ['jf', 'json-form', 'json_form', 'jsonform', 'jform'])) {
                             call_user_func_array("update_json_form", $args);
                         }
