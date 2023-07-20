@@ -602,7 +602,7 @@ function make_json_module($args = [], $module = null, $table = null, $moduleName
 function update_json_form($args = [], $module = null, $column = null, $type = null, $label = null, $placeholder = null) {
     if(!$module || !$column) 
         echo "Bạn chưa nhập module hoặc tên field";
-    elseif(!($filemanager = new Filemanager(base_path('json'))))
+    elseif(!($filemanager = new Filemanager(base_path('json/admin/modules'))))
         echo "Không thể khởi tạo file manager";
     elseif(!($json = $filemanager->json($module . '/form.json')))
         echo "Module không tồn tại";
