@@ -107,7 +107,7 @@ trait ResponseMethods
     {
         extract($this->apiDefaultData);
 
-        $data = $this->repository->getSlug($request->slug, $request->id);
+        $data = $this->repository->getSlug($request->slug, $request->id??$request->uuid);
         $status = true;
         return $this->json(compact(...$this->apiSystemVars));
     }
