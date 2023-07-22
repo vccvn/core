@@ -69,7 +69,7 @@ trait DataAction
             $args['slug'] = $sl;
 
             if($pf = $this->first($args)){
-                if($id && $pf->{$this->_primaryKeyName} == $id){
+                if($id && $pf->{$pf->getKeyName()} == $id){
                     $slug = $sl;
                     $s = false;
                     break;
@@ -97,7 +97,7 @@ trait DataAction
         $args['slug'] = $str;
 
         if($result = $this->first($args)){
-            if($id && $result->{$this->_primaryKeyName} == $id){
+            if($id && $result->{$result->getKeyName()} == $id){
                 return 1;
             }
             return 0;
