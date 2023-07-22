@@ -39,7 +39,7 @@ trait BaseCrud
     {
         $this->repository->resetTrashed();
         // gan id de sac minh la update hay them moi
-        $id = strtolower($action) != 'create' ? $request->id : null;
+        $id = strtolower($action) != 'create' ? ($request->id??$request->uuid) : null;
         // is update
 
         if ($id && $record = $this->repository->find($id)) {
@@ -157,7 +157,7 @@ trait BaseCrud
         } elseif ($is_update) {
             $r = $redirect->back();
         } else {
-            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', ['id' => $model->{$model->getKeyName()}]);
+            $r = $redirect->route($this->routeNamePrefix . $this->module . '.update', [config('system.modules.form_key', 'id') => $model->{$model->getKeyName()}]);
         }
         if ($this->redirectData) {
             return $r->with($this->redirectData);
