@@ -53,7 +53,7 @@ trait DataAction
 
     public function getSlug($str=null, $id=null, $col = null, $value=null)
     {
-        if(!$str && !$id=null) return null;
+        if(!$str && $id==null) return null;
         if(!$str) return null;
         $aslug = str_slug($str,'-');
         $slug = null;
