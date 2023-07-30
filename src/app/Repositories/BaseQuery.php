@@ -1048,33 +1048,45 @@ trait BaseQuery
 
                         $kd = [
                             $keywords,
-                            $keywordClean
+                            $keywordClean,
+                            $slug,
+                            str_replace('-', '', $slug)
                         ];
                         if (is_string($search_by)) {
                             // tim mot cot
                             $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
 
                             $query->where($f, 'like', "%$kd[0]%")
+                                ->orWhere($f, 'like', "%$kd[1]%")
+                                ->orWhere($f, 'like', "%$kd[1]%")
                                 ->orWhere($f, 'like', "%$kd[1]%");
 
                             switch ($searchType) {
                                 case 'start':
                                     $query->where($f, 'like', "$kd[0]%")
-                                        ->orWhere($f, 'like', "$kd[1]%");
+                                        ->orWhere($f, 'like', "$kd[1]%")
+                                        ->orWhere($f, 'like', "$kd[2]%")
+                                        ->orWhere($f, 'like', "$kd[3]%");
                                     break;
 
                                 case 'end':
                                     $query->where($f, 'like', "%$kd[0]")
-                                        ->orWhere($f, 'like', "%$kd[1]");
+                                        ->orWhere($f, 'like', "%$kd[1]")
+                                        ->orWhere($f, 'like', "%$kd[2]")
+                                        ->orWhere($f, 'like', "%$kd[3]");
                                     break;
                                 case 'match':
                                 case 'all':
                                     $query->where($f, 'like', "$kd[0]")
-                                        ->orWhere($f, 'like', "$kd[1]");
+                                        ->orWhere($f, 'like', "$kd[1]")
+                                        ->orWhere($f, 'like', "$kd[2]")
+                                        ->orWhere($f, 'like', "$kd[3]");
                                     break;
                                 default:
                                     $query->where($f, 'like', "%$kd[0]%")
-                                        ->orWhere($f, 'like', "%$kd[1]%");
+                                        ->orWhere($f, 'like', "%$kd[1]%")
+                                        ->orWhere($f, 'like', "%$kd[2]%")
+                                        ->orWhere($f, 'like', "%$kd[3]%");
                                     break;
                             }
                         } elseif (is_array($search_by)) {
@@ -1087,28 +1099,38 @@ trait BaseQuery
                             switch ($searchType) {
                                 case 'start':
                                     $query->where($f2, 'like', "$kd[0]%")
-                                        ->orWhere($f2, 'like', "$kd[1]%");
+                                        ->orWhere($f2, 'like', "$kd[1]%")
+                                        ->orWhere($f2, 'like', "$kd[2]%")
+                                        ->orWhere($f2, 'like', "$kd[3]%");
                                     foreach ($b as $col) {
                                         $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
                                         $query->orWhere($f3, 'like', "$kd[0]%")
-                                            ->orWhere($f3, 'like', "$kd[1]%");
+                                            ->orWhere($f3, 'like', "$kd[1]%")
+                                            ->orWhere($f3, 'like', "$kd[2]%")
+                                            ->orWhere($f3, 'like', "$kd[3]%");
                                     }
                                     break;
 
                                 case 'end':
                                     $query->where($f2, 'like', "%$kd[0]")
-                                        ->orWhere($f2, 'like', "%$kd[1]");
+                                        ->orWhere($f2, 'like', "%$kd[1]")
+                                        ->orWhere($f2, 'like', "%$kd[2]")
+                                        ->orWhere($f2, 'like', "%$kd[3]");
                                     foreach ($b as $col) {
                                         $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
                                         $query->orWhere($f3, 'like', "%$kd[0]")
-                                            ->orWhere($f3, 'like', "%$kd[1]");
+                                            ->orWhere($f3, 'like', "%$kd[1]")
+                                            ->orWhere($f3, 'like', "%$kd[2]")
+                                            ->orWhere($f3, 'like', "%$kd[3]");
                                     }
                                     break;
 
                                 case 'all':
                                 case 'match':
                                     $query->where($f2, 'like', "$kd[0]")
-                                        ->orWhere($f2, 'like', "$kd[1]");
+                                        ->orWhere($f2, 'like', "$kd[1]")
+                                        ->orWhere($f2, 'like', "$kd[2]")
+                                        ->orWhere($f2, 'like', "$kd[3]");
                                     foreach ($b as $col) {
                                         $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
                                         $query->orWhere($f3, 'like', "$kd[0]")
@@ -1118,11 +1140,15 @@ trait BaseQuery
 
                                 default:
                                     $query->where($f2, 'like', "%$kd[0]%")
-                                        ->orWhere($f2, 'like', "%$kd[1]%");
+                                        ->orWhere($f2, 'like', "%$kd[1]%")
+                                        ->orWhere($f2, 'like', "%$kd[2]%")
+                                        ->orWhere($f2, 'like', "%$kd[3]%");
                                     foreach ($b as $col) {
                                         $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
                                         $query->orWhere($f3, 'like', "%$kd[0]%")
-                                            ->orWhere($f3, 'like', "%$kd[1]%");
+                                            ->orWhere($f3, 'like', "%$kd[1]%")
+                                            ->orWhere($f3, 'like', "%$kd[2]%")
+                                            ->orWhere($f3, 'like', "%$kd[3]%");
                                     }
                                     break;
                             }
