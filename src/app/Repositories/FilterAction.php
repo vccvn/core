@@ -626,6 +626,21 @@ trait FilterAction
                             $this->where($prefix . $key, $value);
                         }
                     }
+                }elseif (is_array($value) && count($value)) {
+                    $value = array_values($value);
+                    // lấy theo tham số request (set where)
+                    if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value))) && !in_array($key, $disableWhereColumns)) {
+                        if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
+                            if (isset($this->whereable[$key])) {
+                                $this->whereIn($this->whereable[$key], $value);
+                            } else {
+                                $this->whereIn($key, $value);
+                            }
+                        }
+                        elseif (in_array($key, $fields)) {
+                            $this->whereIn($prefix . $key, $value);
+                        }
+                    }
                 }
             }
         }
