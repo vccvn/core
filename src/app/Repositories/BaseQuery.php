@@ -166,6 +166,8 @@ trait BaseQuery
 
     protected $__searchType__ = 'word'; // start || end
 
+    protected $__searchRules__ = [];
+
     /**
      * Set model
      */
@@ -882,6 +884,28 @@ trait BaseQuery
             $this->__searchType__ = $a;
         return $this;
     }
+
+    /**
+     * search Rule
+     *
+     * @param array|string $column
+     * @param string $rule
+     * @return static
+     */
+    final public function searchRule($column = null, $rule = null)
+    {
+        if (is_array($column)) {
+            foreach ($column as $key => $value) {
+                if (preg_match('/^[A-z]+[A-z_\-\.]*$/', $key)) {
+                    $this->__searchRules__[$key] = $value;
+                }
+            }
+        } elseif (is_string($column) && preg_match('/^[A-z]+[A-z_\-\.]*$/', $column) && is_string($rule)) {
+            $this->__searchRules__[$column] = $rule;
+        }
+        return $this;
+    }
+
     /**
      * build search query
      *
@@ -927,140 +951,216 @@ trait BaseQuery
                             $slug,
                             str_replace('-', '', $slug)
                         ];
+                        $rules = $this->__searchRules__;
                         if (is_string($search_by)) {
                             // tim mot cot
                             $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
+                            $rule = array_key_exists($search_by, $rules) ? $rules[$search_by] : (array_key_exists($f, $rules) ? $rules[$f] : null);
+                            if ($rule) {
+                                if (!is_array($rule)) $rule = [$rule];
+                                if (is_array($rule)) {
+                                    $i = 0;
+                                    foreach ($rule as $rul) {
+                                        foreach ($kd as $s) {
+                                            $r = str_replace('{query}', $s, $rul);
+                                            if ($r == $rul) {
+                                                switch ($searchType) {
+                                                    case 'start':
+                                                        $r = "$s%";
+                                                        break;
 
-                            switch ($searchType) {
-                                case 'start':
-                                    $query->where($f, 'like', "$kd[0]%")
-                                        ->orWhere($f, 'like', "$kd[1]%")
-                                        ->orWhere($f, 'like', "$kd[2]%")
-                                        ->orWhere($f, 'like', "$kd[3]%");
-                                    break;
+                                                    case 'end':
+                                                        $r = "%$s";
+                                                        break;
+                                                    case 'match':
+                                                    case 'all':
+                                                        $r = $s;
+                                                        break;
+                                                    default:
+                                                        $r = "%$s%";
+                                                        break;
+                                                }
+                                            }
+                                            if ($i == 0) {
+                                                $query->where($f, 'like', $r);
+                                            } else {
+                                                $query->orWhere($f, 'like', $r);
+                                            }
+                                            $i++;
+                                        }
+                                    }
+                                }
+                            } else
+                                switch ($searchType) {
+                                    case 'start':
+                                        $query->where($f, 'like', "$kd[0]%")
+                                            ->orWhere($f, 'like', "$kd[1]%")
+                                            ->orWhere($f, 'like', "$kd[2]%")
+                                            ->orWhere($f, 'like', "$kd[3]%");
+                                        break;
 
-                                case 'end':
-                                    $query->where($f, 'like', "%$kd[0]")
-                                        ->orWhere($f, 'like', "%$kd[1]")
-                                        ->orWhere($f, 'like', "%$kd[2]")
-                                        ->orWhere($f, 'like', "%$kd[3]");
-                                    break;
-                                case 'match':
-                                case 'all':
-                                    $query->where($f, 'like', "$kd[0]")
-                                        ->orWhere($f, 'like', "$kd[1]")
-                                        ->orWhere($f, 'like', "$kd[2]")
-                                        ->orWhere($f, 'like', "$kd[3]");
-                                    break;
-                                default:
-                                    $query->where($f, 'like', "%$kd[0]%")
-                                        ->orWhere($f, 'like', "%$kd[1]%")
-                                        ->orWhere($f, 'like', "%$kd[2]%")
-                                        ->orWhere($f, 'like', "%$kd[3]%");
-                                    break;
-                            }
+                                    case 'end':
+                                        $query->where($f, 'like', "%$kd[0]")
+                                            ->orWhere($f, 'like', "%$kd[1]")
+                                            ->orWhere($f, 'like', "%$kd[2]")
+                                            ->orWhere($f, 'like', "%$kd[3]");
+                                        break;
+                                    case 'match':
+                                    case 'all':
+                                        $query->where($f, 'like', "$kd[0]")
+                                            ->orWhere($f, 'like', "$kd[1]")
+                                            ->orWhere($f, 'like', "$kd[2]")
+                                            ->orWhere($f, 'like', "$kd[3]");
+                                        break;
+                                    default:
+                                        $query->where($f, 'like', "%$kd[0]%")
+                                            ->orWhere($f, 'like', "%$kd[1]%")
+                                            ->orWhere($f, 'like', "%$kd[2]%")
+                                            ->orWhere($f, 'like', "%$kd[3]%");
+                                        break;
+                                }
                         } elseif (is_array($search_by)) {
                             // tim theo nhieu cot
 
-                            $b = $search_by;
-                            $c = array_shift($b);
-                            $f2 = (count(explode('.', $c)) > 1) ? $c : $prefix . $c;
-                            $k2 = str_slug($keywords);
-                            switch ($searchType) {
-                                case 'start':
-                                    $query->where($f2, 'like', "$kd[0]%")
-                                        ->orWhere($f2, 'like', "$kd[1]%")
-                                        ->orWhere($f2, 'like', "$kd[2]%")
-                                        ->orWhere($f2, 'like', "$kd[3]%");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "$kd[0]%")
-                                            ->orWhere($f3, 'like', "$kd[1]%")
-                                            ->orWhere($f3, 'like', "$kd[2]%")
-                                            ->orWhere($f3, 'like', "$kd[3]%");
-                                    }
-                                    break;
 
-                                case 'end':
-                                    $query->where($f2, 'like', "%$kd[0]")
-                                        ->orWhere($f2, 'like', "%$kd[1]")
-                                        ->orWhere($f2, 'like', "%$kd[2]")
-                                        ->orWhere($f2, 'like', "%$kd[3]");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "%$kd[0]")
-                                            ->orWhere($f3, 'like', "%$kd[1]")
-                                            ->orWhere($f3, 'like', "%$kd[2]")
-                                            ->orWhere($f3, 'like', "%$kd[3]");
-                                    }
-                                    break;
+                            $i = 0;
+                            foreach ($search_by as $col) {
+                                $f2 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
+                                $rule = array_key_exists($f2, $rules) ? $rules[$f2] : null;
+                                if ($rule) {
+                                    if (!is_array($rule)) $rule = [$rule];
+                                    if (is_array($rule)) {
+                                        foreach ($rule as $r) {
+                                            foreach ($kd as $s) {
+                                                $w = str_replace('{query}', $s, $r);
+                                                if ($w == $r) {
+                                                    switch ($searchType) {
+                                                        case 'start':
+                                                            $w = "$s%";
+                                                            break;
 
-                                case 'all':
-                                case 'match':
-                                    $query->where($f2, 'like', "$kd[0]")
-                                        ->orWhere($f2, 'like', "$kd[1]")
-                                        ->orWhere($f2, 'like', "$kd[2]")
-                                        ->orWhere($f2, 'like', "$kd[3]");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "$kd[0]")
-                                            ->orWhere($f3, 'like', "$kd[1]")
-                                            ->orWhere($f3, 'like', "$kd[2]")
-                                            ->orWhere($f3, 'like', "$kd[3]");
+                                                        case 'end':
+                                                            $w = "%$s";
+                                                            break;
+                                                        case 'match':
+                                                        case 'all':
+                                                            $w = $s;
+                                                            break;
+                                                        default:
+                                                            $w = "%$s%";
+                                                            break;
+                                                    }
+                                                }
+                                                if ($i == 0) {
+                                                    $query->where($f2, "like", $w);
+                                                } else {
+                                                    $query->orWhere($f2, "like", $w);
+                                                }
+                                                $i++;
+                                            }
+                                        }
                                     }
-                                    break;
+                                } else {
+                                    foreach ($kd as $s) {
+                                        $w = $s;
+                                        switch ($searchType) {
+                                            case 'start':
+                                                $w = "$s%";
+                                                break;
 
-                                default:
-                                    $query->where($f2, 'like', "%$kd[0]%")
-                                        ->orWhere($f2, 'like', "%$kd[1]%")
-                                        ->orWhere($f2, 'like', "%$kd[2]%")
-                                        ->orWhere($f2, 'like', "%$kd[3]%");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "%$kd[0]%")
-                                            ->orWhere($f3, 'like', "%$kd[1]%")
-                                            ->orWhere($f3, 'like', "%$kd[2]%")
-                                            ->orWhere($f3, 'like', "%$kd[3]%");
+                                            case 'end':
+                                                $w = "%$s";
+                                                break;
+                                            case 'match':
+                                            case 'all':
+                                                $w = $s;
+                                                break;
+                                            default:
+                                                $w = "%$s%";
+                                                break;
+                                        }
+
+                                        if ($i == 0) {
+                                            $query->where($f2, "like", $w);
+                                        } else {
+                                            $query->orWhere($f2, "like", $w);
+                                        }
+                                        $i++;
                                     }
-                                    break;
+                                }
                             }
                         }
                     });
                 else
-                    $query->where(function ($query) use ($keywords, $search_by, $prefix) {
-                        $sAc = substr($keywords, 0, 1) == '@' ? true : false;
-                        if ($sAc) {
-                            $keywords = substr($keywords, 1);
-                        }
-                        $eAc = substr($keywords, strlen($keywords) - 1) == '@' ? true : false;
-                        if ($eAc) {
-                            $keywords = substr($keywords, 0, strlen($keywords) - 1);
-                        }
-                        $searchType = $this->__searchType__;
-                        if ($sAc && $eAc)
-                            $searchType = 'match';
-                        elseif ($sAc)
-                            $searchType = 'start';
-                        elseif ($eAc)
-                            $searchType = 'end';
-                        $keywordClean = vnclean($keywords);
-                        $slug = str_slug($keywordClean);
+                $query->where(function ($query) use ($keywords, $search_by, $prefix) {
 
-                        $kd = [
-                            $keywords,
-                            $keywordClean,
-                            $slug,
-                            str_replace('-', '', $slug)
-                        ];
-                        if (is_string($search_by)) {
-                            // tim mot cot
-                            $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
+                    $sAc = substr($keywords, 0, 1) == '@' ? true : false;
+                    if ($sAc) {
+                        $keywords = substr($keywords, 1);
+                    }
+                    $eAc = substr($keywords, strlen($keywords) - 1) == '@' ? true : false;
+                    if ($eAc) {
+                        $keywords = substr($keywords, 0, strlen($keywords) - 1);
+                    }
+                    $searchType = $this->__searchType__;
+                    if ($sAc && $eAc)
+                        $searchType = 'match';
+                    elseif ($sAc)
+                        $searchType = 'start';
+                    elseif ($eAc)
+                        $searchType = 'end';
 
-                            $query->where($f, 'like', "%$kd[0]%")
-                                ->orWhere($f, 'like', "%$kd[1]%")
-                                ->orWhere($f, 'like', "%$kd[1]%")
-                                ->orWhere($f, 'like', "%$kd[1]%");
 
+                    $keywordClean = vnclean($keywords);
+                    $slug = str_slug($keywordClean);
+
+                    $kd = [
+                        $keywords,
+                        $keywordClean,
+                        vntolower($keywords),
+                        $slug,
+                        str_replace('-', '', $slug)
+                    ];
+                    $rules = $this->__searchRules__;
+                    if (is_string($search_by)) {
+                        // tim mot cot
+                        $f = (count(explode('.', $search_by)) > 1) ? $search_by : $prefix . $search_by;
+                        $rule = array_key_exists($search_by, $rules) ? $rules[$search_by] : (array_key_exists($f, $rules) ? $rules[$f] : null);
+                        if ($rule) {
+                            if (!is_array($rule)) $rule = [$rule];
+                            if (is_array($rule)) {
+                                $i = 0;
+                                foreach ($rule as $rul) {
+                                    foreach ($kd as $s) {
+                                        $r = str_replace('{query}', $s, $rul);
+                                        if ($r == $rul) {
+                                            switch ($searchType) {
+                                                case 'start':
+                                                    $r = "$s%";
+                                                    break;
+
+                                                case 'end':
+                                                    $r = "%$s";
+                                                    break;
+                                                case 'match':
+                                                case 'all':
+                                                    $r = $s;
+                                                    break;
+                                                default:
+                                                    $r = "%$s%";
+                                                    break;
+                                            }
+                                        }
+                                        if ($i == 0) {
+                                            $query->where($f, 'like', $r);
+                                        } else {
+                                            $query->orWhere($f, 'like', $r);
+                                        }
+                                        $i++;
+                                    }
+                                }
+                            }
+                        } else
                             switch ($searchType) {
                                 case 'start':
                                     $query->where($f, 'like', "$kd[0]%")
@@ -1089,71 +1189,78 @@ trait BaseQuery
                                         ->orWhere($f, 'like', "%$kd[3]%");
                                     break;
                             }
-                        } elseif (is_array($search_by)) {
-                            // tim theo nhieu cot
+                    } elseif (is_array($search_by)) {
+                        // tim theo nhieu cot
 
-                            $b = $search_by;
-                            $c = array_shift($b);
-                            $f2 = (count(explode('.', $c)) > 1) ? $c : $prefix . $c;
-                            $k2 = str_slug($keywords);
-                            switch ($searchType) {
-                                case 'start':
-                                    $query->where($f2, 'like', "$kd[0]%")
-                                        ->orWhere($f2, 'like', "$kd[1]%")
-                                        ->orWhere($f2, 'like', "$kd[2]%")
-                                        ->orWhere($f2, 'like', "$kd[3]%");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "$kd[0]%")
-                                            ->orWhere($f3, 'like', "$kd[1]%")
-                                            ->orWhere($f3, 'like', "$kd[2]%")
-                                            ->orWhere($f3, 'like', "$kd[3]%");
-                                    }
-                                    break;
 
-                                case 'end':
-                                    $query->where($f2, 'like', "%$kd[0]")
-                                        ->orWhere($f2, 'like', "%$kd[1]")
-                                        ->orWhere($f2, 'like', "%$kd[2]")
-                                        ->orWhere($f2, 'like', "%$kd[3]");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "%$kd[0]")
-                                            ->orWhere($f3, 'like', "%$kd[1]")
-                                            ->orWhere($f3, 'like', "%$kd[2]")
-                                            ->orWhere($f3, 'like', "%$kd[3]");
-                                    }
-                                    break;
+                        $i = 0;
+                        foreach ($search_by as $col) {
+                            $f2 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
+                            $rule = array_key_exists($f2, $rules) ? $rules[$f2] : null;
+                            if ($rule) {
+                                if (!is_array($rule)) $rule = [$rule];
+                                if (is_array($rule)) {
+                                    foreach ($rule as $r) {
+                                        foreach ($kd as $s) {
+                                            $w = str_replace('{query}', $s, $r);
+                                            if ($w == $r) {
+                                                switch ($searchType) {
+                                                    case 'start':
+                                                        $w = "$s%";
+                                                        break;
 
-                                case 'all':
-                                case 'match':
-                                    $query->where($f2, 'like', "$kd[0]")
-                                        ->orWhere($f2, 'like', "$kd[1]")
-                                        ->orWhere($f2, 'like', "$kd[2]")
-                                        ->orWhere($f2, 'like', "$kd[3]");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "$kd[0]")
-                                            ->orWhere($f3, 'like', "$kd[1]");
+                                                    case 'end':
+                                                        $w = "%$s";
+                                                        break;
+                                                    case 'match':
+                                                    case 'all':
+                                                        $w = $s;
+                                                        break;
+                                                    default:
+                                                        $w = "%$s%";
+                                                        break;
+                                                }
+                                            }
+                                            if ($i == 0) {
+                                                $query->where($f2, "like", $w);
+                                            } else {
+                                                $query->orWhere($f2, "like", $w);
+                                            }
+                                            $i++;
+                                        }
                                     }
-                                    break;
+                                }
+                            } else {
+                                foreach ($kd as $s) {
+                                    $w = $s;
+                                    switch ($searchType) {
+                                        case 'start':
+                                            $w = "$s%";
+                                            break;
 
-                                default:
-                                    $query->where($f2, 'like', "%$kd[0]%")
-                                        ->orWhere($f2, 'like', "%$kd[1]%")
-                                        ->orWhere($f2, 'like', "%$kd[2]%")
-                                        ->orWhere($f2, 'like', "%$kd[3]%");
-                                    foreach ($b as $col) {
-                                        $f3 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
-                                        $query->orWhere($f3, 'like', "%$kd[0]%")
-                                            ->orWhere($f3, 'like', "%$kd[1]%")
-                                            ->orWhere($f3, 'like', "%$kd[2]%")
-                                            ->orWhere($f3, 'like', "%$kd[3]%");
+                                        case 'end':
+                                            $w = "%$s";
+                                            break;
+                                        case 'match':
+                                        case 'all':
+                                            $w = $s;
+                                            break;
+                                        default:
+                                            $w = "%$s%";
+                                            break;
                                     }
-                                    break;
+
+                                    if ($i == 0) {
+                                        $query->where($f2, "like", $w);
+                                    } else {
+                                        $query->orWhere($f2, "like", $w);
+                                    }
+                                    $i++;
+                                }
                             }
                         }
-                    });
+                    }
+                });
             }
         }
         return $query;
@@ -1437,12 +1544,15 @@ trait BaseQuery
      * 
      * @return static
      */
-    public function addsearch(string $keywords = null, $search_by = null)
+    public function addsearch(string $keywords = null, $search_by = null, $rules = null)
     {
         $this->params['@search'] = [
             'keyword' => $keywords,
             'by' => $search_by
         ];
+        if ($rules) {
+            $this->params['@search']['rules'] = $rules;
+        }
         return $this;
     }
 
