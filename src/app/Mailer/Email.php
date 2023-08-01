@@ -165,7 +165,8 @@ class Email{
 		if(!$this->__canSend__) return false;
 		Config::set('mail', static::$config);
 		if(method_exists($this,'beforeSend')){
-			$this->beforeSend();
+			$s = $this->beforeSend();
+			if($s === false) return false;
 		}
 		if(static::$__oneTimeData){
 			$vars = array_merge(static::$__oneTimeData, $vars);
