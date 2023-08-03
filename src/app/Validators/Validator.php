@@ -198,6 +198,7 @@ abstract class Validator{
         $mixed = [];
         $hasVal = [];
         $strdate = [];
+        $datetimes = [];
         $boolean = [];
         $datetimes = [];
         $arrdate = [];
@@ -239,7 +240,13 @@ abstract class Validator{
                     }elseif(in_array('datetime', $rs)){
                         $format = $this->__rules['datetime'][0]??'datetime';
                         $val = $this->request->{$key};
-                        $data[$key] = carbon_datetime($val, $format);
+                        if($val){
+                            try {
+                                $data[$key] = carbon_datetime($val, $format);
+                            } catch (\Throwable $th) {
+                                $data[$key] = null;
+                            }
+                        }
                         continue;
                     }elseif(in_array('strdatetime', $rs)){
                         $datetimes[] = $key;
