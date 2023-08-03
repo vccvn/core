@@ -187,7 +187,7 @@ abstract class Validator{
      * trả về mảng dử liệu được validate
      * @return array
      */
-
+    protected $__rules = [];
     public function getAcceptInputs()
     {
         $rules = $this->getRules();
@@ -205,8 +205,10 @@ abstract class Validator{
             foreach($rules as $key => $rule){
                 $explode = explode('.', $key);
                 if(count($explode) == 1){
+                    $this->__rules = [];
                     $rs =  array_map(function($v){
                         $b = explode(':', $v);
+                        $this->__rules[$b[0]] = count($b) > 1 ? $this->parseParameters(explode(',', $b[1])):[];
                         return $b[0];
                     }, is_array($rule)? $rule : explode('|', str_replace(' ', '', $rule)));
                     
@@ -233,6 +235,11 @@ abstract class Validator{
                         $boolean[] = $key;
                         $val = $this->request->{$key};
                         $data[$key] = $val?1:0;
+                        continue;
+                    }elseif(in_array('datetime', $rs)){
+                        $format = $this->__rules['datetime'][0]??'datetime';
+                        $val = $this->request->{$key};
+                        $data[$key] = carbon_datetime($val, $format);
                         continue;
                     }elseif(in_array('strdatetime', $rs)){
                         $datetimes[] = $key;

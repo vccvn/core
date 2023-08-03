@@ -8,6 +8,58 @@ define('__RANDOM_VALUE__', md5(uniqid() . time() . rand(10000, 99999)));
 if(!defined('MODEL_PRIMARY_KEY') && class_exists('Gomee\Core\System')){
     define('MODEL_PRIMARY_KEY', env('MODEL_PRIMARY_KEY', 'id'));
 }
+if (!function_exists('carbon_datetime')) {
+    /**
+     * lấy thời gian theo carbon
+     * @param string $datetime
+     * @param string $format
+     * @return string
+     */
+    function carbon_datetime($time = null, $format = null)
+    {
+        if (!$time) return false;
+        try {
+            $carbon = Carbon::parse($time);
+            if (!$format) return $carbon;
+            switch (strtolower($format)) {
+                case 'date':
+                    return $carbon->toDateString();
+                    break;
+                case 'locale':
+                    return $carbon->toDateTimeLocalString();
+                    break;
+                case 'datetime':
+                    return $carbon->toDateTimeString();
+                    break;
+                case 'time':
+                    return $carbon->getTimestamp();
+                    break;
+                case 'timestamp':
+                    return $carbon->getTimestamp();
+                    break;
+                case 'timezone':
+                    return $carbon->getTimezone();
+                    break;
+
+                case 'dbdate':
+                    return $carbon->format('Y-m-d');
+                    break;
+                case 'iso':
+                case 'timetz':
+                    return $carbon->format('Y-m-d\TH:i:s.uP');
+                    break;
+
+
+                default:
+                    return $carbon->format($format);
+                    break;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        return null;
+    }
+}
 
 if(!function_exists('entities')){
     /**

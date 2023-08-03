@@ -23,8 +23,6 @@ use Illuminate\Http\Request;
  * @method MODELMask|MODEL first(string $column, mixed $value) lấy MODEL
  * @method MODEL create(array $data = []) Thêm bản ghi
  * @method MODEL update(integer $id, array $data = []) Cập nhật
- * 
- * @property MODEL $_model Model 
  */
 class NAMERepository extends BaseRepository
 {
