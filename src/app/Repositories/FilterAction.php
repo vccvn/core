@@ -25,6 +25,11 @@ trait FilterAction
      * ví dụ: ['id', 'name', 'column' => 'table.column']
      */
     protected $searchable = [];
+    /**
+     * @var array $searchable danh sach cac cot co the tim kiem
+     * ví dụ: ['id', 'name', 'column' => 'table.column']
+     */
+    protected $searchDisable = [];
 
     /**
      * @var array $sortable
