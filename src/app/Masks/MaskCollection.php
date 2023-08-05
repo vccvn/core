@@ -97,6 +97,12 @@ abstract class MaskCollection implements Countable, ArrayAccess, IteratorAggrega
             }
 
             array_map(function($item){$item->__lock();}, $this->items);
+        }elseif (is_a($collection, LengthAwarePaginator::class) || is_a($collection, AbstractPaginator::class)) {
+            $this->paginator = $collection;
+            $this->isPaginator = true;
+            if ($tal = $collection->total()) {
+                $this->total = $tal;
+            }
         }
     }
     public function __lock()
