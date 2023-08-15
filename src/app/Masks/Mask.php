@@ -14,6 +14,8 @@ use JsonSerializable;
 
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Str;
+
 use ReflectionClass;
 
 /**
@@ -44,6 +46,13 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
     protected $parent = null;
 
     protected $alias = [];
+
+    /**
+     * kiểu key của relation khi to array
+     *
+     * @var string
+     */
+    protected $relationKeyTransformType = 'snake';
 
     /**
      * các quan hệ dữ liệu đã dược load
@@ -335,11 +344,18 @@ abstract class Mask implements Countable, ArrayAccess, IteratorAggregate, JsonSe
     {
         $data = [];
         if ($this->relations) {
-            foreach ($this->relations as $key => $relation) {
-                if (array_key_exists($key, $this->relationMap)) {
-                    $data[$key] = $relation;
+            if ($this->relationKeyTransformType == 'snake')
+                foreach ($this->relations as $key => $relation) {
+                    if (array_key_exists($key, $this->relationMap)) {
+                        $data[Str::snake($key)] = $relation;
+                    }
                 }
-            }
+            else
+                foreach ($this->relations as $key => $relation) {
+                    if (array_key_exists($key, $this->relationMap)) {
+                        $data[$key] = $relation;
+                    }
+                }
         }
         return $data;
     }
