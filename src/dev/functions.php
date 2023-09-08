@@ -62,8 +62,12 @@ function getProperties($table = null){
     $fillable = schema($table)->getData();
 
     $a = "";
-    foreach ($fillable as $field => $type) {
-        $a.= "\n * @property $type \$$field";
+    $fields = schema($table)->getConfig(true);
+    foreach ($fields as $field => $config) {
+        $label = $config->comment??implode(' ', array_map('ucfirst', explode('_', $config->name)));
+        $type = $config->type;
+        $field = $config->name;
+        $a.= "\n * @property $type \$$field $label";
         // echo "\n$field:";
     }
     // $a .= "\n";
