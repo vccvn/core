@@ -36,7 +36,6 @@ function getResource($table = null){
 
 function getRules($table = null){
     $fillable = schema($table)->getData();
-
     $a = "";
     foreach ($fillable as $field => $type) {
         $a.= "\n            '$field' => '$type',";
@@ -47,10 +46,15 @@ function getRules($table = null){
 }
 function getMessages($table = null){
     $fillable = schema($table)->getData();
+    $fields = schema($table)->getConfig(true);
 
     $a = "";
-    foreach ($fillable as $field => $type) {
-        $a.= "\n            '$field.$type' => '$field Không hợp lệ',";
+
+    foreach ($fields as $field => $config) {
+        $label = $config->comment??implode(' ', array_map('ucfirst', explode('_', $config->name)));
+        $type = $config->type;
+        $field = $config->name;
+        $a.= "\n            '$field.$type' => '$label Không hợp lệ',";
         // echo "\n$field:";
     }
     $a .= "\n";
