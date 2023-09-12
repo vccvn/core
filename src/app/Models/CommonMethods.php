@@ -17,8 +17,18 @@ trait CommonMethods
      */
     protected $jsonFields = [];
 
+    /**
+     * bỏ qua các cột khi parse data
+     *
+     * @var array
+     */
+    protected $ignoreParseData = [];
     protected function getIdAttribute() {
         return $this->attributes['id']??($this->attributes['uuid']??null);
+    }
+
+    public function getIgnoreParse(){
+        return $this->ignoreParseData && is_array($this->ignoreParseData)? $this->ignoreParseData : [];
     }
 
     /**

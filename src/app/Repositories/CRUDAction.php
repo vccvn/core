@@ -291,7 +291,7 @@ trait CRUDAction
         $escape = [];
         if (count($data)) {
             foreach ($data as $key => $value) {
-                if ((is_array($value) || is_object($value)) && (!$this->_model->casts || !array_key_exists($key, $this->_model->casts))) {
+                if ((is_array($value) || is_object($value)) && (!$this->_model->casts || !array_key_exists($key, $this->_model->casts)) && (!($ignore = $this->_model->getIgnoreParse()) || !is_array($ignore) || !in_array($key, $ignore))) {
                     $escape[$key] = json_encode($value, JSON_UNESCAPED_UNICODE);
                 } else {
                     $escape[$key] = $value;
