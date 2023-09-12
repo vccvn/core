@@ -94,8 +94,16 @@ class ColumnItem
             $content = static::$order + ($options->order ? $options->order : 0);
             $options->class .= " order-col";
             if ($options->template) {
-                $content = str_eval($options->template, $mergData, 0, '');
-                $content = str_eval($content, $mergData, 0, '');
+                if (is_array($templates = $options->template)) {
+                    $content = '';
+                    foreach ($templates as $template) {
+                        $content .= str_eval($template, $mergData, 0, '');
+                        $content .= str_eval($content, $mergData, 0, '');
+                    }
+                } else {
+                    $content = str_eval($options->template, $mergData, 0, '');
+                    $content = str_eval($content, $mergData, 0, '');
+                }
             }
         } elseif ($type == 'data' && $options->data_key && $options->value_key) {
             $vkey = static::getDataFromString($options->value_key);
