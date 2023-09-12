@@ -104,8 +104,16 @@ class ColumnItem
             $key = str_eval($options->data_access, $mergData, 0, '');
             $content = static::$config->get('data.' . $key);
         } elseif ($type == 'template' || $options->template) {
-            $content = str_eval($options->template, $mergData, 0, '');
-            $content = str_eval($content, $mergData, 0, '');
+            if (is_array($templates = $options->template)) {
+                $content = '';
+                foreach ($templates as $template) {
+                    $content .= str_eval($template, $mergData, 0, '');
+                    $content .= str_eval($content, $mergData, 0, '');
+                }
+            } else {
+                $content = str_eval($options->template, $mergData, 0, '');
+                $content = str_eval($content, $mergData, 0, '');
+            }
         } elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
             $ob = new Arr($options->html);
             $content = new HtmlDom($ob->tag_name ?? 'div', $ob->content, static::parseParams($ob->attrs));
