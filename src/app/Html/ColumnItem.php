@@ -93,18 +93,15 @@ class ColumnItem
         } elseif ($type == 'order' || $options->order) {
             $content = static::$order + ($options->order ? $options->order : 0);
             $options->class .= " order-col";
-            if ($options->template) {
+            if ($template = $options->template) {
                 if (is_array($templates = $options->template)) {
-                    $content = '';
-                    foreach ($templates as $template) {
-                        $con = str_eval($template, $mergData, 0, '');
-                        $con = str_eval($con, $mergData, 0, '');
-                        $content .= $con;
+                    $template = '';
+                    foreach ($templates as $temp) {
+                        $template .= $temp;
                     }
-                } else {
-                    $content = str_eval($options->template, $mergData, 0, '');
-                    $content = str_eval($content, $mergData, 0, '');
                 }
+                $content = str_eval($template, $mergData, 0, '');
+                $content = str_eval($content, $mergData, 0, '');
             }
         } elseif ($type == 'data' && $options->data_key && $options->value_key) {
             $vkey = static::getDataFromString($options->value_key);
@@ -112,18 +109,16 @@ class ColumnItem
         } elseif ($options->data_access) {
             $key = str_eval($options->data_access, $mergData, 0, '');
             $content = static::$config->get('data.' . $key);
-        } elseif ($type == 'template' || $options->template) {
+        } elseif ($type == 'template' || ($template = $options->template)) {
+
             if (is_array($templates = $options->template)) {
-                $content = '';
-                foreach ($templates as $template) {
-                    $con = str_eval($template, $mergData, 0, '');
-                    $con = str_eval($con, $mergData, 0, '');
-                    $content .= $con;
+                $template = '';
+                foreach ($templates as $temp) {
+                    $template .= $temp;
                 }
-            } else {
-                $content = str_eval($options->template, $mergData, 0, '');
-                $content = str_eval($content, $mergData, 0, '');
             }
+            $content = str_eval($template, $mergData, 0, '');
+            $content = str_eval($content, $mergData, 0, '');
         } elseif (in_array(str_replace('_', '', $type), ['html', 'htmldom', 'htmltag']) || $options->html) {
             $ob = new Arr($options->html);
             $content = new HtmlDom($ob->tag_name ?? 'div', $ob->content, static::parseParams($ob->attrs));
