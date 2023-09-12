@@ -95,12 +95,12 @@ class ColumnItem
             $options->class .= " order-col";
             if ($options->template) {
                 if (is_array($templates = $options->template)) {
-                    $con = '';
+                    $content = '';
                     foreach ($templates as $template) {
-                        $con .= str_eval($template, $mergData, 0, '');
-                        $con .= str_eval($con, $mergData, 0, '');
+                        $con = str_eval($template, $mergData, 0, '');
+                        $con = str_eval($con, $mergData, 0, '');
+                        $content .= $con;
                     }
-                    $content = $con;
                 } else {
                     $content = str_eval($options->template, $mergData, 0, '');
                     $content = str_eval($content, $mergData, 0, '');
@@ -114,12 +114,12 @@ class ColumnItem
             $content = static::$config->get('data.' . $key);
         } elseif ($type == 'template' || $options->template) {
             if (is_array($templates = $options->template)) {
-                $con = '';
+                $content = '';
                 foreach ($templates as $template) {
-                    $con .= str_eval($template, $mergData, 0, '');
-                    $con .= str_eval($con, $mergData, 0, '');
+                    $con = str_eval($template, $mergData, 0, '');
+                    $con = str_eval($con, $mergData, 0, '');
+                    $content .= $con;
                 }
-                $content = $con;
             } else {
                 $content = str_eval($options->template, $mergData, 0, '');
                 $content = str_eval($content, $mergData, 0, '');
