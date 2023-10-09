@@ -810,7 +810,7 @@ function alter_table($params = [], $table = null, ...$args)
                         . ($c['length'] ? "->length($c[length])" : '')
                         . ($c['nullable'] ? '->nullable()' : '')
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
-                        . ';';
+                        . '->change();';
 
                     // $drops[] = "\$table->dropColumn($c[name]);";
                 }
