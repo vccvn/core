@@ -727,9 +727,56 @@ function create_table($params = [], $table = null, ...$args)
         echo "Tham so:\n\$name -- Ten bảng\n...\$args -- tham số\n";
         return null;
     }
+
+
     $table = Str::tableName($table);
-    $find = ['TABLE_NAME', '// COLUMN HERE'];
+    
     $columns = [];
+    $drops = [];
+    if (array_key_exists('add', $params)) {
+        $cs = is_array($params['add'])?$params['add']:explode(',', $params['add']);
+        if (count($cs)) {
+            foreach ($cs as $text) {
+                $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
+                $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
+                if ($a) {
+                    for ($i = 0; $i < $a; $i++) {
+                        $char = trim($matches[1][$i]);
+                        $val = $matches[2][$i];
+                        if ($char == '|') {
+                            if (is_numeric($val)) {
+                                $c['length'] = (int) $val;
+                            } elseif ($val == 'null' || $val == 'nullable') {
+                                $c['nullable'] = true;
+                            }
+                        } elseif ($char == ':') {
+                            $c['type'] = $val;
+                        } elseif ($char == '=') {
+                            $c['default'] = $val;
+                        } elseif (!$char || !$i) {
+                            if ($val) {
+                                $c['name'] = $val;
+                            }
+                        }
+                    }
+                }
+                if ($c['name']) {
+                    $columns[] = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                        . ($c['length'] ? "->length($c[length])" : '')
+                        . ($c['nullable'] ? '->nullable()' : '')
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        . ';';
+
+                    $drops[] = "\$table->dropColumn('$c[name]');";
+                }
+            }
+        }
+    }
+
+
+    
+    $find = ['TABLE_NAME', '// COLUMN HERE'];
+    //$columns = [];
     if ((isset($params['softdelete']) && $params['softdelete'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')) {
         $columns[] = "\$table->softDeletes();";
     }
@@ -788,8 +835,10 @@ function alter_table($params = [], $table = null, ...$args)
 
     $columns = [];
     $drops = [];
-    if (array_key_exists('add', $params)) {
-        if (count($cs = explode(',', $params['add']))) {
+    $add = $params['add']??($params['columns']??($params['column']??($params['col']??'')));
+    if ($add) {
+        $cs = is_array($add)?$add:explode(',', $add);
+        if (count($cs)) {
             foreach ($cs as $text) {
                 $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
                 $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
@@ -828,7 +877,8 @@ function alter_table($params = [], $table = null, ...$args)
     }
 
     if (array_key_exists('change', $params)) {
-        if (count($cs = explode(',', $params['change']))) {
+        $cs = is_array($params['change'])?$params['change']:explode(',', $params['change']);
+        if (count($cs)) {
             foreach ($cs as $text) {
                 $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
                 $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
@@ -866,7 +916,17 @@ function alter_table($params = [], $table = null, ...$args)
         }
     }
     if (array_key_exists('drop', $params)) {
-        if (count($cs = explode(',', $params['drop']))) {
+        $cs = is_array($params['drop'])?$params['drop']:explode(',', $params['drop']);
+        if (count($cs)) {
+            foreach ($cs as $text) {
+
+                $columns[] = "\$table->dropColumn('$text');";
+            }
+        }
+    }
+    if (array_key_exists('drops', $params)) {
+        $cs = is_array($params['drops'])?$params['drops']:explode(',', $params['drops']);
+        if (count($cs)) {
             foreach ($cs as $text) {
 
                 $columns[] = "\$table->dropColumn('$text');";
@@ -877,7 +937,7 @@ function alter_table($params = [], $table = null, ...$args)
     $DRO = implode("\n            ", $drops);
 
     $find = ['TABLE_NAME', '//COLUMNS', '//DROPS'];
-    $replace = [$table, $COL. $DRO];
+    $replace = [$table, $COL, $DRO];
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH . '/templates/alter-table.php');
     $filemanager->setDir(base_path('database/migrations/'));
