@@ -733,8 +733,9 @@ function create_table($params = [], $table = null, ...$args)
     
     $columns = [];
     $drops = [];
-    if (array_key_exists('add', $params)) {
-        $cs = is_array($params['add'])?$params['add']:explode(',', $params['add']);
+    $add = $params['add']??($params['columns']??($params['column']??($params['col']??'')));
+    if ($add) {
+        $cs = is_array($add)?$add:explode(',', $add);
         if (count($cs)) {
             foreach ($cs as $text) {
                 $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
