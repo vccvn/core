@@ -9,17 +9,65 @@ function get_args_params($args = [])
         'params' => []
     ];
     if (is_array($args)) {
+        $oldIsParams = false;
+        $oldParamKey = null;
+        $oldHasValue = false;
         foreach ($args as $key => $param) {
             if (substr($param, 0, 2) == '--') {
-                $pc = explode('=', substr($param, 2));
+                $oldIsParams = true;
+                $p = substr($param, 2);
+                $pc = explode('=', $p);
+
                 $f = strtolower(array_shift($pc));
+
+                $pk = $p;
+                $pv = true;
                 if (count($pc) > 0) {
-                    $data['params'][$f] = implode('=', $pc);
-                } else {
-                    $data['params'][$f] = true;
+                    $pk = $f;
+                    $pv = implode('=', $pc);
+                    $oldHasValue = true;
+                } elseif(count($pn = explode(':', $p)) > 1 && $f2 = strtolower(array_shift($pn))){
+                    $pk = $f2;
+                    $pv = implode(':', $pn);
+                    $oldHasValue = true;
                 }
-            } else {
+                else {
+                    $oldHasValue = false;
+                }
+
+                $oldParamKey = $pk;
+
+                if(array_key_exists($pk, $data['params'])){
+                    if($data['params'][$pk] == true){
+                        $data['params'][$pk] = $pv;
+                    }elseif(is_array($data['params'][$pk])){
+                        $data['params'][$pk][] = $pv;
+
+                    }else{
+                        $data['params'][$pk] = [$data['params'][$pk]];
+                        $data['params'][$pk][] = $pv;
+
+                    }
+                }else{
+                    $data['params'][$pk] = $pv;
+                }
+            } elseif($oldHasValue && $oldIsParams) {
+                if($data['params'][$oldParamKey] == true){
+                    $data['params'][$oldParamKey] = $param;
+                }elseif(is_array($data['params'][$oldParamKey])){
+                    $data['params'][$oldParamKey][] = $param;
+
+                }
+
+                $oldIsParams = false;
+                $oldHasValue = false;
+                $oldParamKey = null;
+            }else {
                 $data['args'][] = $param;
+                $oldHasValue = false;
+                $oldIsParams = false;
+                $oldParamKey = null;
+
             }
         }
     }
@@ -773,7 +821,7 @@ function alter_table($params = [], $table = null, ...$args)
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
 
-                    $drops[] = "\$table->dropColumn($c[name]);";
+                    $drops[] = "\$table->dropColumn('$c[name]');";
                 }
             }
         }
