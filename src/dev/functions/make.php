@@ -137,7 +137,7 @@ function make_dto($args = [], $name = null, $model = null, $table = null)
     $folder = count($names) ? implode('/', array_map('ucfirst', $names)) : ucfirst(Str::plural($name));
 
     if (!$model) $model = $name;
-    $table = $table?$table: Str::tableName($name);
+    $table = $table ? $table : Str::tableName($name);
     $find =    ['NAME', 'MODEL', 'FOLDER', 'PROPERTIES',           'ACCESSIBLE'];
     $replace = [$name,  $model,  $folder,  getProperties($table),  getFields($table, true)];
 
@@ -253,48 +253,41 @@ function make_model($args = [], $name = null, $table = null)
 
     $hasPK = false;
     $hasKT = false;
-    if(isset($params['primaryKey']) && $params['primaryKey']){
+    if (isset($params['primaryKey']) && $params['primaryKey']) {
         $props[] = "protected \$primaryKey = '$params[primaryKey]';";
         $hasPK = true;
-    }
-    elseif(isset($params['primarykey']) && $params['primarykey']){
+    } elseif (isset($params['primarykey']) && $params['primarykey']) {
         $props[] = "protected \$primaryKey = '$params[primarykey]';";
         $hasPK = true;
-    }
-    elseif(isset($params['pk']) && $params['pk']){
+    } elseif (isset($params['pk']) && $params['pk']) {
         $props[] = "protected \$primaryKey = '$params[py]';";
         $hasPK = true;
     }
 
-    if(isset($params['keyType']) && $params['keyType']){
+    if (isset($params['keyType']) && $params['keyType']) {
         $props[] = "protected \$keyType = '$params[keyType]';";
         $hasKT = true;
-    }
-    elseif(isset($params['keytype']) && $params['keytype']){
+    } elseif (isset($params['keytype']) && $params['keytype']) {
         $props[] = "protected \$keyType = '$params[keytype]';";
         $hasKT = true;
-    }
-    elseif(isset($params['kt']) && $params['kt']){
+    } elseif (isset($params['kt']) && $params['kt']) {
         $props[] = "protected \$keyType = '$params[kt]';";
         $hasKT = true;
     }
 
-    
+
 
     if (isset($params['useuuid']) || isset($params['useUuid']) || isset($params['uuid'])) {
 
         $v = isset($params['useuuid']) ? $params['useuuid'] : (isset($params['useUuid']) ? $params['useUuid'] : (isset($params['uuid']) ? $params['uuid'] : true));
-        $props[] = "public \$useUuid = ".(
-            $v === true ? "true" : (
-                $v === 'false'?'false': ($v === 'true' || $v=='' ? 'true' : ($v == 'primary' || $v == 'id' ? "'primary'": "'$v'"))
+        $props[] = "public \$useUuid = " . ($v === true ? "true" : ($v === 'false' ? 'false' : ($v === 'true' || $v == '' ? 'true' : ($v == 'primary' || $v == 'id' ? "'primary'" : "'$v'"))
             )
-        ).";";
+        ) . ";";
 
-        if($v === 'true' || $v == true){
-            if(!$hasPK) $props[] = "protected \$primaryKey = 'uuid';";
-            if(!$hasKT) $props[] = "protected \$keyType = 'string';";
+        if ($v === 'true' || $v == true) {
+            if (!$hasPK) $props[] = "protected \$primaryKey = 'uuid';";
+            if (!$hasKT) $props[] = "protected \$keyType = 'string';";
         }
-
     }
 
     $connection = false;
@@ -379,9 +372,9 @@ if (!function_exists('make_mask')) {
         $table = Str::tableName($name);
 
         $find = ['NAME', 'MODEL', '$model', 'SUB', 'PROPERTIES'];
-        
+
         $replace = [$name, $model, '$' . strtolower(substr($model, 0, 1)) . substr($model, 1), $sub, getProperties($table)];
-        
+
         $template = file_get_contents(DEVPATH . '/templates/mask.php');
         $code = str_replace($find, $replace, $template);
         $filemanager = new Filemanager();
@@ -575,20 +568,20 @@ function make_json_module($args = [], $module = null, $table = null, $moduleName
     }
     $fields = schema($table)->getConfig(true);
     $json = [
-        "name" => "[module]", 
-        "package" => "customers", 
+        "name" => "[module]",
+        "package" => "customers",
         "use_trash" => true,
-        "titles" => ["default" => "Danh sách ". ($moduleName??'[module]'), "trash" => "Danh sách ".($moduleName??'[module]')." đã xóa"],
+        "titles" => ["default" => "Danh sách " . ($moduleName ?? '[module]'), "trash" => "Danh sách " . ($moduleName ?? '[module]') . " đã xóa"],
         "data" => [], "filter" => ["search_columns" => [], "sort_columns" => []],
         "table" => ["class" => "header-center", "columns" => []],
         "resources" => ["js_data" => [], "js" => [], "css" => []]
     ];
     $json['package'] = $table;
-    if($moduleName) $json['name'] = $moduleName;
+    if ($moduleName) $json['name'] = $moduleName;
     $columns = [];
     foreach ($fields as $col => $config) {
         $columns[] = [
-            'title' => $config->comment??implode(' ', array_map('ucfirst', explode('_', $config->name))),
+            'title' => $config->comment ?? implode(' ', array_map('ucfirst', explode('_', $config->name))),
             'class' => '',
             'text' => ':' . $col
         ];
@@ -599,40 +592,40 @@ function make_json_module($args = [], $module = null, $table = null, $moduleName
     }
 }
 
-function update_json_form($args = [], $module = null, $column = null, $type = null, $label = null, $placeholder = null) {
-    if(!$module || !$column) 
+function update_json_form($args = [], $module = null, $column = null, $type = null, $label = null, $placeholder = null)
+{
+    if (!$module || !$column)
         echo "Bạn chưa nhập module hoặc tên field";
-    elseif(!($filemanager = new Filemanager(base_path('json/admin/modules'))))
+    elseif (!($filemanager = new Filemanager(base_path('json/admin/modules'))))
         echo "Không thể khởi tạo file manager";
-    elseif(!($json = $filemanager->json($module . '/form.json')))
+    elseif (!($json = $filemanager->json($module . '/form.json')))
         echo "Module không tồn tại";
-    else{
+    else {
         $d = [];
-        if($type) $d['type'] = $type;
-        if($type) $d['label'] = $label;
-        if($type) $d['placeholder'] = $placeholder;
-        elseif($label) $d['placeholder'] = 'Nhập ' . strtolower($label);
+        if ($type) $d['type'] = $type;
+        if ($type) $d['label'] = $label;
+        if ($type) $d['placeholder'] = $placeholder;
+        elseif ($label) $d['placeholder'] = 'Nhập ' . strtolower($label);
         $data = array_merge($d, $args);
-        $data = array_merge($json['inputs'][$column]??[], $data);
-        if(array_key_exists('ph', $data)){
-            if(!array_key_exists('placeholder', $data)){
-                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['ph']);
-            }else{
-                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['placeholder']);
+        $data = array_merge($json['inputs'][$column] ?? [], $data);
+        if (array_key_exists('ph', $data)) {
+            if (!array_key_exists('placeholder', $data)) {
+                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label'] ?? ''), $data['ph']);
+            } else {
+                $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label'] ?? ''), $data['placeholder']);
             }
             unset($data['ph']);
-        }elseif(array_key_exists('placeholder', $data)){
-            $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label']??''), $data['placeholder']);
+        } elseif (array_key_exists('placeholder', $data)) {
+            $data['placeholder'] = str_replace('@label', 'Nhập ' . ($data['label'] ?? ''), $data['placeholder']);
         }
-        $json['inputs'][$column] = array_merge($json['inputs'][$column]??[], $data);
+        $json['inputs'][$column] = array_merge($json['inputs'][$column] ?? [], $data);
         if ($file = $filemanager->save($module . '/form.json', Str::jsonVi(json_encode($json, JSON_PRETTY_PRINT)), 'json')) {
             echo "update form success\nPath: $file->path";
-        }else{
+        } else {
             echo "Lưu file không thành công";
         }
     }
     echo "\n";
-
 }
 
 function update_storage_data()
@@ -743,8 +736,100 @@ function alter_table($params = [], $table = null, ...$args)
     }
     // $table = Str::tableName($table);
     if (!Illuminate\Support\Facades\Schema::hasTable($table)) die('Bang nay ko da ton tai');
-    $find = ['TABLE_NAME'];
-    $replace = [$table];
+
+
+    $columns = [];
+    $drops = [];
+    if (array_key_exists('add', $params)) {
+        if (count($cs = explode(',', $params['add']))) {
+            foreach ($cs as $text) {
+                $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
+                $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
+                if ($a) {
+                    for ($i = 0; $i < $a; $i++) {
+                        $char = trim($c[1][$i]);
+                        $val = $c[2][$i];
+                        if ($char == '|') {
+                            if (is_numeric($val)) {
+                                $c['length'] = (int) $val;
+                            } elseif ($val == 'null' || $val == 'nullable') {
+                                $c['nullable'] = true;
+                            }
+                        } elseif ($char == ':') {
+                            $c['type'] = $val;
+                        } elseif ($char == '=') {
+                            $c['default'] = $val;
+                        } elseif (!$char || !$i) {
+                            if ($val) {
+                                $c['name'] = $val;
+                            }
+                        }
+                    }
+                }
+                if ($c['name']) {
+                    $columns[] = "\$table->" . $c['type'] . "(" . $c['name'] . "')"
+                        . ($c['length'] ? "->length($c[length])" : '')
+                        . ($c['nullable'] ? '->nullable()' : '')
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        . ';';
+
+                    $drops[] = "\$table->dropColumn($c[name]);";
+                }
+            }
+        }
+    }
+
+    if (array_key_exists('change', $params)) {
+        if (count($cs = explode(',', $params['change']))) {
+            foreach ($cs as $text) {
+                $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
+                $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
+                if ($a) {
+                    for ($i = 0; $i < $a; $i++) {
+                        $char = trim($c[1][$i]);
+                        $val = $c[2][$i];
+                        if ($char == '|') {
+                            if (is_numeric($val)) {
+                                $c['length'] = (int) $val;
+                            } elseif ($val == 'null' || $val == 'nullable') {
+                                $c['nullable'] = true;
+                            }
+                        } elseif ($char == ':') {
+                            $c['type'] = $val;
+                        } elseif ($char == '=') {
+                            $c['default'] = $val;
+                        } elseif (!$char || !$i) {
+                            if ($val) {
+                                $c['name'] = $val;
+                            }
+                        }
+                    }
+                }
+                if ($c['name']) {
+                    $columns[] = "\$table->" . $c['type'] . "(" . $c['name'] . "')"
+                        . ($c['length'] ? "->length($c[length])" : '')
+                        . ($c['nullable'] ? '->nullable()' : '')
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        . ';';
+
+                    // $drops[] = "\$table->dropColumn($c[name]);";
+                }
+            }
+        }
+    }
+    if (array_key_exists('drop', $params)) {
+        if (count($cs = explode(',', $params['drop']))) {
+            foreach ($cs as $text) {
+
+                $columns[] = "\$table->dropColumn('$text');";
+            }
+        }
+    }
+    $COL = implode("\n            ", $columns);
+    $DRO = implode("\n            ", $drops);
+
+    $find = ['TABLE_NAME', '//COLUMNS', '//DROPS'];
+    $replace = [$table, $COL. $DRO];
     $filemanager = new Filemanager();
     $template = file_get_contents(DEVPATH . '/templates/alter-table.php');
     $filemanager->setDir(base_path('database/migrations/'));
@@ -878,29 +963,29 @@ if (!function_exists('make_route')) {
             'api' => 'Apis',
             'web' => 'Web',
             'frontend' => 'Frontend',
-            
+
             'custom' => null
         ];
-        
+
         if (!$filename) {
-            echo "Tham so:\n\t\$type -- loai controller (".implode(', ', array_keys($folders)).")\n\t\$name -- Ten file route\n\t\$controller -- ten controller PathName [không cần Controller]\n\t\$ModuleName -- tenmodule\n\t\$ModuleDescription -- Mô tả\n\n";
+            echo "Tham so:\n\t\$type -- loai controller (" . implode(', ', array_keys($folders)) . ")\n\t\$name -- Ten file route\n\t\$controller -- ten controller PathName [không cần Controller]\n\t\$ModuleName -- tenmodule\n\t\$ModuleDescription -- Mô tả\n\n";
             return null;
         }
         $ac = explode('/', str_replace("\\", "/", $controller));
 
         $name = ucfirst(array_pop($ac));
-        
+
         if (!array_key_exists($t = strtolower($type), $folders) || !$name) {
-            echo "Tham so:\n\t\$type -- loai route: (".implode(', ', array_keys($folders)).")\n\n";
-            return ;
+            echo "Tham so:\n\t\$type -- loai route: (" . implode(', ', array_keys($folders)) . ")\n\n";
+            return;
         }
         $s = implode('\\', array_map('ucfirst', $ac));
-        $CONTROLLERPATH = $s?$s.'\\':'';
+        $CONTROLLERPATH = $s ? $s . '\\' : '';
         $CONTROLLERNAME = $name;
         $find = ['CONTROLLERPATH', 'CONTROLLERNAME', 'MODULENAME', 'MODULEDESCRIPTION'];
         $replace = [$CONTROLLERPATH, $CONTROLLERNAME, $MODULENAME, $MODULEDESCRIPTION];
 
-        $template = file_get_contents(DEVPATH . '/templates/route-'.$t.'.php');
+        $template = file_get_contents(DEVPATH . '/templates/route-' . $t . '.php');
         $code = str_replace($find, $replace, $template);
         $filemanager = new Filemanager();
         $filemanager->setDir((BASEDIR . '/routes/' . $t . '/'));
@@ -912,6 +997,7 @@ if (!function_exists('make_route')) {
     }
 }
 
-function config() {
+function config()
+{
     return true;
 }

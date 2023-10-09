@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('TABLE_NAME', function (Blueprint $table) {
-            // 
+            //COLUMNS
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('TABLE_NAME', function (Blueprint $table) {
-            // 
+            //DROPS
         });
     }
 };
