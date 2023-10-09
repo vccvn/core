@@ -767,7 +767,7 @@ function alter_table($params = [], $table = null, ...$args)
                     }
                 }
                 if ($c['name']) {
-                    $columns[] = "\$table->" . $c['type'] . "(" . $c['name'] . "')"
+                    $columns[] = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
                         . ($c['length'] ? "->length($c[length])" : '')
                         . ($c['nullable'] ? '->nullable()' : '')
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
@@ -806,7 +806,7 @@ function alter_table($params = [], $table = null, ...$args)
                     }
                 }
                 if ($c['name']) {
-                    $columns[] = "\$table->" . $c['type'] . "(" . $c['name'] . "')"
+                    $columns[] = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
                         . ($c['length'] ? "->length($c[length])" : '')
                         . ($c['nullable'] ? '->nullable()' : '')
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
