@@ -747,8 +747,8 @@ function alter_table($params = [], $table = null, ...$args)
                 $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
                 if ($a) {
                     for ($i = 0; $i < $a; $i++) {
-                        $char = trim($c[1][$i]);
-                        $val = $c[2][$i];
+                        $char = trim($matches[1][$i]);
+                        $val = $matches[2][$i];
                         if ($char == '|') {
                             if (is_numeric($val)) {
                                 $c['length'] = (int) $val;
@@ -786,8 +786,8 @@ function alter_table($params = [], $table = null, ...$args)
                 $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
                 if ($a) {
                     for ($i = 0; $i < $a; $i++) {
-                        $char = trim($c[1][$i]);
-                        $val = $c[2][$i];
+                        $char = trim($matches[1][$i]);
+                        $val = $matches[2][$i];
                         if ($char == '|') {
                             if (is_numeric($val)) {
                                 $c['length'] = (int) $val;
