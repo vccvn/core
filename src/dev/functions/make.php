@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Schema;
 
+
 function get_args_params($args = [])
 {
     $data = [
@@ -12,11 +13,13 @@ function get_args_params($args = [])
         $oldIsParams = false;
         $oldParamKey = null;
         $oldHasValue = false;
+        $i = 0;
         foreach ($args as $key => $param) {
             if (substr($param, 0, 2) == '--') {
                 $oldIsParams = true;
                 $p = substr($param, 2);
                 $pc = explode('=', $p);
+
 
                 $f = strtolower(array_shift($pc));
 
@@ -33,12 +36,16 @@ function get_args_params($args = [])
                 }
                 else {
                     $oldHasValue = false;
+                    $pv = true;
                 }
 
                 $oldParamKey = $pk;
 
                 if(array_key_exists($pk, $data['params'])){
-                    if($data['params'][$pk] == true){
+                    if($pv == true){
+                        // test
+                    }
+                    elseif($data['params'][$pk] == true){
                         $data['params'][$pk] = $pv;
                     }elseif(is_array($data['params'][$pk])){
                         $data['params'][$pk][] = $pv;
@@ -51,13 +58,18 @@ function get_args_params($args = [])
                 }else{
                     $data['params'][$pk] = $pv;
                 }
-            } elseif($oldHasValue && $oldIsParams) {
-                if($data['params'][$oldParamKey] == true){
+            } elseif(!$oldHasValue && $oldIsParams) {
+                if($data['params'][$oldParamKey] === true){
                     $data['params'][$oldParamKey] = $param;
                 }elseif(is_array($data['params'][$oldParamKey])){
                     $data['params'][$oldParamKey][] = $param;
+                }
+                else{
+                    $data['params'][$oldParamKey] = [$data['params'][$oldParamKey]];
+                    $data['params'][$oldParamKey][] = $param;
 
                 }
+                // print_r($data);
 
                 $oldIsParams = false;
                 $oldHasValue = false;
@@ -69,10 +81,14 @@ function get_args_params($args = [])
                 $oldParamKey = null;
 
             }
+
+
+            $i++;
         }
     }
     return $data;
 }
+
 
 function make_command($args = [], $command = null, ...$params)
 {
