@@ -16,10 +16,10 @@ use Illuminate\Support\Str;
  * @method void prepareGetCreateForm($request, $config, $attrs, $vars)
  * @method void prepareGetUpdateForm($request, $config, $attrs, $vars)
  * 
- * @method void beforeGetForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attribues)
- * @method void beforeGetCrudForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attribues)
- * @method void beforeGetCreateForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attribues)
- * @method void beforeGetUpdateForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attribues)
+ * @method void beforeGetForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attributes)
+ * @method void beforeGetCrudForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attributes)
+ * @method void beforeGetCreateForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attributes)
+ * @method void beforeGetUpdateForm(Request $request, Arr $config, Arr $inputs, Arr $data , Arr $attributes)
  * 
  * 
  */
