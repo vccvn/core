@@ -73,24 +73,63 @@ class Email{
 	protected static function __checkStaticConfig(){
 		if(!static::$mailConfig){
 			$config = [
-	
-				'driver' => env('MAIL_DRIVER', 'smtp'),
-				'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-			
-				'port' => env('MAIL_PORT', 587),
-				'from' => [
-					'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-					'name' => env('MAIL_FROM_NAME', 'Example'),
+				'default' => config('mail.default'),
+				'mailers' => [
+					'smtp' => [
+						'transport' => 'smtp',
+						'host' => config('mail.mailers.smtp.host'),
+						'port' => config('mail.mailers.smtp.port'),
+						'encryption' => config('mail.mailers.smtp.encryption'),
+						'username' => config('mail.mailers.smtp.username'),
+						'password' => config('mail.mailers.smtp.password'),
+						'timeout' => null,
+					],
+
+					'ses' => [
+						'transport' => 'ses',
+					],
+
+					'mailgun' => [
+						'transport' => 'mailgun',
+					],
+
+					'postmark' => [
+						'transport' => 'postmark',
+					],
+
+					'sendmail' => [
+						'transport' => 'sendmail',
+						'path' => config('mail.mailers.sendmail.path',  '/usr/sbin/sendmail -bs -i'),
+					],
+
+					'log' => [
+						'transport' => 'log',
+						'channel' => config('mail.mailers.log.channel'),
+					],
+
+					'array' => [
+						'transport' => 'array',
+					],
+
+					'failover' => [
+						'transport' => 'failover',
+						'mailers' => [
+							'smtp',
+							'log',
+						],
+					],
 				],
-				'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-				'username' => env('MAIL_USERNAME'),
-				'password' => env('MAIL_PASSWORD'),
-				'sendmail' => '/usr/sbin/sendmail -bs',
+
+
+				'from' => [
+					'address' => config('mail.from.address'),
+					'name' => config('mail.from.address'),
+				],
+
 				'markdown' => [
 					'theme' => 'default',
-					'paths' => [
-						resource_path('views/vendor/mail'),
-					],
+
+					'paths' => config('mail.markdown.paths')
 				],
 			];
 			
