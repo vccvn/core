@@ -57,7 +57,9 @@ class Email{
 	protected $__canSend__ = true;
 
 
-	protected static $config = [];
+	protected $config = [];
+
+	protected static $mailConfig = [];
 
 	protected static $__oneTimeData = [];
 
@@ -65,7 +67,11 @@ class Email{
 	 * khoi tao
 	 */
 	public function __construct(){
-		if(!static::$config){
+		$this->__checkConfig();
+	}
+
+	protected static function __checkStaticConfig(){
+		if(!static::$mailConfig){
 			$config = [
 	
 				'driver' => env('MAIL_DRIVER', 'smtp'),
@@ -88,10 +94,19 @@ class Email{
 				],
 			];
 			
-			static::$config = $config;
+			static::$mailConfig = $config;
 			Config::set('mail', $config);
 			
 		}
+		return static::$mailConfig;
+
+	}
+
+	protected function __checkConfig(){
+		if(!$this->config){
+			$this->config = static::__checkStaticConfig();
+		}
+		return $this->config;
 	}
 	/**
 	 * thêm địa chỉ email
@@ -163,7 +178,7 @@ class Email{
 	public function _sendMail($body = null, $vars = [])
 	{
 		if(!$this->__canSend__) return false;
-		Config::set('mail', static::$config);
+		$this->__checkConfig();
 		if(method_exists($this,'beforeSend')){
 			$s = $this->beforeSend();
 			if($s === false) return false;
@@ -270,7 +285,7 @@ class Email{
 	}
 
 	protected function _queue(int $time = 1){
-		Config::set('mail', static::$config);
+		$this->__checkConfig();
 		if(is_numeric($time) && $time >= 0){
 			$body = view($this->__body, $this->__data)->render();
 			$this->__data = ['body' => $body];
@@ -284,7 +299,7 @@ class Email{
 	}
 
 	protected function _sendAfter(int $time = 1){
-		Config::set('mail', static::$config);
+		// Config::set('mail', static::$config);
 		return $this->_queue($time);
 	}
 

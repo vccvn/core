@@ -5,7 +5,7 @@ use Carbon\Carbon;
 
 define('__RANDOM_VALUE__', md5(uniqid() . time() . rand(10000, 99999)));
 
-if(!defined('MODEL_PRIMARY_KEY') && class_exists('Gomee\Core\System')){
+if (!defined('MODEL_PRIMARY_KEY') && class_exists('Gomee\Core\System')) {
     define('MODEL_PRIMARY_KEY', env('MODEL_PRIMARY_KEY', 'id'));
 }
 if (!function_exists('carbon_datetime')) {
@@ -30,6 +30,14 @@ if (!function_exists('carbon_datetime')) {
                     break;
                 case 'datetime':
                     return $carbon->toDateTimeString();
+                    break;
+                case 'datetime:millisecond':
+                case 'datetime:ms':
+                case 'datetimems':
+                case 'datetime-ms':
+                case 'dtms':
+
+                    return $carbon->toDateTimeString('millisecond');
                     break;
                 case 'time':
                     return $carbon->getTimestamp();
@@ -61,7 +69,7 @@ if (!function_exists('carbon_datetime')) {
     }
 }
 
-if(!function_exists('entities')){
+if (!function_exists('entities')) {
     /**
      * htmlentities
      */
@@ -70,15 +78,15 @@ if(!function_exists('entities')){
         return CrazyArr::entities($any);
     }
 }
-if(!function_exists('get_domain')){
+if (!function_exists('get_domain')) {
     /**
      * lấy tên miên dược cấu hình
      */
     function get_domain()
     {
         static $domain = null;
-        if(!$domain) {
-            $domain = strtolower(isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:(isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:'localhost'));
+        if (!$domain) {
+            $domain = strtolower(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost'));
         }
         return $domain;
     }
@@ -206,10 +214,10 @@ if (!function_exists('nl2array')) {
                         $b[] = $c;
                     }
                 }
-            } elseif(strlen($string)) {
+            } elseif (strlen($string)) {
                 $b = [$string];
             }
-        } elseif(strlen($string)) {
+        } elseif (strlen($string)) {
             $b = [$string];
         }
         return $b;
@@ -287,37 +295,34 @@ if (!function_exists('array_val_type')) {
     function array_val_type(array $array = [], string $type = 'any'): bool
     {
         $type = strtolower($type);
-        if($type == 'any' || $type == '*') return true;
-        if($type == 'string'){
+        if ($type == 'any' || $type == '*') return true;
+        if ($type == 'string') {
             foreach ($array as $key => $value) {
-                if(!is_string($value)) return false;
+                if (!is_string($value)) return false;
             }
-        }
-        elseif($type == 'number'){
+        } elseif ($type == 'number') {
             foreach ($array as $key => $value) {
-                if(!is_numeric($value)) return false;
+                if (!is_numeric($value)) return false;
             }
-        }
-        elseif($type == 'bool' || $type == 'boolean'){
+        } elseif ($type == 'bool' || $type == 'boolean') {
             foreach ($array as $key => $value) {
-                if(!is_bool($value)) return false;
+                if (!is_bool($value)) return false;
             }
-        }
-        else{
+        } else {
             foreach ($array as $key => $value) {
-                if(gettype($value) != $type) return false;
+                if (gettype($value) != $type) return false;
             }
         }
         return true;
     }
 }
 
-if(!function_exists('isSecure')){
-    function isSecure() {
-        return
-          (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-          || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
-      }
+if (!function_exists('isSecure')) {
+    function isSecure()
+    {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+    }
 }
 
 if (!function_exists('get_video_from_url')) {
@@ -336,20 +341,20 @@ if (!function_exists('get_video_from_url')) {
         if (preg_match_all('/.*youtu\.be\/(.*?)($|\?|#)/si', $url, $m)) {
             $a['id'] = $m[1][0];
             $a['server'] = 'youtube';
-            $a['thumbnail'] = $protoccol.'://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
-            $a['embed_url'] = $protoccol."://www.youtube.com/embed/$a[id]";
+            $a['thumbnail'] = $protoccol . '://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
+            $a['embed_url'] = $protoccol . "://www.youtube.com/embed/$a[id]";
         } elseif (preg_match_all('/youtube\.com\/watch\?.*v=(.*?)($|&|#)/si', $url, $m)) {
             $a['id'] = $m[1][0];
             $a['server'] = 'youtube';
-            $a['thumbnail'] = $protoccol.'://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
-            $a['embed_url'] = $protoccol."://www.youtube.com/embed/$a[id]";
+            $a['thumbnail'] = $protoccol . '://img.youtube.com/vi/' . $a['id'] . '/hqdefault.jpg';
+            $a['embed_url'] = $protoccol . "://www.youtube.com/embed/$a[id]";
         } elseif (preg_match_all('/\.*vimeo.com\/(.*?)($|\?)/si', $url, $m)) {
             $v = explode('/', $m[1][0]);
             $a['id'] = $v[count($v) - 1];
             $a['server'] = 'vimeo';
-            $hash = unserialize(file_get_contents($protoccol."://vimeo.com/api/v2/video/" . $a['id'] . ".php"));
+            $hash = unserialize(file_get_contents($protoccol . "://vimeo.com/api/v2/video/" . $a['id'] . ".php"));
             $a['thumbnail'] = $hash[0]['thumbnail_large'];
-            $a['embed_url'] = $protoccol."://player.vimeo.com/video/$a[id]?wmode=opaque";
+            $a['embed_url'] = $protoccol . "://player.vimeo.com/video/$a[id]?wmode=opaque";
         } elseif (preg_match_all('/.*facebook.com\/(.*?)\/videos\/(.*?)\//si', $url, $m)) {
             $a['id'] = $m[2][0];
             $a['page_id'] = $m[1][0];
@@ -600,7 +605,7 @@ if (!function_exists('str_eval')) {
             ']' => '\]',
             ')' => '\)'
         ];
-        
+
         // $a = (array_key_exists($start, $sEsc)? $sEsc[$start]: $start) . ($char=='$'?'\$':$char) . '[A-z0-9_\:\.]' . array_key_exists($end, $eEsc)? $eEsc[$end]: $end ;
         // $txt = preg_replace('/'.$a.'/i', '', $txt);
 
@@ -814,12 +819,12 @@ if (!function_exists('strtodate')) {
                 $d = $dd[0];
             }
         }
-        if ($y && $m && $d) return $returnType == 'string' ? "$y-$m-$d": [
+        if ($y && $m && $d) return $returnType == 'string' ? "$y-$m-$d" : [
             'day' => $d,
             'month' => $m,
             'year' => $y
         ];
-        return $returnType == 'string'?'':[];
+        return $returnType == 'string' ? '' : [];
     }
 }
 
@@ -979,12 +984,13 @@ if (!function_exists('get_datetime_range')) {
      * @return array Trả về mảng định dạng thời gian hoạc mảng rỗng
      */
 
-    function get_datetime_range($string, $split_char = ' - '){
+    function get_datetime_range($string, $split_char = ' - ')
+    {
         $dates = [];
-        if(count($date = array_map('trim', explode($split_char, $string))) == 2){
+        if (count($date = array_map('trim', explode($split_char, $string))) == 2) {
             foreach ($date as $datetime) {
-                if($datet = parse_date_time($datetime)){
-                    if(!is_date($datet['day'], $datet['month'], $datet['year'])) return false;
+                if ($datet = parse_date_time($datetime)) {
+                    if (!is_date($datet['day'], $datet['month'], $datet['year'])) return false;
                     $dates[] = "$datet[day]-$datet[month]-$datet[year] $datet[hour]:$datet[minute]:$datet[second]";
                 }
             }
@@ -994,9 +1000,7 @@ if (!function_exists('get_datetime_range')) {
             ];
         }
         return false;
-    
     }
-    
 }
 
 
@@ -1450,7 +1454,7 @@ if (!function_exists('parse_query_data')) {
         if ($query && is_string($query)) {
             try {
                 $a = explode('?', $query);
-                if(count($a) == 2) $query = $a[1];
+                if (count($a) == 2) $query = $a[1];
                 parse_str($query, $d);
                 if ($d) {
                     $arr = $d;
@@ -1460,7 +1464,6 @@ if (!function_exists('parse_query_data')) {
             }
         }
         return $arr;
-
     }
 }
 if (!function_exists('parse_query_string')) {
@@ -1496,19 +1499,19 @@ if (!function_exists('parse_query_string')) {
         $s = '';
         if ($arr) {
             // nếu là array
-            if(is_array($ignore)){
+            if (is_array($ignore)) {
                 foreach ($arr as $n => $v) {
-                    if(!in_array($n, $ignore)){
-                        $s .= "$n=".urlencode($v)."&";
+                    if (!in_array($n, $ignore)) {
+                        $s .= "$n=" . urlencode($v) . "&";
                     }
                 }
                 $s = trim($s, '&');
                 return $s;
             }
             // neu la string
-            if($ignore && isset($arr[$ignore])) unset($arr[$ignore]);
+            if ($ignore && isset($arr[$ignore])) unset($arr[$ignore]);
             foreach ($arr as $n => $v) {
-                $s .= "$n=".urlencode($v)."&";
+                $s .= "$n=" . urlencode($v) . "&";
             }
             $s = trim($s, '&');
         }
@@ -1516,7 +1519,7 @@ if (!function_exists('parse_query_string')) {
     }
 }
 
-if(!function_exists('url_merge')){
+if (!function_exists('url_merge')) {
     /**
      *
      * add quey string to url
@@ -1526,45 +1529,45 @@ if(!function_exists('url_merge')){
      * @return string $url
      */
 
-    function url_merge($url, $name = null, $val = null, $ignore = null){
+    function url_merge($url, $name = null, $val = null, $ignore = null)
+    {
         $u = $url;
         $r = [];
-        $f = explode('?',$url);
+        $f = explode('?', $url);
         $q = '';
         $u = $f[0];
-        if(count($f)>1){
+        if (count($f) > 1) {
             $q = $f[1];
         }
-        if($name){
-            if(is_string($name)) $r[$name] = $val;
-            elseif(is_array($name)){
-                foreach($name as $n => $v){
-                    if(is_string($n)){
+        if ($name) {
+            if (is_string($name)) $r[$name] = $val;
+            elseif (is_array($name)) {
+                foreach ($name as $n => $v) {
+                    if (is_string($n)) {
                         $r[$n] = $v;
                     }
                 }
             }
-
         }
-        if($q || $r){
-            $u.='?'.parse_query_string($q, $r, $ignore);
+        if ($q || $r) {
+            $u .= '?' . parse_query_string($q, $r, $ignore);
         }
         return $u;
     }
 }
 
 
-if(!function_exists('url_relative')){
+if (!function_exists('url_relative')) {
     /**
      * xóa link asset và thay bằng /
      * @param string $url đường dẫn tuyệt đối
      *
      * @return string trả về url
      */
-    function url_relative(string $url) : string
+    function url_relative(string $url): string
     {
         // tìm các chứa địa chỉ trang chủ thay bằng /
-        $search = rtrim(asset('/'), '/').'/';
+        $search = rtrim(asset('/'), '/') . '/';
         $replace = '/';
         $newUrl = str_replace($search, $replace, $url);
         return $newUrl;
