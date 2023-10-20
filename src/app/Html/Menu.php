@@ -152,7 +152,7 @@ class Menu extends HtmlDom
      * @var object|MenuItem
      */
     public $parent = null;
-     /**
+    /**
      * khoi tao form group
      */
     protected $menuData = [];
@@ -179,43 +179,43 @@ class Menu extends HtmlDom
      *
      *
      */
-    
-    public function __construct($menu = null, array $options=[], int $level = 0, $parent = null)
+
+    public function __construct($menu = null, array $options = [], int $level = 0, $parent = null)
     {
-        if(!self::$active_url) self::$active_url = URL::full();
+        if (!self::$active_url) self::$active_url = URL::full();
         // tao doi tuong option de truy cap key khong phai check isset
         $opt = new Arr($options);
         // gan gia tri
-        $this->active_name = $opt->active_name?$opt->active_name:'name';
-        $this->menu_active_name = $opt->menu_active_name?$opt->menu_active_name:$this->active_name;
+        $this->active_name = $opt->active_name ? $opt->active_name : 'name';
+        $this->menu_active_name = $opt->menu_active_name ? $opt->menu_active_name : $this->active_name;
         $this->menu = $menu;
         $this->parent = $parent;
         //thiet llap thuoc tinh
-        $this->setProps($opt->prop_type??'loop', is_array($opt->props)?$opt->props:[]);
+        $this->setProps($opt->prop_type ?? 'loop', is_array($opt->props) ? $opt->props : []);
 
         //
         $lv = (int) $level;
-        if($lv>0){
+        if ($lv > 0) {
             $this->level = $lv;
         }
 
         $props = new Arr($this->getProps());
 
-        parent::__construct($props->tag?$props->tag:$props->menu_tag);
+        parent::__construct($props->tag ? $props->tag : $props->menu_tag);
 
-        if($props->menu_class){
+        if ($props->menu_class) {
             $this->addClass($props->menu_class);
         }
-        if($props->menu_id){
+        if ($props->menu_id) {
             $this->id = $props->menu_id;
         }
 
-        if(is_array($opt->data)){
+        if (is_array($opt->data)) {
             $this->orginalData = $opt->data;
             $this->setOption($opt->data);
         }
 
-        if(is_array($opt->attrs)){
+        if (is_array($opt->attrs)) {
             $this->attr($opt->attrs);
         }
 
@@ -233,8 +233,8 @@ class Menu extends HtmlDom
      */
     public function setProps(string $type = 'loop', array $props = [])
     {
-        $this->prop_type = in_array($type, ['level', 'loop'])?$type:'loop';
-        $this->props = is_array($props)?$props:[];
+        $this->prop_type = in_array($type, ['level', 'loop']) ? $type : 'loop';
+        $this->props = is_array($props) ? $props : [];
         return $this;
     }
 
@@ -251,7 +251,7 @@ class Menu extends HtmlDom
     {
         return array_merge(
             $this->default_props,
-            ($this->prop_type == 'loop')?$this->props:(isset($this->props[$this->level])?$this->props[$this->level]:[])
+            ($this->prop_type == 'loop') ? $this->props : (isset($this->props[$this->level]) ? $this->props[$this->level] : [])
         );
     }
 
@@ -266,10 +266,9 @@ class Menu extends HtmlDom
         $props = $this->getProps();
         $data = [];
         foreach ($props as $key => $value) {
-            if(!in_array($key, $ignore)){
+            if (!in_array($key, $ignore)) {
                 $data[$key] = $value;
             }
-
         }
         return $data;
     }
@@ -283,16 +282,35 @@ class Menu extends HtmlDom
      * @param string $active_key  gia tri key
      */
 
-    public static function addActiveKey($name='default', $active_key = null){
-        if(!isset(self::$active_keys[$name])) self::$active_keys[$name] = [];
+    public static function addActiveKey($name = 'default', $active_key = null)
+    {
+        if (!isset(self::$active_keys[$name])) self::$active_keys[$name] = [];
         self::$active_keys[$name][] = $active_key;
     }
 
-    public static function checkActiveKey($name, $active_key=null)
+
+
+    /**
+     * set key active menu
+     * @param string $name tên key
+     * @param string $active_key  gia tri key
+     */
+
+    public static function removeActiveKey($name = 'default', $active_key = null)
     {
-        if(is_string($name) && isset(self::$active_keys[$name])){
+        if (!isset(self::$active_keys[$name]) || !$active_key) return true;
+        if(in_array($active_key, self::$active_keys[$name])){
+            $index = array_search($active_key, self::$active_keys[$name]);
+            if($index>=0)
+                array_splice(self::$active_keys, $index, 1);
+        }
+    }
+
+    public static function checkActiveKey($name, $active_key = null)
+    {
+        if (is_string($name) && isset(self::$active_keys[$name])) {
             foreach (self::$active_keys[$name] as $key) {
-                if($active_key == $key){
+                if ($active_key == $key) {
                     return true;
                 }
             }
@@ -307,41 +325,37 @@ class Menu extends HtmlDom
 
     public static function checkActiveURL($url = null)
     {
-        if(!$url || !is_string($url)) return false;
-        if(self::$active_url){
+        if (!$url || !is_string($url)) return false;
+        if (self::$active_url) {
             $url = strtolower($url);
             $active_url = strtolower(self::$active_url);
-            $ua = explode('?',$active_url);
-            $uc = explode('?',$url);
+            $ua = explode('?', $active_url);
+            $uc = explode('?', $url);
 
-            if($active_url == $url){
+            if ($active_url == $url) {
                 return true;
             }
 
-            $ucc = trim($url,'?');
-            if(count($ua)==2 && $ua[0] == $ucc){
+            $ucc = trim($url, '?');
+            if (count($ua) == 2 && $ua[0] == $ucc) {
                 return true;
             }
 
 
-            if(count($ua)==2 && count($uc)==2 ){
+            if (count($ua) == 2 && count($uc) == 2) {
                 parse_str($ua[1], $ap);
                 parse_str($uc[1], $up);
-                if($up && $ap){
-                    foreach($up as $k => $v){
+                if ($up && $ap) {
+                    foreach ($up as $k => $v) {
 
-                        if(!isset($ap[$k])){
+                        if (!isset($ap[$k])) {
                             return false;
-                        }
-
-                        elseif ((is_array($ap[$k]) || is_array($up[$k]))) {
-                            if($ap[$k] != $v) return false;
-                        }
-                        elseif(strtolower($ap[$k]) != strtolower($v)){
-                            if((is_array($ap[$k]) || is_array($up[$k]))) {
-                                if($ap[$k] != $up[$k]) return false;
-                            }
-                            else return false;
+                        } elseif ((is_array($ap[$k]) || is_array($up[$k]))) {
+                            if ($ap[$k] != $v) return false;
+                        } elseif (strtolower($ap[$k]) != strtolower($v)) {
+                            if ((is_array($ap[$k]) || is_array($up[$k]))) {
+                                if ($ap[$k] != $up[$k]) return false;
+                            } else return false;
                         }
                     }
                     return true;
@@ -356,8 +370,8 @@ class Menu extends HtmlDom
      */
     public function checkMenuData()
     {
-        if(!$this->menuData){
-            if($this->menu && $menuList = $this->getMenuList()){
+        if (!$this->menuData) {
+            if ($this->menu && $menuList = $this->getMenuList()) {
                 $this->menuData = $menuList;
                 return true;
             }
@@ -371,49 +385,42 @@ class Menu extends HtmlDom
         $menuList = [];
         $menu = new Arr(Arr::parse($this->menu));
         $t = strtolower($menu->type);
-        if($t=='json'){
-            if(!$menu->file) return null;
+        if ($t == 'json') {
+            if (!$menu->file) return null;
             $files = new Filemanager(base_path('json'));
-            if($data = $files->getJson($menu->file)){
+            if ($data = $files->getJson($menu->file)) {
                 $menuList = $data['data'];
             }
-
-        }elseif($t == 'define'){
+        } elseif ($t == 'define') {
             $c = null;
-            if(isset($menu->call)){
+            if (isset($menu->call)) {
                 $c = $menu->call;
-            }elseif(isset($menu->func)){
+            } elseif (isset($menu->func)) {
                 $c = $menu->func;
-            }elseif(isset($menu->method)){
+            } elseif (isset($menu->method)) {
                 $c = $menu->method;
             }
 
-            if($c && is_callable($c)){
-                $a = isset($menu->param)?$menu->param:($menu->args?$menu->args:[]);
-                if($d = $c($a)){
+            if ($c && is_callable($c)) {
+                $a = isset($menu->param) ? $menu->param : ($menu->args ? $menu->args : []);
+                if ($d = $c($a)) {
                     $menuList = Arr::parse($d);
                 }
-
             }
-        }
-        elseif($t == 'list'){
-            $menuList = $menu->list?$menu->list:(
-                $menu->data?$menu->data:(
-                    $menu->items?$menu->items:(
-                        []
+        } elseif ($t == 'list') {
+            $menuList = $menu->list ? $menu->list : ($menu->data ? $menu->data : ($menu->items ? $menu->items : ([]
                     )
                 )
             );
-
-        }elseif($menu->get(0)){
+        } elseif ($menu->get(0)) {
             $menuList = $menu->all();
         }
         return $menuList;
     }
 
-    public function prepare($action=null)
+    public function prepare($action = null)
     {
-        if($this->checkMenuData()){
+        if ($this->checkMenuData()) {
             $this->addAction($action);
             $menuList = $this->menuData;
             $d = $this->_data;
@@ -422,7 +429,7 @@ class Menu extends HtmlDom
             $itemProps = $this->getItemProps();
             $itemProps['tag'] = $itemProps['item_tag'];
 
-            foreach($menuList as $k => $v){
+            foreach ($menuList as $k => $v) {
                 $item = new MenuItem(
                     $v,
                     array_merge($itemProps, [
@@ -444,7 +451,6 @@ class Menu extends HtmlDom
                 $this->append($item);
                 $i++;
             }
-
         }
     }
 
@@ -461,10 +467,10 @@ class Menu extends HtmlDom
     public function getSonLevel()
     {
         $level = $this->level;
-        if(count($this->_children)){
+        if (count($this->_children)) {
             foreach ($this->_children as $key => $item) {
                 $lv = $item->getSonLevel();
-                if($lv > $level) $level = $lv;
+                if ($lv > $level) $level = $lv;
             }
         }
         return $level;
@@ -477,10 +483,10 @@ class Menu extends HtmlDom
      */
     public function getActiveItem()
     {
-        if($this->_children){
-            foreach($this->_children as $child){
-                if(is_a($child,MenuItem::class)){
-                    if($child->isActive()) return $child;
+        if ($this->_children) {
+            foreach ($this->_children as $child) {
+                if (is_a($child, MenuItem::class)) {
+                    if ($child->isActive()) return $child;
                 }
             }
         }
@@ -491,9 +497,9 @@ class Menu extends HtmlDom
     {
         $this->addAction($action);
 
-        if($this->_children){
-            foreach($this->_children as $child){
-                if(is_a($child,MenuItem::class)){
+        if ($this->_children) {
+            foreach ($this->_children as $child) {
+                if (is_a($child, MenuItem::class)) {
                     $child->addAction($this->actions);
                 }
             }
@@ -501,13 +507,13 @@ class Menu extends HtmlDom
         return parent::render();
     }
 
-    public function addAction($action=null)
+    public function addAction($action = null)
     {
-        if(is_callable($action)){
+        if (is_callable($action)) {
             $this->actions[] = $action;
-        }elseif(is_array($action)){
-            foreach($action as $act){
-                if(is_callable($act)){
+        } elseif (is_array($action)) {
+            foreach ($action as $act) {
+                if (is_callable($act)) {
                     $this->actions[] = $act;
                 }
             }
