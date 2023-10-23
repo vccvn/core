@@ -805,9 +805,8 @@ function create_table($params = [], $table = null, ...$args)
             foreach ($cs as $text) {
                 $c = analytic_str_params($text);
                 if ($c['name']) {
-                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
                         // . ($c['length'] ? "->length($c[length])" : '')
-                        . ($c['nullable'] ? '->nullable()' : '');
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
@@ -897,9 +896,8 @@ function alter_table($params = [], $table = null, ...$args)
             foreach ($cs as $text) {
                 $c = analytic_str_params($text);
                 if ($c['name']) {
-                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
                         // . ($c['length'] ? "->length($c[length])" : '')
-                        . ($c['nullable'] ? '->nullable()' : '');
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
@@ -924,9 +922,8 @@ function alter_table($params = [], $table = null, ...$args)
             foreach ($cs as $text) {
                 $c = analytic_str_params($text);
                 if ($c['name']) {
-                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
                         // . ($c['length'] ? "->length($c[length])" : '')
-                        . ($c['nullable'] ? '->nullable()' : '');
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
