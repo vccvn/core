@@ -719,7 +719,7 @@ function convert_json_to_php($json_path, $php_path)
 }
 
 
-function make($object = null, ...$params)
+function makeObj($object = null, ...$params)
 {
     if ($object == null) {
         die("Please select item to make (repository, model, controller, mask)");
@@ -811,7 +811,7 @@ function create_table($params = [], $table = null, ...$args)
         echo "Tạo bảng {$table} thành công!\nBạn có thể sửa file theo dường dẫn sau: \n$a->path \n";
         $m = isset($params['model']) && $params['model'] ? $params['model'] : (isset($params['m']) && $params['m'] ? $params['m'] : null);
         if ($m) {
-            make('model', $m, $table);
+            makeObj('model', $m, $table);
         }
     } else {
         echo "Lỗi không xác định\n";

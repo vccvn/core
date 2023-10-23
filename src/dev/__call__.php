@@ -139,7 +139,7 @@ function __call__($args = [])
                     }
                     break;
                 default:
-                    echo "What do you want to do?\n\t make or create somthing\n\t run command exists";
+                    echo "What do you want to do?\n\t make or create something\n\t run command exists";
             }
         }
     }
