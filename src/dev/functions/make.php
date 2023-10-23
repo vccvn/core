@@ -819,7 +819,7 @@ function create_table($params = [], $table = null, ...$args)
                         $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
-                    $column[] = $col;
+                    $columns[] = $col;
 
                     // $drops[] = "\$table->dropColumn('$c[name]');";
                 }
@@ -910,7 +910,7 @@ function alter_table($params = [], $table = null, ...$args)
                         $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
-                    $column[] = $col;
+                    $columns[] = $col;
                 }
             }
         }
@@ -936,7 +936,7 @@ function alter_table($params = [], $table = null, ...$args)
                         $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . '->change();';
-                    $column[] = $col;
+                    $columns[] = $col;
                 }
             }
         }
