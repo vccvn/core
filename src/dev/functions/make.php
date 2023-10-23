@@ -810,9 +810,9 @@ function create_table($params = [], $table = null, ...$args)
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
-                                $col .= $c['params']? implode(',', array_map(function($v){
+                                $col .= $cData['params']? implode(',', array_map(function($v){
                                     return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $c['params'])) : "";
+                                }, $cData['params'])) : "";
                                 $col .= ')';
                             }
                         }
@@ -901,9 +901,9 @@ function alter_table($params = [], $table = null, ...$args)
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
-                                $col .= $c['params']? implode(',', array_map(function($v){
+                                $col .= $cData['params']? implode(',', array_map(function($v){
                                     return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $c['params'])) : "";
+                                }, $cData['params'])) : "";
                                 $col .= ')';
                             }
                         }
@@ -927,9 +927,9 @@ function alter_table($params = [], $table = null, ...$args)
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
                                 $col .= "\$table->" . $cData['call'] . '(';
-                                $col .= $c['params']? implode(',', array_map(function($v){
+                                $col .= $cData['params']? implode(',', array_map(function($v){
                                     return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $c['params'])) : "";
+                                }, $cData['params'])) : "";
                                 $col .= ')';
                             }
                         }
