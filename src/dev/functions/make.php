@@ -818,7 +818,7 @@ function create_table($params = [], $table = null, ...$args)
                             }
                         }
                         $col .= ''
-                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
                     $column[] = $col;
 
@@ -910,7 +910,7 @@ function alter_table($params = [], $table = null, ...$args)
                             }
                         }
                         $col .= ''
-                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
                     $column[] = $col;
                 }
@@ -922,37 +922,24 @@ function alter_table($params = [], $table = null, ...$args)
         $cs = is_array($params['change']) ? $params['change'] : explode(',', $params['change']);
         if (count($cs)) {
             foreach ($cs as $text) {
-                $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
-                $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
-                if ($a) {
-                    for ($i = 0; $i < $a; $i++) {
-                        $char = trim($matches[1][$i]);
-                        $val = $matches[2][$i];
-                        if ($char == '|') {
-                            if (is_numeric($val)) {
-                                $c['length'] = (int) $val;
-                            } elseif ($val == 'null' || $val == 'nullable') {
-                                $c['nullable'] = true;
-                            }
-                        } elseif ($char == ':') {
-                            $c['type'] = $val;
-                        } elseif ($char == '=') {
-                            $c['default'] = $val;
-                        } elseif (!$char || !$i) {
-                            if ($val) {
-                                $c['name'] = $val;
+                $c = analytic_str_params($text);
+                if ($c['name']) {
+                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                        // . ($c['length'] ? "->length($c[length])" : '')
+                        . ($c['nullable'] ? '->nullable()' : '');
+                        if(isset($c['calls']) && $c['calls']) {
+                            foreach ($c['calls'] as $cData) {
+                                $col .= "\$table->" . $cData['call'] . '(';
+                                $col .= $c['params']? implode(',', array_map(function($v){
+                                    return is_numeric($v) ? $v :"\'". $v ."\'";
+                                }, $c['params'])) : "";
+                                $col .= ')';
                             }
                         }
-                    }
-                }
-                if ($c['name']) {
-                    $columns[] = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
-                        . ($c['length'] ? "->length($c[length])" : '')
-                        . ($c['nullable'] ? '->nullable()' : '')
-                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
+                        $col .= ''
+                        . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . '->change();';
-
-                    // $drops[] = "\$table->dropColumn($c[name]);";
+                    $column[] = $col;
                 }
             }
         }
