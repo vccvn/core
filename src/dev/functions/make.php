@@ -29,57 +29,50 @@ function get_args_params($args = [])
                     $pk = $f;
                     $pv = implode('=', $pc);
                     $oldHasValue = true;
-                } elseif(count($pn = explode(':', $p)) > 1 && $f2 = strtolower(array_shift($pn))){
+                } elseif (count($pn = explode(':', $p)) > 1 && $f2 = strtolower(array_shift($pn))) {
                     $pk = $f2;
                     $pv = implode(':', $pn);
                     $oldHasValue = true;
-                }
-                else {
+                } else {
                     $oldHasValue = false;
                     $pv = true;
                 }
 
                 $oldParamKey = $pk;
 
-                if(array_key_exists($pk, $data['params'])){
-                    if($pv == true){
+                if (array_key_exists($pk, $data['params'])) {
+                    if ($pv == true) {
                         // test
-                    }
-                    elseif($data['params'][$pk] == true){
+                    } elseif ($data['params'][$pk] == true) {
                         $data['params'][$pk] = $pv;
-                    }elseif(is_array($data['params'][$pk])){
+                    } elseif (is_array($data['params'][$pk])) {
                         $data['params'][$pk][] = $pv;
-
-                    }else{
+                    } else {
                         $data['params'][$pk] = [$data['params'][$pk]];
                         $data['params'][$pk][] = $pv;
-
                     }
-                }else{
+                } else {
                     $data['params'][$pk] = $pv;
                 }
-            } elseif(!$oldHasValue && $oldIsParams) {
-                if($data['params'][$oldParamKey] === true){
+            } elseif (!$oldHasValue && $oldIsParams) {
+                if ($data['params'][$oldParamKey] === true) {
                     $data['params'][$oldParamKey] = $param;
-                }elseif(is_array($data['params'][$oldParamKey])){
+                } elseif (is_array($data['params'][$oldParamKey])) {
                     $data['params'][$oldParamKey][] = $param;
-                }
-                else{
+                } else {
                     $data['params'][$oldParamKey] = [$data['params'][$oldParamKey]];
                     $data['params'][$oldParamKey][] = $param;
-
                 }
                 // print_r($data);
 
                 $oldIsParams = false;
                 $oldHasValue = false;
                 $oldParamKey = null;
-            }else {
+            } else {
                 $data['args'][] = $param;
                 $oldHasValue = false;
                 $oldIsParams = false;
                 $oldParamKey = null;
-
             }
 
 
@@ -345,7 +338,7 @@ function make_model($args = [], $name = null, $table = null)
 
         $v = isset($params['useuuid']) ? $params['useuuid'] : (isset($params['useUuid']) ? $params['useUuid'] : (isset($params['uuid']) ? $params['uuid'] : true));
         $props[] = "public \$useUuid = " . ($v === true ? "true" : ($v === 'false' ? 'false' : ($v === 'true' || $v == '' ? 'true' : ($v == 'primary' || $v == 'id' ? "'primary'" : "'$v'"))
-            )
+        )
         ) . ";";
 
         if ($v === 'true' || $v == true) {
@@ -736,6 +729,62 @@ function makeObj($object = null, ...$params)
     // else make_modules($object, $p['params'], ...$p['args']);
 }
 
+function analytic_str_params($params)
+{
+    $data = [
+        'name' => '',
+        'type' => 'string',
+        'default' => null,
+        'calls' => []
+    ];
+    $prs = explode('|', $params);
+    if (count($prs) > 0) {
+        $i = 0;
+        foreach ($prs as $pr) {
+            if (count($pp = explode('=', $pr)) == 2) {
+                if ($i == 0)
+                    $data['name'] = $pp[1];
+                else {
+                    $data['default'] = $pp[1];
+                    if (in_array($pp[0], ['null', 'nullable']))
+                        $data['calls'][] = [
+                            'call' => 'nullable',
+                            'params' => []
+                        ];
+                    else
+                        $data['calls'][] = [
+                            'call' => $pp[0],
+                            'params' => []
+                        ];
+                }
+            } elseif (count($pa = explode(':', $pr)) == 2) {
+                if ($i == 0) {
+                    $data['name'] = $pa[0];
+                    $data['type'] = $pa[1];
+                } else {
+                    $data['calls'][] = [
+                        'call' => $pa[0],
+                        'params' => array_map('trim', explode(',', $pa[1]))
+                    ];
+                }
+            } else {
+                if (in_array($pp[0], ['null', 'nullable']))
+                    $data['calls'][] = [
+                        'call' => 'nullable',
+                        'params' => []
+                    ];
+                else
+                    $data['calls'][] = [
+                        'call' => $pr,
+                        'params' => []
+                    ];
+            }
+
+            $i++;
+        }
+    }
+    return $data;
+}
 
 function create_table($params = [], $table = null, ...$args)
 {
@@ -746,43 +795,32 @@ function create_table($params = [], $table = null, ...$args)
 
 
     $table = Str::tableName($table);
-    
+
     $columns = [];
     $drops = [];
-    $add = $params['add']??($params['columns']??($params['column']??($params['col']??'')));
+    $add = $params['add'] ?? ($params['columns'] ?? ($params['column'] ?? ($params['col'] ?? '')));
     if ($add) {
-        $cs = is_array($add)?$add:explode(',', $add);
+        $cs = is_array($add) ? $add : explode(',', $add);
         if (count($cs)) {
             foreach ($cs as $text) {
-                $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
-                $c = ['name' => "", 'type' => 'string', 'nullable' => '', 'default' => null, 'length' => 0];
-                if ($a) {
-                    for ($i = 0; $i < $a; $i++) {
-                        $char = trim($matches[1][$i]);
-                        $val = $matches[2][$i];
-                        if ($char == '|') {
-                            if (is_numeric($val)) {
-                                $c['length'] = (int) $val;
-                            } elseif ($val == 'null' || $val == 'nullable') {
-                                $c['nullable'] = true;
-                            }
-                        } elseif ($char == ':') {
-                            $c['type'] = $val;
-                        } elseif ($char == '=') {
-                            $c['default'] = $val;
-                        } elseif (!$char || !$i) {
-                            if ($val) {
-                                $c['name'] = $val;
+                $c = analytic_str_params($text);
+                if ($c['name']) {
+                    $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
+                        // . ($c['length'] ? "->length($c[length])" : '')
+                        . ($c['nullable'] ? '->nullable()' : '');
+                        if(isset($c['calls']) && $c['calls']) {
+                            foreach ($c['calls'] as $cData) {
+                                $col .= "\$table->" . $cData['call'] . '(';
+                                $col .= $c['params']? implode(',', array_map(function($v){
+                                    return is_numeric($v) ? $v :"\'". $v ."\'";
+                                }, $c['params'])) : "";
+                                $col .= ')';
                             }
                         }
-                    }
-                }
-                if ($c['name']) {
-                    $columns[] = "\$table->" . $c['type'] . "('" . $c['name'] . "')"
-                        . ($c['length'] ? "->length($c[length])" : '')
-                        . ($c['nullable'] ? '->nullable()' : '')
+                        $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['default']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
+                    $column[] = $col;
 
                     $drops[] = "\$table->dropColumn('$c[name]');";
                 }
@@ -791,7 +829,7 @@ function create_table($params = [], $table = null, ...$args)
     }
 
 
-    
+
     $find = ['TABLE_NAME', '// COLUMN HERE'];
     //$columns = [];
     if ((isset($params['softdelete']) && $params['softdelete'] != 'false') || (isset($params['softDelete']) && $params['softDelete'] != 'false')) {
@@ -852,9 +890,9 @@ function alter_table($params = [], $table = null, ...$args)
 
     $columns = [];
     $drops = [];
-    $add = $params['add']??($params['columns']??($params['column']??($params['col']??'')));
+    $add = $params['add'] ?? ($params['columns'] ?? ($params['column'] ?? ($params['col'] ?? '')));
     if ($add) {
-        $cs = is_array($add)?$add:explode(',', $add);
+        $cs = is_array($add) ? $add : explode(',', $add);
         if (count($cs)) {
             foreach ($cs as $text) {
                 $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
@@ -894,7 +932,7 @@ function alter_table($params = [], $table = null, ...$args)
     }
 
     if (array_key_exists('change', $params)) {
-        $cs = is_array($params['change'])?$params['change']:explode(',', $params['change']);
+        $cs = is_array($params['change']) ? $params['change'] : explode(',', $params['change']);
         if (count($cs)) {
             foreach ($cs as $text) {
                 $a = preg_match_all('/(^|\:|\=|\|)([^\|\:\=\|]*)/', $text, $matches);
@@ -933,7 +971,7 @@ function alter_table($params = [], $table = null, ...$args)
         }
     }
     if (array_key_exists('drop', $params)) {
-        $cs = is_array($params['drop'])?$params['drop']:explode(',', $params['drop']);
+        $cs = is_array($params['drop']) ? $params['drop'] : explode(',', $params['drop']);
         if (count($cs)) {
             foreach ($cs as $text) {
 
@@ -942,7 +980,7 @@ function alter_table($params = [], $table = null, ...$args)
         }
     }
     if (array_key_exists('drops', $params)) {
-        $cs = is_array($params['drops'])?$params['drops']:explode(',', $params['drops']);
+        $cs = is_array($params['drops']) ? $params['drops'] : explode(',', $params['drops']);
         if (count($cs)) {
             foreach ($cs as $text) {
 
