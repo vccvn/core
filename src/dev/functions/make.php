@@ -809,7 +809,7 @@ function create_table($params = [], $table = null, ...$args)
                         // . ($c['length'] ? "->length($c[length])" : '')
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
-                                $col .= "\$table->" . $cData['call'] . '(';
+                                $col .= "->" . $cData['call'] . '(';
                                 $col .= $cData['params']? implode(',', array_map(function($v){
                                     return is_numeric($v) ? $v :"\'". $v ."\'";
                                 }, $cData['params'])) : "";
@@ -900,7 +900,7 @@ function alter_table($params = [], $table = null, ...$args)
                         // . ($c['length'] ? "->length($c[length])" : '')
                         if(isset($c['calls']) && $c['calls']) {
                             foreach ($c['calls'] as $cData) {
-                                $col .= "\$table->" . $cData['call'] . '(';
+                                $col .= "->" . $cData['call'] . '(';
                                 $col .= $cData['params']? implode(',', array_map(function($v){
                                     return is_numeric($v) ? $v :"\'". $v ."\'";
                                 }, $cData['params'])) : "";
@@ -911,6 +911,8 @@ function alter_table($params = [], $table = null, ...$args)
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
                     $columns[] = $col;
+
+                    $drops[] = "\$table->dropColumn('$c[name]');";
                 }
             }
         }
