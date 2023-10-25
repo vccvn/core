@@ -958,16 +958,18 @@ trait BaseQuery
                         elseif ($eAc)
                             $searchType = 'end';
 
-
                         $keywordClean = vnclean($keywords);
                         $slug = str_slug($keywordClean);
-
+                        $ucWord = vnucwords($keywords);
                         $kd = [
                             $keywords,
                             $keywordClean,
                             $slug,
                             str_replace('-', '', $slug)
                         ];
+                        if ($ucWord != $keywords) {
+                            $kd[] = $ucWord;
+                        }
                         $rules = $this->__searchRules__;
                         if (is_string($search_by)) {
                             // tim mot cot
@@ -1137,11 +1139,13 @@ trait BaseQuery
 
                         $keywordClean = vnclean($keywords);
                         $slug = str_slug($keywordClean);
-
+                        $ucWord = vnucwords($keywords);
                         $kd = [
                             $keywords,
                             vntolower($keywords)
                         ];
+                        if ($ucWord != $keywords)
+                            $kd[] = $ucWord;
                         $rules = $this->__searchRules__;
                         if (is_string($search_by)) {
                             // tim mot cot
@@ -1186,30 +1190,46 @@ trait BaseQuery
                                 } else
                                     switch ($searchType) {
                                         case 'start':
-                                            $query->where($f, 'like', "$kd[0]%")
-                                                ->orWhere($f, 'like', "$kd[1]%")
-                                                ->orWhere($f, 'like', "$kd[2]%")
-                                                ->orWhere($f, 'like', "$kd[3]%");
+                                            $j = 0;
+                                            foreach ($kd as $s) {
+                                                if ($j == 0)
+                                                    $query->where($f, "like", "$s%");
+                                                else
+                                                    $query->orWhere($f, "like", "$s%");
+                                                $j++;
+                                            }
                                             break;
 
                                         case 'end':
-                                            $query->where($f, 'like', "%$kd[0]")
-                                                ->orWhere($f, 'like', "%$kd[1]")
-                                                ->orWhere($f, 'like', "%$kd[2]")
-                                                ->orWhere($f, 'like', "%$kd[3]");
+                                            $j = 0;
+                                            foreach ($kd as $s) {
+                                                if ($j == 0)
+                                                    $query->where($f, "like", "%$s");
+                                                else
+                                                    $query->orWhere($f, "like", "%$s");
+                                                $j++;
+                                            }
                                             break;
                                         case 'match':
                                         case 'all':
-                                            $query->where($f, 'like', "$kd[0]")
-                                                ->orWhere($f, 'like', "$kd[1]")
-                                                ->orWhere($f, 'like', "$kd[2]")
-                                                ->orWhere($f, 'like', "$kd[3]");
+                                            $j = 0;
+                                            foreach ($kd as $s) {
+                                                if ($j == 0)
+                                                    $query->where($f, "like", "$s");
+                                                else
+                                                    $query->orWhere($f, "like", "$s");
+                                                $j++;
+                                            }
                                             break;
                                         default:
-                                            $query->where($f, 'like', "%$kd[0]%")
-                                                ->orWhere($f, 'like', "%$kd[1]%")
-                                                ->orWhere($f, 'like', "%$kd[2]%")
-                                                ->orWhere($f, 'like', "%$kd[3]%");
+                                            $j = 0;
+                                            foreach ($kd as $s) {
+                                                if ($j == 0)
+                                                    $query->where($f, "like", "%$s%");
+                                                else
+                                                    $query->orWhere($f, "like", "%$s%");
+                                                $j++;
+                                            }
                                             break;
                                     }
                             }
