@@ -768,7 +768,9 @@ function analytic_str_params($params)
                     ];
                 }
             } else {
-                if (in_array($pp[0], ['null', 'nullable']))
+                if ($i == 0)
+                    $data['name'] = $pr;
+                elseif (in_array($pp[0], ['null', 'nullable']))
                     $data['calls'][] = [
                         'call' => 'nullable',
                         'params' => []
@@ -806,17 +808,17 @@ function create_table($params = [], $table = null, ...$args)
                 $c = analytic_str_params($text);
                 if ($c['name']) {
                     $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
-                        // . ($c['length'] ? "->length($c[length])" : '')
-                        if(isset($c['calls']) && $c['calls']) {
-                            foreach ($c['calls'] as $cData) {
-                                $col .= "->" . $cData['call'] . '(';
-                                $col .= $cData['params']? implode(',', array_map(function($v){
-                                    return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $cData['params'])) : "";
-                                $col .= ')';
-                            }
+                    // . ($c['length'] ? "->length($c[length])" : '')
+                    if (isset($c['calls']) && $c['calls']) {
+                        foreach ($c['calls'] as $cData) {
+                            $col .= "->" . $cData['call'] . '(';
+                            $col .= $cData['params'] ? implode(',', array_map(function ($v) {
+                                return is_numeric($v) ? $v : "\'" . $v . "\'";
+                            }, $cData['params'])) : "";
+                            $col .= ')';
                         }
-                        $col .= ''
+                    }
+                    $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
                     $columns[] = $col;
@@ -897,17 +899,17 @@ function alter_table($params = [], $table = null, ...$args)
                 $c = analytic_str_params($text);
                 if ($c['name']) {
                     $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
-                        // . ($c['length'] ? "->length($c[length])" : '')
-                        if(isset($c['calls']) && $c['calls']) {
-                            foreach ($c['calls'] as $cData) {
-                                $col .= "->" . $cData['call'] . '(';
-                                $col .= $cData['params']? implode(',', array_map(function($v){
-                                    return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $cData['params'])) : "";
-                                $col .= ')';
-                            }
+                    // . ($c['length'] ? "->length($c[length])" : '')
+                    if (isset($c['calls']) && $c['calls']) {
+                        foreach ($c['calls'] as $cData) {
+                            $col .= "->" . $cData['call'] . '(';
+                            $col .= $cData['params'] ? implode(',', array_map(function ($v) {
+                                return is_numeric($v) ? $v : "\'" . $v . "\'";
+                            }, $cData['params'])) : "";
+                            $col .= ')';
                         }
-                        $col .= ''
+                    }
+                    $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . ';';
                     $columns[] = $col;
@@ -925,17 +927,17 @@ function alter_table($params = [], $table = null, ...$args)
                 $c = analytic_str_params($text);
                 if ($c['name']) {
                     $col = "\$table->" . $c['type'] . "('" . $c['name'] . "')";
-                        // . ($c['length'] ? "->length($c[length])" : '')
-                        if(isset($c['calls']) && $c['calls']) {
-                            foreach ($c['calls'] as $cData) {
-                                $col .= "->" . $cData['call'] . '(';
-                                $col .= $cData['params']? implode(',', array_map(function($v){
-                                    return is_numeric($v) ? $v :"\'". $v ."\'";
-                                }, $cData['params'])) : "";
-                                $col .= ')';
-                            }
+                    // . ($c['length'] ? "->length($c[length])" : '')
+                    if (isset($c['calls']) && $c['calls']) {
+                        foreach ($c['calls'] as $cData) {
+                            $col .= "->" . $cData['call'] . '(';
+                            $col .= $cData['params'] ? implode(',', array_map(function ($v) {
+                                return is_numeric($v) ? $v : "\'" . $v . "\'";
+                            }, $cData['params'])) : "";
+                            $col .= ')';
                         }
-                        $col .= ''
+                    }
+                    $col .= ''
                         . ((!is_null($c['default'])) ? '->default(' . (in_array(strtolower($c['type']), ['integer', 'biginteger', 'float', 'decimal', 'double', 'boolean']) ? $c['default'] : "\"$c[default]\"") . ')' : '')
                         . '->change();';
                     $columns[] = $col;
