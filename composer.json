@@ -24,7 +24,7 @@
         "ext-zlib": "*",
         "guzzlehttp/guzzle": "7.x",
         "james-heinrich/getid3": "2.0.x-dev",
-        "laravel/framework": "^9.2",
+        "laravel/framework": "^10.0",
         "myclabs/php-enum": "^1.8",
         "paquettg/string-encode": "~1.0.0"
     },
