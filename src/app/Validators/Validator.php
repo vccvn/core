@@ -3,7 +3,9 @@
 namespace Gomee\Validators;
 
 use Illuminate\Support\Facades\Validator as BaseValidator;
-
+/**
+ * @method array parseInputs(array $data = []) parse input data
+ */
 abstract class Validator{
     use DefaultMethods;
 
@@ -288,6 +290,12 @@ abstract class Validator{
             $data = $raw;
         }
         // die(json_encode($data));
+        if(method_exists($this,"parseInputs")){
+            if(is_array($d = $this->parseInputs($data)) && count($d) > 0){
+                $data = $d;
+            }
+        }
+
         return $data;
     }
 
