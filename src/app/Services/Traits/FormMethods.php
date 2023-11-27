@@ -195,7 +195,7 @@ trait FormMethods
     /**
      * @var string
      */
-    protected $btnSubmitEext = 'Xong';
+    protected $btnSubmitText = 'Xong';
 
     protected $isViewForm = false;
 
@@ -1133,7 +1133,7 @@ trait FormMethods
     {
         // nếu không phải các form cho trước thì trả về blade mặc định
         if (!in_array($act = strtolower($action), $this->crudActions)) {
-            if ($this->btnSubmitEext) return $this->btnSubmitEext;
+            if ($this->btnSubmitText) return $this->btnSubmitText;
             return 'Lưu';
         }
 
