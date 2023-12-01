@@ -712,18 +712,43 @@ trait FilterAction
     final protected function buildOrderBy($request)
     {
         $odb = $request->orderby ?? $request->sortby;
-        if ($this->sortByRules && isset($this->sortByRules[$odb])) {
-            $odb = $this->sortByRules[$odb];
+
+        $odb = $request->orderby ?? $request->sortby;
+        $sortBy = is_array($odb) ? array_map('strtolower', $odb) : ($odb ? [strtolower($odb)] : []);
+
+        $orderBy = [];
+        $needOrderBy = true;
+        if ($sortBy) {
+            foreach ($sortBy as $key) {
+                if (array_key_exists($key, $this->orderByRule)) {
+                    
+                    $o = $this->sortByRules[$key];
+                    if(is_array($o))
+                        $orderBy = array_merge($orderBy, $o);
+                    else{
+                        if (count($sbp = explode('-', $o)) == 2) {
+                            $o = $sbp[0];
+                            $type = $sbp[1];
+                        } else {
+                            $type = $request->sorttype;
+                        }
+                        if (strtoupper($type) != 'DESC') $type = 'ASC';
+                        else $type = 'DESC';
+                        $orderBy[$o] = $type;
+                    }
+                    $needOrderBy = false;
+                }
+            }
         }
-        if ($odb) {
+        if ($orderBy) {
             $fields = array_merge([$this->required], $this->getFields());
             /**
              * orderby = [
              * column => ASC|DESC
              * ]
              */
-            if (is_array($odb)) {
-                foreach ($odb as $field => $type) {
+            if (is_array($orderBy)) {
+                foreach ($orderBy as $field => $type) {
                     $t = strtoupper($type) != 'DESC' ? 'ASC' : 'DESC';
                     if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$field]) || in_array($field, $this->sortable))) {
                         $this->hasSortby = true;
@@ -748,15 +773,15 @@ trait FilterAction
                 }
             } else {
                 // nếu có trong bảng sortable
-                if (count($sbp = explode('-', $odb)) == 2) {
-                    $odb = $sbp[0];
+                if (count($sbp = explode('-', $orderBy)) == 2) {
+                    $orderBy = $sbp[0];
                     $type = $sbp[1];
                 } else {
                     $type = $request->sorttype;
                 }
                 if (strtoupper($type) != 'DESC') $type = 'ASC';
                 else $type = 'DESC';
-
+                $odb = $orderBy;
                 if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$odb]) || in_array($odb, $this->sortable))) {
                     $this->hasSortby = true;
                     if (isset($this->sortable[$odb])) {
