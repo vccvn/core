@@ -720,7 +720,7 @@ trait FilterAction
         $needOrderBy = true;
         if ($sortBy) {
             foreach ($sortBy as $key) {
-                if (array_key_exists($key, $this->orderByRule)) {
+                if (array_key_exists($key, $this->sortByRules)) {
                     
                     $o = $this->sortByRules[$key];
                     if(is_array($o))
