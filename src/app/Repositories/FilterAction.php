@@ -760,9 +760,9 @@ trait FilterAction
                     } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$field]) || in_array($field, $this->sortRawable))) {
                         $this->hasSortby = true;
                         if (isset($this->sortRawable[$field])) {
-                            $this->orderByRaw($this->sortRawable[$field], $t);
+                            $this->orderByRaw($this->sortRawable[$field] .' ' . $t);
                         } else {
-                            $this->orderByRaw($field, $t);
+                            $this->orderByRaw($field . ' '. $t);
                         }
                     } elseif (!preg_match('/\w\.\w/', $field)) {
                         if (in_array($field, $fields)) {
