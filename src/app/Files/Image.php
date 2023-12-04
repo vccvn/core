@@ -7,6 +7,11 @@
 
 namespace Gomee\Files;
 
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
+use Exception;
 use GdImage;
 
 
@@ -20,6 +25,34 @@ use GdImage;
  * @method Image insertText(string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
  * @method static GdImage addText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
  * @method Image insertText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
+ * 
+ * @method Image addQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) thêm mã qr vào ảnh
+ * @method Image addQRCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method Image addQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQr(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * 
+ * @method static GdImage insertQrCode(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage insertQr(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage insertQRCode(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage insertQR(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage addQR(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage addQRCode(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method static GdImage addQR(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * 
+ * @method static GdImage createQrImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage makeQrImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage createQRImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage makeQRImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage createQrCodeImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage makeQrCodeImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage createQRCodeImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage makeQRCodeImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage qrCodeImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage qrImage(string $text, int $size = 400) Tạo ảnh mã QR
+ * @method static GdImage qrCode(string $text, int $size = 400) Tạo ảnh mã QR
+ * 
  */
 class Image
 {
@@ -927,6 +960,67 @@ class Image
         return $image;
     }
 
+
+    /**
+     * Tạo mã QR data
+     *
+     * @param string $string
+     * @param integer $size
+     * @return GdImage
+     */
+    protected static function _createQrCodeData($string, $size = 400){
+        $renderer = new ImageRenderer(
+            new RendererStyle($size),
+            new ImagickImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+        $path = storage_path('logs/temp-qr-' . uniqid() . '.png');
+        $writer->writeFile($string, $path);
+        if(file_exists($path)){
+            $image = imagecreatefrompng($path);
+            unlink($path);
+            return $image;
+        }
+        throw new Exception('Can not create QR code');
+    }
+
+    /**
+     * Tạo ảnh QR Code
+     *
+     * @param string $string
+     * @param integer $size
+     * @return Image
+     */
+    protected static function _createQrCodeImage($string, $size = 400) : Image {
+        return new static(static::_createQrCodeData($string, $size));
+    }
+
+    /**
+     * add QR code to image
+     *
+     * @param string|GdImage $image
+     * @param string $stringToQr
+     * @param integer $size
+     * @param string|int $x
+     * @param string|int $y
+     * @param integer $margin
+     * @return GdImage
+     */
+    protected static function _addQrCode($image, $stringToQr, $size = 400, $x = "center", $y = "center", $margin = 0){
+        return static::addImage($image, static::_createQrCodeData($stringToQr, $size), $x, $y, $margin);
+    }
+
+
+    public static function createQrImageFile($filename, $string, $size = 400){
+        $renderer = new ImageRenderer(
+            new RendererStyle($size),
+            new ImagickImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+        $writer->writeFile($string, $filename);
+        return file_exists($filename);
+    }
+
     public function __call($name, $arguments)
     {
         if(in_array($str = strtolower($name), ['addimage', 'insertimage', 'setimage', 'addimageitem', 'insertimageitem'])){
@@ -939,6 +1033,10 @@ class Image
             $this->refresh();
             return $this;
         }
+        if(in_array($str, ['insertqrcode', 'insertqr', 'addqr', 'addqrcode'])){
+            $this->data = self::_addQrCode($this->data, ...$arguments);
+            return $this;
+        }
     }
     public static function __callStatic($name, $arguments)
     {
@@ -947,6 +1045,15 @@ class Image
         }
         if(in_array($str, ['addtext', 'inserttext'])){
             return self::_addText(...$arguments);
+        }
+        if(in_array($str, ['qrcodedata', 'qrdata', 'createqrcodedata', 'createqrdata', 'getqrdata', 'getqrcodedata', 'getqr'])){
+            return self::_createQrCodeData(...$arguments);
+        }
+        if(in_array($str, ['createqrimage', 'makeqrimage', 'qrimage', 'createqrcodeimage', 'makeqrcodeimage', 'qrcodeimage'])){
+            return self::_createQrCodeImage(...$arguments);
+        }
+        if(in_array($str, ['addqr', 'addqrcode', 'insertqr', 'insertqrcode'])){
+            return self::_addQrCode(...$arguments);
         }
     }
 
