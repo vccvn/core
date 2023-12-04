@@ -9,6 +9,18 @@ namespace Gomee\Files;
 
 use GdImage;
 
+
+/**
+ * image
+ * @method Image addImage(string|GdImage $item, string|integer $x = "center", integer|string $y = "center", integer $margin = 0, integer $item_width = null, integer $item_height = null) Chèn ảnh vảo ảnh gốc
+ * @method Image insertImage(string|GdImage $item, string|integer $x = "center", integer|string $y = "center", integer $margin = 0, integer $item_width = null, integer $item_height = null) Chèn ảnh vảo ảnh gốc
+ * @method static GdImage addImage(string|GdImage $image, string|GdImage $item, string|integer $x = "center", integer|string $y = "center", integer $margin = 0, integer $item_width = null, integer $item_height = null) Chèn ảnh vảo ảnh gốc
+ * @method static GdImage insertImage(string|GdImage $image, string|GdImage $item, string|integer $x = "center", integer|string $y = "center", integer $margin = 0, integer $item_width = null, integer $item_height = null) Chèn ảnh vảo ảnh gốc
+ * @method Image addText(string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
+ * @method Image insertText(string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
+ * @method static GdImage addText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
+ * @method Image insertText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
+ */
 class Image
 {
     use FileType;
@@ -357,7 +369,7 @@ class Image
      * @return Image
      */
 
-    public function insertbackground()
+    public function insertBackground()
     {
         $width = $this->getWidth();
         $height = $this->getHeight();
@@ -718,4 +730,379 @@ class Image
         }
         return $r;
     }
+
+
+    /**
+     * thêm ảnh vào ảnh gốc
+     *
+     * @param string|GdImage $image
+     * @param string|GdImage $item
+     * @param string|int $x
+     * @param string|int $y
+     * @param integer $margin
+     * @param int $item_width
+     * @param int $item_height
+     * @return GdImage
+     */
+    protected static function _addImage($image, $item, $x = "center", $y = "center", $margin = 0, $item_width = null, $item_height = null)
+    {
+        $x = strtolower($x);
+        $y = strtolower($y);
+
+        $dst_im = self::images($image);
+        $bg_w = imagesx($dst_im);
+        $bg_h = imagesy($dst_im);
+
+        $source_im = self::images($item);
+        $ins_w = imagesx($source_im);
+        $ins_h = imagesy($source_im);
+
+
+        if (is_numeric($x)) {
+            $ix = $x;
+        } elseif (is_string($x)) {
+            if ($x == "left")
+                $ix = $margin;
+            elseif ($x == "right")
+                $ix = ($bg_w - $ins_w) - $margin;
+            else
+                $ix = ($bg_w - $ins_w) / 2;
+        } else {
+            $ix = $margin;
+        }
+        if (is_numeric($y)) {
+            $iy = $y;
+        } elseif (is_string($y)) {
+            if ($y == "top") {
+                $iy = $margin;
+            } elseif ($y == "bottom") {
+                $iy = $bg_h - $ins_h - $margin;
+            } else {
+                $iy = ($bg_h - $ins_h) / 2;
+            }
+        } else {
+            $iy = $margin;
+        }
+        $itw = is_numeric($item_width) ? $item_width : $ins_w;
+        $ith = is_numeric($item_height) ? $item_height : $ins_h;
+        imagecopy($dst_im, $source_im, $ix, $iy, 0, 0, $itw, $ith);
+        return $dst_im;
+    }
+
+
+    /**
+     * chèn text vào ảnh
+     *
+     * @param string|GdImage $image
+     * @param string $text
+     * @param integer $size
+     * @param string $x
+     * @param string $y
+     * @param integer $angle
+     * @param string $font
+     * @param integer $max_width
+     * @param integer $margin
+     * @param string $text_color
+     * @param string $stroke_color
+     * @param integer $stroke_width
+     * @return GdImage
+     */
+    protected static function _addText($image,$text,$size=10,$x='center',$y='center',$angle=0,$font='arial.ttf',$max_width=null,$margin=0,$text_color='#000',$stroke_color='#FFF',$stroke_width=0){
+        /* xu ly hinh anh dua vao */
+        if(self::is_image_file($image)) $img = self::create($image);
+        elseif(strtolower(get_resource_type($image))=='gd') $img = $image;
+        else $img = self::create(null,850,400,array(25,162,100));
+        
+        /** xu ly thong so chuoi dua vao */
+        
+        $txt = $text;
+        if(is_array($text)){
+            $i = $text;
+            $txt = isset($i['text'])?$i['text']:'';
+            $size = isset($i['size'])?$i['size']:$size;
+            $margin = isset($i['margin'])?$i['margin']:$margin;
+            $max_width = isset($i['max_width'])?$i['max_width']:$max_width;
+            $font = isset($i['font'])?$i['font']:$font;
+            $x = isset($i['x'])?$i['x']:$x;
+            $y = isset($i['y'])?$i['y']:$y;
+            $text_color = isset($i['color'])?$i['color']:$text_color;
+            $stroke_color = isset($i['stroke_color'])?$i['stroke_color']:$stroke_color;
+            $stroke_width = isset($i['stroke_width'])?$i['stroke_width']:$stroke_width;
+            $angle = isset($i['angle'])?$i['angle']:$angle;
+        }
+        $text = $txt;
+        $font = self::get_font_url($font);
+        
+        $image_width = imagesx($img);
+        $image_height = imagesy($img);
+        // xu ly mau sac
+        
+        if(is_array($text_color)&&isset($text_color[0])&&isset($text_color[1])&&isset($text_color[2])){
+            $tc = $text_color;
+            $text_color = imagecolorallocate($img,$tc[0],$tc[1],$tc[2]);
+        }elseif(preg_match('/^#/',$text_color)){
+            $tc = self::hex2rgb($text_color);
+            $text_color = imagecolorallocate($img,$tc[0],$tc[1],$tc[2]);
+        }elseif(preg_match('/[0-9],[0-9],[0-9]/',$text_color)){
+            $tc = explode(',',$text_color);
+            $text_color = imagecolorallocate($img,$tc[0],$tc[1],$tc[2]);
+        }
+        else{
+            $text_color = imagecolorallocate($img,0,0,0);
+        }
+        if(is_array($stroke_color)&&isset($stroke_color[0])&&isset($stroke_color[1])&&isset($stroke_color[2])){
+            $bc = $stroke_color;
+            $boder_color = imagecolorallocate($img,$bc[0],$bc[1],$bc[2]);
+        }elseif(preg_match('/^#/',$stroke_color)){
+            $bc = self::hex2rgb($stroke_color);
+            $boder_color = imagecolorallocate($img,$bc[0],$bc[1],$bc[2]);
+        }elseif(preg_match('/[0-9],[0-9],[0-9]/',$stroke_color)){
+            $bc = explode(',',$stroke_color);
+            $boder_color = imagecolorallocate($img,$bc[0],$bc[1],$bc[2]);
+        }else{
+            $boder_color = imagecolorallocate($img,0,0,0);
+        }
+        
+        # kinh thuc text
+        if(is_numeric($max_width)){
+            $max = $max_width;
+        }elseif(is_numeric($margin)&&$margin>0){
+            $max = $image_width - 2*$margin;
+        }
+        else{
+            $max = $image_width;
+        }
+        $texts_height = static::getiTextHeight($text,$size,$max,$font,$angle);
+        $texts = static::textQoute($text,$max,$font,$size,0);
+        $t = count($texts);
+        $th = static::getiTextMaxHeight($text,$size,$max,$font,$angle);
+        
+        $image = image::images($img);
+        if(static::countTextLine($text,$size,$max,$font,$angle)>1){
+            $tr=$th/1.1;
+        }else{
+            $tr=$th;
+        }
+        #vi tri text (y)
+        if(is_numeric($y)) $sy = $y + $tr;
+        else{
+            $ly = strtolower($y);
+            $_gy = explode('=',$ly);
+            if(count($_gy)==2){
+                if($_gy[0]=='m'||$_gy[0]=='c'||$_gy[0]=='mid'||$_gy[0]=='middle'){
+                    $sy = static::getText2Number($_gy[1]) - $texts_height/2 + $tr;
+                }else{
+                    $sy = ($image_height - $texts_height)/2 + $tr*0.8;
+                }
+            }elseif($ly=='top')
+                $sy = $margin + $tr;
+            elseif($ly=='bottom')
+                $sy = $image_height - $margin - $texts_height + $tr;
+            else
+                $sy = ($image_height - $texts_height)/2 + $tr*0.8;
+        }
+        for($i=0;$i<$t;$i++){
+            $txt = $texts[$i];
+            $text_width = static::getTextWidth($txt,$font,$size,$angle);
+            # vi tri text (x)
+            if(is_numeric($x)) $sx = $x;
+            else{
+                $lx = strtolower($x);
+                $_gx = explode('=',$lx);
+                if(count($_gx)==2){
+                    if($_gx[0]=='c'||$_gx[0]=='center'||$_gx[0]=='mid'||$_gx[0]=='middle'||$_gx[0]=='m'){
+                        $sx = static::getText2Number($_gx[1]) - $text_width/2;
+                    }
+                    else{
+                        $sx = ($image_width-$text_width)/2;
+                    }
+                }elseif($lx=='left') $sx = $margin;
+                elseif($lx=='right') $sx = $image_width - ($text_width+$margin);
+                else $sx = ($image_width-$text_width)/2;
+            }
+            #insert text
+            $image = self::insTaS($image,$size,$angle,$sx,$sy,$text_color,$boder_color,$font,$txt,$stroke_width);
+            $sy+=$th;
+        }
+        return $image;
+    }
+
+    public function __call($name, $arguments)
+    {
+        if(in_array($str = strtolower($name), ['addimage', 'insertimage', 'setimage', 'addimageitem', 'insertimageitem'])){
+            $this->data = static::_addImage($this->data, ...$arguments);
+            $this->refresh();
+            return $this;
+        }
+        if(in_array($str, ['addtext', 'inserttext'])){
+            $this->data = static::_addText($this->data, ...$arguments);
+            $this->refresh();
+            return $this;
+        }
+    }
+    public static function __callStatic($name, $arguments)
+    {
+        if(in_array($str = strtolower($name), ['addimage', 'insertimage', 'setimage', 'addimageitem', 'insertimageitem'])){
+            return self::_addImage(...$arguments);
+        }
+        if(in_array($str, ['addtext', 'inserttext'])){
+            return self::_addText(...$arguments);
+        }
+    }
+
+
+
+
+    static function getTextWidth($text,$font='fonts/arial.ttf',$size=10,$angle=0){
+        $dims = imagettfbbox($size, $angle, $font, $text);
+        $width = $dims[4] - $dims[6]; 
+        return $width;
+    }
+    static function getTextHeight($text,$font='fonts/arial.ttf',$size=10,$angle=0){
+        $dims = imagettfbbox($size, $angle, $font, $text); 
+        $height = $dims[3] - $dims[5];
+        return $height;
+    }
+    
+    static function textQoute($text,$maxWidth=100,$font="fonts/arial.ttf",$size=10,$angle=0){
+        $maxTextWidth = $maxWidth;
+        $texts = array('');
+        if(is_array($text))
+            $texts = $text;
+        elseif(is_string($text))
+            $texts = explode("\n", $text);
+        elseif(is_numeric($text))
+            $texts = array($text);
+        $itext = array();
+        $st = count($texts);
+        $n = 0;
+        for($i=0;$i<$st;$i++){
+            $txt = $texts[$i];
+            $xt = explode(" ", $txt);
+            $curtext = "";
+            $crt = "";
+            $c = count($xt);
+            for($j=0;$j<$c;$j++){
+                $crt .= (($crt=="")?"":" ").$xt[$j];
+                if(static::getTextWidth($crt,$font,$size)<=$maxTextWidth){
+                    $curtext = $crt;
+                }else{
+                    $itext[$n] = $curtext;
+                    $crt = $xt[$j];
+                    $curtext = $xt[$j];
+                    $n++;
+                }
+            }
+            if($curtext!=""){
+                $itext[$n] = $curtext;
+                $n++;
+            }
+        }
+        return $itext;
+    }
+    
+    static function getQuoteHeight($text='',$font=null,$size=null,$max=500){
+        $texts = static::textQoute($text,$max,$font,$size,0);
+        $t = count($texts);
+        $th = static::getTextHeight((isset($texts[0])?$texts[0]:""),$font,$size);
+        for($i=1;$i<count($texts);$i++){
+            $tm = static::getTextHeight($texts[$i],$font,$size);
+            if($tm>$th) $th=$tm;
+        }
+        $tr = $th;
+        $th*=1.1;
+        $texts_height = $th*$t;
+        return $texts_height;
+    }
+    
+    static function getiTextHeight($text='',$size=null,$max=500,$font=null,$angle=0){
+        $texts = static::textQoute($text,$max,$font,$size,$angle);
+        $t = count($texts);
+        $th = 0;
+        $last = 0;
+        for($i=0;$i<$t;$i++){
+            $tm = static::getTextHeight($texts[$i],$font,$size,$angle);
+            if($tm>$th) $th=$tm;
+            if($i==$t-1) $last = $tm;
+        }
+        $tr = $th;
+        $th*=1.1;
+        $texts_height = $th*$t - ($last*1.1 - $last);
+        
+        return $texts_height;
+    }
+    
+    static function getiTextMaxHeight($text='',$size=null,$max=500,$font=null,$angle=0){
+        $texts = static::textQoute($text,$max,$font,$size,$angle);
+        $t = count($texts);
+        $th = 0;
+        $last = 0;
+        for($i=0;$i<$t;$i++){
+            $tm = static::getTextHeight($texts[$i],$font,$size,$angle);
+            if($tm>$th) $th=$tm;
+            if($i==$t-1) $last = $tm;
+        }
+        $th*=1.1;
+        return $th;
+    }
+    
+    static function getiTextLine($text='',$size=null,$max=500,$font=null,$angle=0){
+        $texts = static::textQoute($text,$max,$font,$size,$angle);
+        $t = count($texts);
+        return $t;
+    }
+    static function countTextLine($text='',$size=null,$max=500,$font=null,$angle=0){
+        $texts = static::textQoute($text,$max,$font,$size,$angle);
+        $t = count($texts);
+        return $t;
+    }
+    
+    static function getElx($array,$key='A',$char='|'){
+        if(!is_array($array)) return null;
+        if(!is_string($key) && !is_numeric($key)) return $array;
+        $p = explode($char,$key);
+        $t = count($p);
+        for($i = 0; $i < $t; $i++){
+            $c = rtrim($p[$i]);
+            if(is_array($array) && isset($array[$c])){
+                $array = $array[$c];
+            }else{
+                $array = null;
+                $i+=$t;
+            }
+        }
+        
+        return $array;
+        
+    }
+    
+    static function getText2Number($str){
+        $lbtg = array(
+                     0,1,2,3,4,5,6,7,8,9, 
+                     'A'=> 1,'B'=> 2,'C'=> 3,'D'=> 4,'E'=> 5,'F'=> 6,'G'=> 7,'H'=> 8,'I'=> 9,'J'=>10,
+                     'K'=>11,'L'=>12,'M'=>13,'N'=>14,'O'=>15,'P'=>16,'Q'=>17,'R'=>18,'S'=>19,'T'=>20,
+                     'U'=>21,'V'=>22,'W'=>23,'X'=>24,'Y'=>25,'Z'=>26,'.'=>'.',
+                     
+                              
+        );
+        $txt = strtoupper($str);
+        $s = '';
+        $l = strlen($txt);
+        
+        for($i=0;$i<$l;$i++){
+            $c = substr($txt,$i,1);
+            $gt = static::getElx($lbtg,$c);
+            
+            if(is_numeric($gt)||is_string($gt)){
+                $s .= $gt;
+            }
+            
+        }
+        return ((int) $s);
+    }
+
+
+
+
+
 }
