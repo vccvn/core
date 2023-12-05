@@ -26,12 +26,12 @@ use GdImage;
  * @method static GdImage addText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
  * @method Image insertText(GdImage|string $image, string $text,int $size=10,string|int $x='center',string|int $y='center', int $angle=0,string $font='arial.ttf',int $max_width=null,int $margin=0, string $text_color='#000', string $stroke_color='#FFF', int $stroke_width=0) Chèn text vào ảnh
  * 
- * @method Image addQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) thêm mã qr vào ảnh
- * @method Image addQRCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
- * @method Image addQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
- * @method Image insertQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
- * @method Image insertQr(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
- * @method Image insertQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int$margin = 0) Thêm mã Qr vào ảnh
+ * @method Image addQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) thêm mã qr vào ảnh
+ * @method Image addQRCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
+ * @method Image addQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQR(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQr(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
+ * @method Image insertQrCode(string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
  * 
  * @method static GdImage insertQrCode(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
  * @method static GdImage insertQr(GdImage|string $image, string $text, int $size=400, int|string $x = "center", int|string $y = "center", int $margin = 0) Thêm mã Qr vào ảnh
