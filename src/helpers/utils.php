@@ -1586,3 +1586,9 @@ if (!function_exists('json_path')) {
         return base_path('json') . ($path ? '/' . ltrim($path, '/') : '');
     }
 }
+
+if(!function_exists('is_gd_image')){
+    function is_gd_image($var) : bool {
+        return (gettype($var) == "object" && get_class($var) == "GdImage");
+    }
+}

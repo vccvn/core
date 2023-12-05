@@ -634,7 +634,9 @@ class Image
     {
         if (self::isImageFile($image)) {
             $source_im = self::create($image);
-        } elseif (get_resource_type($image) == 'gd') {
+        } elseif (is_gd_image($image)) {
+            $source_im = $image;
+        } elseif (is_resource($image) && get_resource_type($image) == 'gd') {
             $source_im = $image;
         } else {
             $source_im = static::create(null, 480, 360, array(255, 255, 255));
