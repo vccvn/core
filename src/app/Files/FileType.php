@@ -6,7 +6,7 @@ use Gomee\Helpers\Any;
 use Gomee\Helpers\Arr;
 
 trait FileType{
-    protected $mimes = [
+    protected static $mimes = [
         '3gp' => 'video/3gpp',
         '7z' => 'application/x-7z-compressed',
         'aac' => 'audio/x-aac',
@@ -102,7 +102,7 @@ trait FileType{
      * @return array
      */
     public function getMimeSupport(){
-        return $this->mimes;
+        return static::$mimes;
     }
 
     
@@ -114,7 +114,34 @@ trait FileType{
      * @return object Arr|Any
      */
     function getMimeType($type){
-        $mimes = $this->mimes;
+        $mimes = static::$mimes;
+        $s = strtolower($type);
+        if($s == 'image/jpg') $s = 'image/jpeg';
+        if(isset($mimes[$s])){
+            return new Arr([
+                'extension' => $s,
+                'type' => $mimes[$s]
+            ]);
+        }else{
+            foreach ($mimes as $ext => $mime) {
+                if($s == $mime){
+                    return new Arr([
+                        'extension' => $ext,
+                        'type' => $mime
+                    ]);
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * lấy thông tin file qua mime hoac type
+     * @param string $type
+     * 
+     * @return object Arr|Any
+     */
+    static function mimeType($type){
+        $mimes = static::$mimes;
         $s = strtolower($type);
         if($s == 'image/jpg') $s = 'image/jpeg';
         if(isset($mimes[$s])){
@@ -149,6 +176,31 @@ trait FileType{
         if(preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)){
             $type = $m[1][0];
             if($info = $this->getMimeType($type)){
+                $data = base64_decode($m[2][0]);
+                $extension  = $info->extension;
+                $ctype = explode('/', $info->type);
+                $filetype = $ctype[0];
+                $mime = $ctype[1];
+                return new Arr(compact('type', 'data', 'extension', 'filetype', 'mime', 'filename'));
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * @param string $str
+     * @return Arr|null
+     */
+    static function base64Data($str){
+        $filename = null;
+        if(count($fileinfo = explode('@', $str)) == 2){
+            $filename = $fileinfo[0];
+            $str = $fileinfo[1];
+        }
+        if(preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)){
+            $type = $m[1][0];
+            if($info = static::mimeType($type)){
                 $data = base64_decode($m[2][0]);
                 $extension  = $info->extension;
                 $ctype = explode('/', $info->type);
