@@ -5,7 +5,8 @@ namespace Gomee\Files;
 use Gomee\Helpers\Any;
 use Gomee\Helpers\Arr;
 
-trait FileType{
+trait FileType
+{
     protected static $mimes = [
         '3gp' => 'video/3gpp',
         '7z' => 'application/x-7z-compressed',
@@ -97,15 +98,20 @@ trait FileType{
         'xz' => 'application/x-xz',
         'zip' => 'application/zip'
     ];
+
+    public static function addMineType($extension, $mimeType = 'application/octet-stream') {
+        static::$mimes[$extension] = $mimeType;
+    }
     /**
      * lấy danh sach kiểu file được hổ trợ
      * @return array
      */
-    public function getMimeSupport(){
+    public function getMimeSupport()
+    {
         return static::$mimes;
     }
 
-    
+
 
     /**
      * lấy thông tin file qua mime hoac type
@@ -113,18 +119,25 @@ trait FileType{
      * 
      * @return object Arr|Any
      */
-    function getMimeType($type){
+    function getMimeType($type)
+    {
         $mimes = static::$mimes;
         $s = strtolower($type);
-        if($s == 'image/jpg') $s = 'image/jpeg';
-        if(isset($mimes[$s])){
+        if ($s == 'image/jpg') $s = 'image/jpeg';
+        if (isset($mimes[$s])) {
             return new Arr([
                 'extension' => $s,
                 'type' => $mimes[$s]
             ]);
-        }else{
+        } else {
             foreach ($mimes as $ext => $mime) {
-                if($s == $mime){
+                if($s == $ext){
+                    return new Arr([
+                        'extension' => $ext,
+                        'type' => $mime
+                    ]); 
+                }
+                if ($s == $mime) {
                     return new Arr([
                         'extension' => $ext,
                         'type' => $mime
@@ -140,18 +153,25 @@ trait FileType{
      * 
      * @return object Arr|Any
      */
-    static function mimeType($type){
+    static function mimeType($type)
+    {
         $mimes = static::$mimes;
         $s = strtolower($type);
-        if($s == 'image/jpg') $s = 'image/jpeg';
-        if(isset($mimes[$s])){
+        if ($s == 'image/jpg') $s = 'image/jpeg';
+        if (isset($mimes[$s])) {
             return new Arr([
                 'extension' => $s,
                 'type' => $mimes[$s]
             ]);
-        }else{
+        } else {
             foreach ($mimes as $ext => $mime) {
-                if($s == $mime){
+                if($s == $ext){
+                    return new Arr([
+                        'extension' => $ext,
+                        'type' => $mime
+                    ]); 
+                }
+                if ($s == $mime) {
                     return new Arr([
                         'extension' => $ext,
                         'type' => $mime
@@ -167,22 +187,28 @@ trait FileType{
      * @param string $str
      * @return Arr|null
      */
-    function getBase64Data($str){
+    function getBase64Data($str)
+    {
         $filename = null;
-        if(count($fileinfo = explode('@', $str)) == 2){
+        if (count($fileinfo = explode('@', $str)) == 2) {
             $filename = $fileinfo[0];
             $str = $fileinfo[1];
         }
-        if(preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)){
+        if (preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)) {
             $type = $m[1][0];
-            if($info = $this->getMimeType($type)){
-                $data = base64_decode($m[2][0]);
+            $data = base64_decode($m[2][0]);
+            if ($info = $this->getMimeType($type)) {
                 $extension  = $info->extension;
                 $ctype = explode('/', $info->type);
                 $filetype = $ctype[0];
                 $mime = $ctype[1];
-                return new Arr(compact('type', 'data', 'extension', 'filetype', 'mime', 'filename'));
+            }else{
+                $extension  = '';
+                $ctype = explode('/', $type);
+                $filetype = $ctype[0];
+                $mime = $ctype[1];
             }
+            return new Arr(compact('type', 'data', 'extension', 'filetype', 'mime', 'filename'));
         }
         return null;
     }
@@ -192,15 +218,16 @@ trait FileType{
      * @param string $str
      * @return Arr|null
      */
-    static function base64Data($str){
+    static function base64Data($str)
+    {
         $filename = null;
-        if(count($fileinfo = explode('@', $str)) == 2){
+        if (count($fileinfo = explode('@', $str)) == 2) {
             $filename = $fileinfo[0];
             $str = $fileinfo[1];
         }
-        if(preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)){
+        if (preg_match_all('/^data\:([^;]*);base64,(.*)$/si', $str, $m)) {
             $type = $m[1][0];
-            if($info = static::mimeType($type)){
+            if ($info = static::mimeType($type)) {
                 $data = base64_decode($m[2][0]);
                 $extension  = $info->extension;
                 $ctype = explode('/', $info->type);
