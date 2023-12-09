@@ -87,6 +87,7 @@ trait FilterAction
      */
     protected $groupableRaw = [];
 
+    protected $_ignoreFilter = [];
 
     /**
      * @var array $withable
@@ -228,7 +229,7 @@ trait FilterAction
         $this->fire('aftergetResults', $this, $request, $rs);
         return $rs;
     }
-    
+
 
     /**
      * tương tự filter
@@ -246,7 +247,7 @@ trait FilterAction
         $this->fire('beforeCountResults', $this, $request, $args);
         return $this->count($args);
     }
-    
+
 
     /**
      * lấy dữ liễu theo tham số 
@@ -441,7 +442,7 @@ trait FilterAction
     {
         if (!$data) return null;
         $rs = $this->responseMode == 'mask' ? $this->mask($data) : ($this->responseMode == 'resource' ? $this->resource($data) : ($data));
-        if($rs && is_object($rs) && method_exists($rs, '__lock')) $rs->__lock();
+        if ($rs && is_object($rs) && method_exists($rs, '__lock')) $rs->__lock();
         return $rs;
     }
 
@@ -576,6 +577,25 @@ trait FilterAction
         return new ExampleCollection($data, $total);
     }
 
+    final public function ignoreFilter(...$args)
+    {
+        if (count($args)) {
+            foreach ($args as $arg) {
+                if (is_array($arg))
+                    foreach ($arg as $key => $value) {
+                        if (!is_numeric($key)) {
+                            $this->_ignoreFilter[] = $key;
+                            $this->_ignoreFilter[] = $value;
+                        } else {
+                            $this->_ignoreFilter[] = $value;
+                        }
+                    }
+                else
+                    $this->_ignoreFilter[] = $arg;
+            }
+        }
+        return $this;
+    }
 
     /**
      * chuẩn bị để thực hiện filter
@@ -585,7 +605,7 @@ trait FilterAction
     {
         $fields = array_merge([$this->required], $this->getFields());
         $this->buildOrderBy($request);
-        $disableWhereColumns = is_array($this->ignoreRequestParams)?$this->ignoreRequestParams:[];
+        $disableWhereColumns = is_array($this->ignoreRequestParams) ? $this->ignoreRequestParams : [];
         if ($data = $request->all()) {
             $prefix = '';
             $modelType = $this->_model->__getModelType__();
@@ -596,8 +616,13 @@ trait FilterAction
                 // build order by from request
                 if (preg_match('/^orderby_/i', $key)) {
                     $f = preg_replace('/^orderby_/i', '', $key);
+                    if (in_array($f, $this->_ignoreFilter))
+                        continue;
                     $t = strtoupper($value) != 'DESC' ? 'ASC' : 'DESC';
                     if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$f]) || in_array($f, $this->sortable))) {
+
+                        if (in_array($this->sortable[$f], $this->_ignoreFilter))
+                            continue;
                         $this->hasSortby = true;
                         if (isset($this->sortable[$f])) {
                             $this->orderBy($this->sortable[$f], $t);
@@ -605,6 +630,9 @@ trait FilterAction
                             $this->orderBy($f, $t);
                         }
                     } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$f]) || in_array($f, $this->sortRawable))) {
+
+                        if (in_array($this->sortRawable[$f], $this->_ignoreFilter))
+                            continue;
                         $this->hasSortby = true;
                         if (isset($this->sortRawable[$f])) {
                             $this->orderByRaw($this->sortRawable[$f] . ' ' . $t);
@@ -619,19 +647,24 @@ trait FilterAction
                     }
                 } elseif (is_string($value) && strlen($value)) {
                     // lấy theo tham số request (set where)
+
+                    if (in_array($value, $this->_ignoreFilter))
+                        continue;
+
                     if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value))) && !in_array($key, $disableWhereColumns)) {
-                        if ($this->whereable && is_array($this->whereable) && (isset($this->whereable[$key]) || in_array($key, $this->whereable))) {
+
+                        if ($this->whereable && is_array($this->whereable) && ((isset($this->whereable[$key]) && !in_array($this->whereable[$key], $this->_ignoreFilter)) || in_array($key, $this->whereable))) {
+
                             if (isset($this->whereable[$key])) {
                                 $this->where($this->whereable[$key], $value);
                             } else {
                                 $this->where($key, $value);
                             }
-                        }
-                        elseif (in_array($key, $fields)) {
+                        } elseif (in_array($key, $fields)) {
                             $this->where($prefix . $key, $value);
                         }
                     }
-                }elseif (is_array($value) && count($value)) {
+                } elseif (is_array($value) && count($value)) {
                     $value = array_values($value);
                     // lấy theo tham số request (set where)
                     if (!(array_key_exists($key, $this->ignoreValues) && ((is_array($this->ignoreValues[$key]) && in_array($value, $this->ignoreValues[$key])) || (!is_array($this->ignoreValues[$key]) && $this->ignoreValues[$key] == $value))) && !in_array($key, $disableWhereColumns)) {
@@ -641,8 +674,7 @@ trait FilterAction
                             } else {
                                 $this->whereIn($key, $value);
                             }
-                        }
-                        elseif (in_array($key, $fields)) {
+                        } elseif (in_array($key, $fields)) {
                             $this->whereIn($prefix . $key, $value);
                         }
                     }
@@ -720,12 +752,15 @@ trait FilterAction
         $needOrderBy = true;
         if ($sortBy) {
             foreach ($sortBy as $key) {
-                if (array_key_exists($key, $this->sortByRules)) {
-                    
+                if (array_key_exists($key, $this->sortByRules) && !in_array($key, $this->_ignoreFilter)) {
+
                     $o = $this->sortByRules[$key];
-                    if(is_array($o))
+
+                    // if (in_array($o, $this->_ignoreFilter))
+                    //     continue;
+                    if (is_array($o))
                         $orderBy = array_merge($orderBy, $o);
-                    else{
+                    else {
                         if (count($sbp = explode('-', $o)) == 2) {
                             $o = $sbp[0];
                             $type = $sbp[1];
@@ -749,20 +784,22 @@ trait FilterAction
              */
             if (is_array($orderBy)) {
                 foreach ($orderBy as $field => $type) {
+                    if (in_array($field, $this->_ignoreFilter))
+                        continue;
                     $t = strtoupper($type) != 'DESC' ? 'ASC' : 'DESC';
-                    if ($this->sortable && is_array($this->sortable) && (isset($this->sortable[$field]) || in_array($field, $this->sortable))) {
+                    if ($this->sortable && is_array($this->sortable) && ((isset($this->sortable[$field]) && !in_array($this->sortable[$field], $this->_ignoreFilter))|| in_array($field, $this->sortable))) {
                         $this->hasSortby = true;
                         if (isset($this->sortable[$field])) {
                             $this->orderBy($this->sortable[$field], $t);
                         } else {
                             $this->orderBy($field, $t);
                         }
-                    } elseif ($this->sortRawable && is_array($this->sortRawable) && (isset($this->sortRawable[$field]) || in_array($field, $this->sortRawable))) {
+                    } elseif ($this->sortRawable && is_array($this->sortRawable) && ((isset($this->sortRawable[$field]) && !in_array($this->sortRawable[$field], $this->_ignoreFilter)) || in_array($field, $this->sortRawable))) {
                         $this->hasSortby = true;
                         if (isset($this->sortRawable[$field])) {
-                            $this->orderByRaw($this->sortRawable[$field] .' ' . $t);
+                            $this->orderByRaw($this->sortRawable[$field] . ' ' . $t);
                         } else {
-                            $this->orderByRaw($field . ' '. $t);
+                            $this->orderByRaw($field . ' ' . $t);
                         }
                     } elseif (!preg_match('/\w\.\w/', $field)) {
                         if (in_array($field, $fields)) {
