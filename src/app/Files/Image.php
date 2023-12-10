@@ -247,7 +247,8 @@ class Image
         elseif ((is_resource($this->data) && get_resource_type($this->data) == 'gd') || (is_object($this->data) && class_exists('GdImage') && is_a($this->data, 'GdImage'))) {
             $m = $mime ? $mime : ($this->mime ? $this->mime : 'image/png');
             $ext = $this->getExt($m);
-            if (!preg_match('/\.' . $ext . '$/si', $filename)) {
+            $am = $ext == 'jpg' || $ext == 'jpeg' ? '(jpg|jpeg)' : $ext;
+            if (!preg_match('/\.' . $am . '$/si', $filename)) {
                 $filename .= '.' . $ext;
             }
 
