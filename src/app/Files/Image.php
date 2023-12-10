@@ -239,7 +239,7 @@ class Image
      * tao file tu du lieu co san
      * @param string $filename ten file hoac duong dan noi bo
      * @param string $mime kieu file anh
-     * @return bool
+     * @return string|false
      */
     public function save($filename, $mime = null)
     {
@@ -259,15 +259,15 @@ class Image
             $this->name = $fn;
             //$quality = ($imi['quality'])?$imi['quality']:100;
             if (($ext == "png") && imagepng($this->data, $filename)) {
-                $stt = true;
+                $stt = $filename;
             } elseif (($ext == "jpg" || $ext == "jpeg") && imagejpeg($this->data, $filename)) {
-                $stt = true;
+                $stt = $filename;
             } elseif (($ext == "gif") && imagegif($this->data, $filename)) {
-                $stt = true;
+                $stt = $filename;
             } elseif (($ext == "webp") && imagewebp($this->data, $filename)) {
-                $stt = true;
+                $stt = $filename;
             } elseif (file_put_contents($filename, $this->data)) {
-                $stt = true;
+                $stt = $filename;
             } else {
                 $stt = false;
             }
