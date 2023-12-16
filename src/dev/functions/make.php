@@ -737,7 +737,7 @@ function analytic_str_params($params)
         'default' => null,
         'calls' => []
     ];
-    $prs = explode('|', $params);
+    $prs = explode('/', $params);
     if (count($prs) > 0) {
         $i = 0;
         foreach ($prs as $pr) {
