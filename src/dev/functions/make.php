@@ -143,10 +143,21 @@ if (!function_exists('make_controller')) {
             'web' => 'Web',
             'frontend' => 'Frontend',
             'merchant' => 'Merchant',
+            'sub' => 'SubSystem',
+            'sub-system' => 'SubSystem',
             'custom' => null
         ];
         $ac = explode('/', str_replace("\\", "/", $name));
         $name = array_pop($ac);
+        $te = explode('.', $type);
+        $subSystem = null;
+        $subName = null;
+        if (count($te) > 1) {
+            $type = $te[0];
+
+            $subSystem = $te[1] .'.';
+            $subName = ($te[0] == 'ai'? 'AI': ucfirst($te[1])) . "\\";
+        }
         if (!array_key_exists($t = strtolower($type), $folders) || !$name) return null;
         $s = implode('/', array_map('ucfirst', $ac));
         $folder = $folders[$t] . ($s ? '/' . $s : '');
@@ -168,7 +179,7 @@ if (!function_exists('make_controller')) {
         if (!$title) $title = $name;
         if (!$module) $module = strtolower(Str::plural($name));
 
-        $find = ['NAME', 'MASTER', 'SUB', 'REPO', 'REPF', 'MODULE', 'TITLE', 'PRECTRL', '#use controller;'];
+        $find = ['NAME', 'MASTER', 'SUB', 'REPO', 'REPF', 'MODULE', 'TITLE', 'PRECTRL', '#use controller;', 'SUBNAME'];
         $replace = [$name, $master, $sub, $repo, $repf, $module, $title, $prectr, $s ? '' : '# '];
 
         $template = file_get_contents(DEVPATH . '/templates/controller.php');
