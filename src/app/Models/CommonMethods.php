@@ -24,7 +24,7 @@ trait CommonMethods
      */
     protected $ignoreParseData = [];
     protected function getIdAttribute() {
-        return $this->attributes['id']??($this->attributes['uuid']??null);
+        return $this->attributes['id']??($this->original['id']??($this->attributes['uuid']??($this->original['uuid']??null)));
     }
 
     public function getIgnoreParse(){
