@@ -418,7 +418,7 @@ if (!function_exists('make_mask')) {
      * make_mask
      * 
      */
-    function make_mask($args = [], $name = null, $model = null, $make_collection = null)
+    function make_mask($args = [], $name = null, $model = null, $table = null, $make_collection = null)
     {
         if (!$name) {
             echo "Tham so:\n\t\$name (required): Ten mask (nên sử dụng [Folder]/[name])\n\t\$model (option): Tên Model\n\t\$make_collection (option): có tạo collection hay ko";
@@ -437,11 +437,11 @@ if (!function_exists('make_mask')) {
             $sub = str_replace("/", "\\", $folder);
         }
 
-        $table = Str::tableName($model);
+        $table = $table?$table: Str::tableName($model);
 
-        $find = ['NAME', 'MODEL', '$model', 'SUB', 'PROPERTIES'];
+        $find = ['NAME', 'MODEL', 'SUB', 'PROPERTIES'];
 
-        $replace = [$name, $model, '$' . strtolower(substr($model, 0, 1)) . substr($model, 1), $sub, getProperties($table)];
+        $replace = [$name, $model, $sub, getProperties($table)];
 
         $template = file_get_contents(DEVPATH . '/templates/mask.php');
         $code = str_replace($find, $replace, $template);
