@@ -179,8 +179,8 @@ if (!function_exists('make_controller')) {
         if (!$title) $title = $name;
         if (!$module) $module = strtolower(Str::plural($name));
 
-        $find = ['NAME', 'MASTER', 'SUB', 'REPO', 'REPF', 'MODULE', 'TITLE', 'PRECTRL', '#use controller;', 'SUBNAME'];
-        $replace = [$name, $master, $sub, $repo, $repf, $module, $title, $prectr, $s ? '' : '# '];
+        $find = ['NAME', 'MASTER', 'SUB', 'REPO', 'REPF', 'MODULE', 'TITLE', 'PRECTRL', '#use controller;', 'SSNN'];
+        $replace = [$name, $master, $sub, $repo, $repf, $module, $title, $prectr, $s ? '' : '# ', $subName];
 
         $template = file_get_contents(DEVPATH . '/templates/controller.php');
         $code = str_replace($find, $replace, $template);

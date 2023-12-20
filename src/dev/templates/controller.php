@@ -2,14 +2,14 @@
 
 namespace App\Http\ControllersSUB;
 
-#use controller;use App\Http\Controllers\PRECTRLSUBNAMEController;
+#use controller;use App\Http\Controllers\PRECTRLSSNNController;
 
 use Illuminate\Http\Request;
 use Gomee\Helpers\Arr;
 
 use App\Repositories\REPF\REPORepository;
 
-class NAMEController extends MASTERSUBNAMEController
+class NAMEController extends MASTERSSNNController
 {
     protected $module = 'MODULE';
 
