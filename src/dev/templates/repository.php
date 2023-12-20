@@ -3,8 +3,8 @@
 namespace App\Repositories\FOLDER;
 
 use Gomee\Repositories\BaseRepository;
-use App\Masks\FOLDER\MODELMask;
-use App\Masks\FOLDER\MODELCollection;
+use App\Masks\FOLDER\NAMEMask;
+use App\Masks\FOLDER\NAMECollection;
 use App\Models\MODEL;
 use App\Validators\FOLDER\NAMEValidator;
 use Illuminate\Http\Request;
@@ -36,14 +36,14 @@ class NAMERepository extends BaseRepository
      *
      * @var string
      */
-    protected $maskClass = MODELMask::class;
+    protected $maskClass = NAMEMask::class;
 
     /**
      * tên collection mặt nạ
      *
      * @var string
      */
-    protected $maskCollectionClass = MODELCollection::class;
+    protected $maskCollectionClass = NAMECollection::class;
 
 
     /**
