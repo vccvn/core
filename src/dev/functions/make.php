@@ -437,7 +437,7 @@ if (!function_exists('make_mask')) {
             $sub = str_replace("/", "\\", $folder);
         }
 
-        $table = Str::tableName($name);
+        $table = Str::tableName($model);
 
         $find = ['NAME', 'MODEL', '$model', 'SUB', 'PROPERTIES'];
 

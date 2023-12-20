@@ -6,11 +6,11 @@ use Gomee\Masks\Mask;
 /**
  * NAMEMask class
  * PROPERTIES
+ * @property-read MODEL $model
  */
 class NAMEMask extends Mask
 {
 
-    // xem thêm ExampleMask
     /**
      * thêm các thiết lập của bạn
      * ví dụ thêm danh sách cho phép truy cập vào thuộc tính hay gọi phương thức trong model
@@ -18,14 +18,15 @@ class NAMEMask extends Mask
      *
      * @return void
      */
-    // protected function init(){
-    //     # code...
-    // }
+    protected function init(){
+        # code...
+    }
 
     /**
      * lấy data từ model sang mask
      * @param MODEL $model Tham số không bắt buộc phải khai báo. 
      * Xem thêm ExampleMask
+     * @return array>string, miced>
      */
     // public function toMask()
     // {
@@ -41,11 +42,9 @@ class NAMEMask extends Mask
      *
      * @return void
      */
-    // protected function onLoaded()
-    // {
-    //     # code...
-    // }
-    
-    
-    // khai báo thêm các hàm khác bên dưới nếu cần
+    protected function onLoaded()
+    {
+        # code...
+    }
+ 
 }
