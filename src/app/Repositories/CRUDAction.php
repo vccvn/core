@@ -241,7 +241,7 @@ trait CRUDAction
         $this->fire('beforesave', $this, $data, $id);
         $this->fire('saving', $this, $data, $id);
 
-        if (is_array($d = $this->beforeSave($data))) {
+        if (is_array($d = $this->beforeSave($data, $id))) {
             $data = $d;
         }
 
