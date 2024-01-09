@@ -241,7 +241,7 @@ trait CRUDAction
         $this->fire('beforesave', $this, $data, $id);
         $this->fire('saving', $this, $data, $id);
 
-        if (is_array($d = $this->beforeSave($data, $id))) {
+        if (method_exists($this, 'beforeSave') && is_array($d = $this->beforeSave($data, $id))) {
             $data = $d;
         }
 
@@ -301,16 +301,6 @@ trait CRUDAction
         return $escape;
     }
 
-    /**
-     * xử lý data trước khi luu
-     * @param array $data dữ liệu truyền vào
-     * 
-     * @return array trả về mảng dữ liệu
-     */
-    public function beforeSave($data)
-    {
-        return $data;
-    }
 
     /**
      * tao bản ghi mới
