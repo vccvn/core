@@ -6,15 +6,36 @@ use Exception;
 use Gomee\Files\Filemanager;
 use Gomee\Helpers\Arr;
 use Gomee\Services\Traits\Events;
+use Gomee\Tools\Office\Sheet\Collection;
+use Gomee\Tools\Office\Sheet\Row;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use ReflectionClass;
 
 class SmartSheet
 {
     use Events;
+
+    /**
+     * class or callable
+     *
+     * @var string<Arr::class>|\Closure|string
+     */
+    protected $rowClass = Row::class;
+    /**
+     * class or callable
+     *
+     * @var string<Arr::class>|\Closure|string
+     */
+    protected $sheetClass = Collection::class;
+    
+
+    protected $returnDataType = 'array';
+    protected $returnSheetDataType = 'array';
+
 
     /**
      * quản lý file
@@ -105,7 +126,8 @@ class SmartSheet
         $this->setup($filename, $options, $createIfNotExists);
     }
 
-    function setup($filename = null, $options = null, $createIfNotExists = false) : static {
+    function setup($filename = null, $options = null, $createIfNotExists = false): static
+    {
         $this->init();
         // nếu yêu cầu đọc file
         if (is_string($filename)) {
@@ -140,6 +162,42 @@ class SmartSheet
         return $this;
     }
 
+    public function setReturnRowDataType($classOrType = null)
+    {
+        if ($classOrType) {
+            if (is_string($classOrType) && class_exists($classOrType)) {
+                $this->rowClass = $classOrType;
+                $this->returnDataType = 'object';
+            } elseif (is_callable($classOrType)) {
+                $this->rowClass = $classOrType;
+                $this->returnDataType = 'callable';
+            } elseif ($classOrType == 'xml') {
+                $this->returnDataType = 'xml';
+            } elseif ($classOrType == 'array') {
+                $this->returnDataType = $classOrType;
+            }
+        }
+        return $this;
+    }
+
+
+    public function setReturnSheetDataType($classOrType = null)
+    {
+        if ($classOrType) {
+            if (is_string($classOrType) && class_exists($classOrType)) {
+                $this->sheetClass = $classOrType;
+                $this->returnSheetDataType = 'object';
+            } elseif (is_callable($classOrType)) {
+                $this->sheetClass = $classOrType;
+                $this->returnSheetDataType = 'callable';
+            } elseif ($classOrType == 'xml') {
+                $this->returnSheetDataType = 'xml';
+            } elseif ($classOrType == 'array') {
+                $this->returnSheetDataType = $classOrType;
+            }
+        }
+        return $this;
+    }
 
 
 
@@ -870,7 +928,7 @@ class SmartSheet
      *
      * @param int|null $sheetIndex
      * @param array $options
-     * @return array
+     * @return array<array>|Row[]|Collection<Row>
      */
     public function getSheetData($sheetIndex = null, $options = [])
     {
@@ -891,10 +949,10 @@ class SmartSheet
                 } else {
                     $key_row = 1;
                 }
-                if($opt->data_row_start){
+                if ($opt->data_row_start) {
                     //
                     $start = $opt->data_row_start;
-                }else if (isset($sheetData[$key_row])) {
+                } else if (isset($sheetData[$key_row])) {
                     $start = $key_row + 1;
                 }
             }
@@ -922,12 +980,50 @@ class SmartSheet
                         }
                     }
                     if (!$d) continue;
+
                     if ($mapby && isset($d[$mapby])) {
                         $data[$d[$mapby]] = $d;
                     } else {
                         $data[] = $d;
                     }
                 }
+
+                if ($this->returnDataType != 'array') {
+                    $arrayData = [];
+                    if ($this->returnDataType == 'object') {
+                        foreach ($data as $key => $value) {
+                            $rc = new ReflectionClass($this->rowClass);
+                            $d = $rc->newInstanceArgs([$value]);
+                            $arrayData[$key] = $d;
+                        }
+                        if($this->returnSheetDataType == "object"){
+                            $rc = new ReflectionClass($this->sheetClass);
+                            $d = $rc->newInstanceArgs([$arrayData]);
+                            $arrayData = $d;
+                        }
+                    }
+                    elseif ($this->returnDataType == 'callable') {
+                        foreach ($data as $key => $value) {
+                            $d = call_user_func_array($this->rowClass, [$value]);
+                            $arrayData[$key] = $d;
+                        }
+                    }
+                    elseif ($this->returnDataType == 'xml') {
+                        foreach ($data as $key => $value) {
+                            $d = '<row>';
+                            foreach ($value as $k => $v) {
+                                $sk = str_slug($k);
+                                $d .= "<$sk>$v</$sk>"; 
+                            }
+                            $d.= '</row>';
+                        }
+                        $arrayData = "<collection>". implode('', $arrayData) . "</collection>";
+                    }else{
+                        $arrayData = $data;
+                    }
+                    return $arrayData;
+                }
+
                 return $data;
             }
         }
