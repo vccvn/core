@@ -192,30 +192,44 @@ if (!function_exists('to_array_by_nl')) {
 }
 
 if (!function_exists('nl2array')) {
-    function nl2array($string)
+    function nl2array($string, $checkEmpty = true)
     {
         $b = [];
         if ($string) {
-            if (count($a = explode("\r\n", $string))) {
-                foreach ($a as $v) {
-                    if ($c = trim($v)) {
-                        $b[] = $c;
+            if($checkEmpty){
+                if (count($a = explode("\r\n", $string))>1) {
+                    foreach ($a as $v) {
+                        if ($c = trim($v)) {
+                            $b[] = $c;
+                        }
                     }
-                }
-            } elseif (count($d = explode("\n\r", $string))) {
-                foreach ($d as $v) {
-                    if ($c = trim($v)) {
-                        $b[] = $c;
+                } elseif (count($d = explode("\n", $string))>1) {
+                    foreach ($d as $v) {
+                        if ($c = trim($v)) {
+                            $b[] = $c;
+                        }
                     }
-                }
-            } elseif (count($d = explode("\n", $string))) {
-                foreach ($d as $v) {
-                    if ($c = trim($v)) {
-                        $b[] = $c;
+                } elseif (count($d = explode("
+", $string))>1) {
+                    foreach ($d as $v) {
+                        if ($c = trim($v)) {
+                            $b[] = $c;
+                        }
                     }
+                } elseif (strlen($string)) {
+                    $b = [$string];
                 }
-            } elseif (strlen($string)) {
-                $b = [$string];
+            }else{
+                if (count($a = explode("\r\n", $string))>1) {
+                    $b = $a;
+                } elseif (count($d = explode("\n", $string))>1) {
+                    $b = $d;
+                } elseif (count($d = explode("
+", $string))>1) {
+                    $b = $d;
+                } elseif (strlen($string)) {
+                    $b = [$string];
+                }
             }
         } elseif (strlen($string)) {
             $b = [$string];
@@ -223,7 +237,6 @@ if (!function_exists('nl2array')) {
         return $b;
     }
 }
-
 
 
 if (!function_exists('get_first_value')) {
