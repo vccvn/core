@@ -202,7 +202,7 @@ trait FilterAction
      */
     final public function getResults($request, array $args = [])
     {
-        $this->fire('preparegetResults', $this, $request, $args);
+        $this->fire('prepareGetResults', $this, $request, $args);
         // xu ly truc khi loc data
         $this->beforeFilter($request);
         // build query
@@ -211,7 +211,7 @@ trait FilterAction
         $args = $this->parsePaginateParam($request, $args);
         // lấy kết qua
         // dd($args);
-        $this->fire('beforegetResults', $this, $request, $args);
+        $this->fire('beforeGetResults', $this, $request, $args);
 
         if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
@@ -226,7 +226,7 @@ trait FilterAction
         }
 
         $rs = $this->parseCollection($results);
-        $this->fire('aftergetResults', $this, $request, $rs);
+        $this->fire('afterGetResults', $this, $request, $rs);
         return $rs;
     }
 

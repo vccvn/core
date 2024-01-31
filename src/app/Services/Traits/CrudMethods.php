@@ -38,16 +38,16 @@ use Gomee\Laravel\Router;
  * @method mixed prepareRestore( Request $request, array $ids = []) thực hiện hành động trước khi restore
  * @method mixed prepareDelete( Request $request, array $ids = []) thực hiện hành động trước khi delete
  * 
- * @method mixed afterSave( Request $request, \Gomee\Models\Model $result )
- * @method mixed afterAjaxSave( Request $request, \Gomee\Models\Model $result )
- * @method mixed afterCreate( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterAjaxCreate( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterStore( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterUpdate( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterAjaxUpdate( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterMoveToTrash( Request $request, \Gomee\Models\Model $result ) 
- * @method mixed afterRestore( Request $request, \Gomee\Models\Model $result )
- * @method mixed afterDelete( Request $request, \Gomee\Models\Model $result )
+ * @method mixed afterSave( Request $request, \Gomee\Models\Model $result, Arr $data )
+ * @method mixed afterAjaxSave( Request $request, \Gomee\Models\Model $result, Arr $data )
+ * @method mixed afterCreate( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterAjaxCreate( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterStore( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterUpdate( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterAjaxUpdate( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterMoveToTrash( Request $request, \Gomee\Models\Model $result, Arr $data ) 
+ * @method mixed afterRestore( Request $request, \Gomee\Models\Model $result, Arr $data )
+ * @method mixed afterDelete( Request $request, \Gomee\Models\Model $result, Arr $data )
  * 
  * @method mixed done( Request $request, Arr $data )
  */

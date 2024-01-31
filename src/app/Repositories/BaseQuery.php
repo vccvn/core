@@ -1044,8 +1044,6 @@ trait BaseQuery
                             }
                         } elseif (is_array($search_by)) {
                             // tim theo nhieu cot
-
-
                             $i = 0;
                             foreach ($search_by as $col) {
                                 $f2 = (count(explode('.', $col)) > 1) ? $col : $prefix . $col;
