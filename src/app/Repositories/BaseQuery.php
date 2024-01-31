@@ -983,36 +983,53 @@ trait BaseQuery
                                     if (is_array($rule)) {
                                         $i = 0;
                                         foreach ($rule as $rul) {
-                                            foreach ($kd as $s) {
-                                                $r = str_replace('{query}', $s, $rul);
-                                                if ($r == $rul) {
-                                                    switch ($searchType) {
-                                                        case 'start':
-                                                            $r = "$s%";
-                                                            break;
-
-                                                        case 'end':
-                                                            $r = "%$s";
-                                                            break;
-                                                        case 'match':
-                                                        case 'all':
-                                                            $r = $s;
-                                                            break;
-                                                        default:
-                                                            $r = "%$s%";
-                                                            break;
-                                                    }
-                                                }
+                                            $rrs = null;
+                                            if (($kc = str_replace('{clean}', $kd[1], $rul)) != $rul) {
+                                                $rrs = $kc;
+                                            } elseif (($sl = str_replace('{slug}', $kd[2], $rul)) != $rul) {
+                                                $rrs = $sl;
+                                            } elseif (($csl = str_replace('{clean_slug}', $kd[3], $rul)) != $rul) {
+                                                $rrs = $csl;
+                                            }
+                                            if ($rrs) {
                                                 if ($i == 0) {
-                                                    $query->where($f, 'like', $r);
+                                                    $query->where($f, 'like', $rrs);
                                                 } else {
-                                                    $query->orWhere($f, 'like', $r);
+                                                    $query->orWhere($f, 'like', $rrs);
                                                 }
                                                 $i++;
+                                            } else {
+                                                foreach ($kd as $s) {
+                                                    $r = str_replace('{query}', $s, $rul);
+                                                    if ($r == $rul) {
+                                                        switch ($searchType) {
+                                                            case 'start':
+                                                                $r = "$s%";
+                                                                break;
+
+                                                            case 'end':
+                                                                $r = "%$s";
+                                                                break;
+                                                            case 'match':
+                                                            case 'all':
+                                                                $r = $s;
+                                                                break;
+                                                            default:
+                                                                $r = "%$s%";
+                                                                break;
+                                                        }
+                                                    }
+                                                    if ($i == 0) {
+                                                        $query->where($f, 'like', $r);
+                                                    } else {
+                                                        $query->orWhere($f, 'like', $r);
+                                                    }
+                                                    $i++;
+                                                }
                                             }
                                         }
                                     }
-                                } else
+                                } else {
                                     switch ($searchType) {
                                         case 'start':
                                             $query->where($f, 'like', "$kd[0]%")
@@ -1041,6 +1058,7 @@ trait BaseQuery
                                                 ->orWhere($f, 'like', "%$kd[3]%");
                                             break;
                                     }
+                                }
                             }
                         } elseif (is_array($search_by)) {
                             // tim theo nhieu cot
@@ -1054,33 +1072,50 @@ trait BaseQuery
                                         if (!is_array($rule)) $rule = [$rule];
                                         if (is_array($rule)) {
                                             foreach ($rule as $r) {
-                                                foreach ($kd as $s) {
-                                                    $w = str_replace('{query}', $s, $r);
-                                                    if ($w == $r) {
-                                                        switch ($searchType) {
-                                                            case 'start':
-                                                                $w = "$s%";
-                                                                break;
 
-                                                            case 'end':
-                                                                $w = "%$s";
-                                                                break;
-                                                            case 'match':
-                                                            case 'all':
-                                                                $w = $s;
-                                                                break;
-                                                            default:
-                                                                $w = "%$s%";
-                                                                break;
-                                                        }
-                                                    }
+                                                $rrs = null;
+                                                if (($kc = str_replace('{clean}', $kd[1], $r)) != $r) {
+                                                    $rrs = $kc;
+                                                } elseif (($sl = str_replace('{slug}', $kd[2], $r)) != $r) {
+                                                    $rrs = $sl;
+                                                } elseif (($csl = str_replace('{clean_slug}', $kd[3], $r)) != $r) {
+                                                    $rrs = $csl;
+                                                }
+                                                if ($rrs) {
                                                     if ($i == 0) {
-                                                        $query->where($f2, "like", $w);
+                                                        $query->where($f2, 'like', $rrs);
                                                     } else {
-                                                        $query->orWhere($f2, "like", $w);
+                                                        $query->orWhere($f2, 'like', $rrs);
                                                     }
                                                     $i++;
-                                                }
+                                                } else
+                                                    foreach ($kd as $s) {
+                                                        $w = str_replace('{query}', $s, $r);
+                                                        if ($w == $r) {
+                                                            switch ($searchType) {
+                                                                case 'start':
+                                                                    $w = "$s%";
+                                                                    break;
+
+                                                                case 'end':
+                                                                    $w = "%$s";
+                                                                    break;
+                                                                case 'match':
+                                                                case 'all':
+                                                                    $w = $s;
+                                                                    break;
+                                                                default:
+                                                                    $w = "%$s%";
+                                                                    break;
+                                                            }
+                                                        }
+                                                        if ($i == 0) {
+                                                            $query->where($f2, "like", $w);
+                                                        } else {
+                                                            $query->orWhere($f2, "like", $w);
+                                                        }
+                                                        $i++;
+                                                    }
                                             }
                                         }
                                     } else {
@@ -1140,7 +1175,8 @@ trait BaseQuery
                         $ucWord = vnucwords($keywords);
                         $kd = [
                             $keywords,
-                            vntolower($keywords)
+                            vntolower($keywords),
+                            $slug
                         ];
                         if ($ucWord != $keywords)
                             $kd[] = $ucWord;
@@ -1156,32 +1192,48 @@ trait BaseQuery
                                     if (is_array($rule)) {
                                         $i = 0;
                                         foreach ($rule as $rul) {
-                                            foreach ($kd as $s) {
-                                                $r = str_replace('{query}', $s, $rul);
-                                                if ($r == $rul) {
-                                                    switch ($searchType) {
-                                                        case 'start':
-                                                            $r = "$s%";
-                                                            break;
 
-                                                        case 'end':
-                                                            $r = "%$s";
-                                                            break;
-                                                        case 'match':
-                                                        case 'all':
-                                                            $r = $s;
-                                                            break;
-                                                        default:
-                                                            $r = "%$s%";
-                                                            break;
-                                                    }
-                                                }
+                                            $rrs = null;
+                                            if (($kc = str_replace('{lower}', $kd[1], $rul)) != $rul) {
+                                                $rrs = $kc;
+                                            } elseif (($sl = str_replace('{slug}', $kd[2], $rul)) != $rul) {
+                                                $rrs = $sl;
+                                            }
+                                            if ($rrs) {
                                                 if ($i == 0) {
-                                                    $query->where($f, 'like', $r);
+                                                    $query->where($f, 'like', $rrs);
                                                 } else {
-                                                    $query->orWhere($f, 'like', $r);
+                                                    $query->orWhere($f, 'like', $rrs);
                                                 }
                                                 $i++;
+                                            } else {
+                                                foreach ($kd as $s) {
+                                                    $r = str_replace('{query}', $s, $rul);
+                                                    if ($r == $rul) {
+                                                        switch ($searchType) {
+                                                            case 'start':
+                                                                $r = "$s%";
+                                                                break;
+
+                                                            case 'end':
+                                                                $r = "%$s";
+                                                                break;
+                                                            case 'match':
+                                                            case 'all':
+                                                                $r = $s;
+                                                                break;
+                                                            default:
+                                                                $r = "%$s%";
+                                                                break;
+                                                        }
+                                                    }
+                                                    if ($i == 0) {
+                                                        $query->where($f, 'like', $r);
+                                                    } else {
+                                                        $query->orWhere($f, 'like', $r);
+                                                    }
+                                                    $i++;
+                                                }
                                             }
                                         }
                                     }
@@ -1245,33 +1297,48 @@ trait BaseQuery
                                         if (!is_array($rule)) $rule = [$rule];
                                         if (is_array($rule)) {
                                             foreach ($rule as $r) {
-                                                foreach ($kd as $s) {
-                                                    $w = str_replace('{query}', $s, $r);
-                                                    if ($w == $r) {
-                                                        switch ($searchType) {
-                                                            case 'start':
-                                                                $w = "$s%";
-                                                                break;
 
-                                                            case 'end':
-                                                                $w = "%$s";
-                                                                break;
-                                                            case 'match':
-                                                            case 'all':
-                                                                $w = $s;
-                                                                break;
-                                                            default:
-                                                                $w = "%$s%";
-                                                                break;
-                                                        }
-                                                    }
+                                                $rrs = null;
+                                                if (($kc = str_replace('{lower}', $kd[1], $r)) != $r) {
+                                                    $rrs = $kc;
+                                                } elseif (($sl = str_replace('{slug}', $kd[2], $r)) != $r) {
+                                                    $rrs = $sl;
+                                                }
+                                                if ($rrs) {
                                                     if ($i == 0) {
-                                                        $query->where($f2, "like", $w);
+                                                        $query->where($f2, 'like', $rrs);
                                                     } else {
-                                                        $query->orWhere($f2, "like", $w);
+                                                        $query->orWhere($f2, 'like', $rrs);
                                                     }
                                                     $i++;
-                                                }
+                                                } else
+                                                    foreach ($kd as $s) {
+                                                        $w = str_replace('{query}', $s, $r);
+                                                        if ($w == $r) {
+                                                            switch ($searchType) {
+                                                                case 'start':
+                                                                    $w = "$s%";
+                                                                    break;
+
+                                                                case 'end':
+                                                                    $w = "%$s";
+                                                                    break;
+                                                                case 'match':
+                                                                case 'all':
+                                                                    $w = $s;
+                                                                    break;
+                                                                default:
+                                                                    $w = "%$s%";
+                                                                    break;
+                                                            }
+                                                        }
+                                                        if ($i == 0) {
+                                                            $query->where($f2, "like", $w);
+                                                        } else {
+                                                            $query->orWhere($f2, "like", $w);
+                                                        }
+                                                        $i++;
+                                                    }
                                             }
                                         }
                                     } else {
