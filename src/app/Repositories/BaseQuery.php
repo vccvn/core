@@ -939,7 +939,7 @@ trait BaseQuery
 
                 if ($this->__searchMode__ != 'raw' || count($kw = array_filter(array_map('trim', explode(' ', $keywords)), function ($v) {
                     return strlen($v) > 0;
-                })) > 1)
+                })) > 1) {
                     $query->where(function ($query) use ($keywords, $search_by, $prefix) {
 
                         $sAc = substr($keywords, 0, 1) == '@' ? true : false;
@@ -1028,6 +1028,18 @@ trait BaseQuery
                                                 }
                                             }
                                         }
+
+                                        if (method_exists($this, 'advanceSearch')) {
+                                            if ($i) {
+                                                $query->orWhere(function ($query) use ($kd, $search_by) {
+                                                    $this->advanceSearch($query, $kd, [$search_by]);
+                                                });
+                                            } else {
+                                                $query->where(function ($query) use ($kd, $search_by) {
+                                                    $this->advanceSearch($query, $kd, [$search_by]);
+                                                });
+                                            }
+                                        }
                                     }
                                 } else {
                                     switch ($searchType) {
@@ -1057,6 +1069,12 @@ trait BaseQuery
                                                 ->orWhere($f, 'like', "%$kd[2]%")
                                                 ->orWhere($f, 'like', "%$kd[3]%");
                                             break;
+                                    }
+
+                                    if (method_exists($this, 'advanceSearch')) {
+                                        $query->orWhere(function ($query) use ($kd, $search_by) {
+                                            $this->advanceSearch($query, $kd, [$search_by]);
+                                        });
                                     }
                                 }
                             }
@@ -1148,9 +1166,20 @@ trait BaseQuery
                                     }
                                 }
                             }
+                            if (method_exists($this, 'advanceSearch')) {
+                                if ($i) {
+                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                        $this->advanceSearch($query, $kd, $search_by);
+                                    });
+                                } else {
+                                    $query->where(function ($query) use ($kd, $search_by) {
+                                        $this->advanceSearch($query, $kd, $search_by);
+                                    });
+                                }
+                            }
                         }
                     });
-                else
+                } else {
                     $query->where(function ($query) use ($keywords, $search_by, $prefix) {
 
                         $sAc = substr($keywords, 0, 1) == '@' ? true : false;
@@ -1236,8 +1265,19 @@ trait BaseQuery
                                                 }
                                             }
                                         }
+                                        if (method_exists($this, 'advanceSearch')) {
+                                            if ($i) {
+                                                $query->orWhere(function ($query) use ($kd, $f) {
+                                                    $this->advanceSearch($query, $kd, [$f]);
+                                                });
+                                            } else {
+                                                $query->where(function ($query) use ($kd, $f) {
+                                                    $this->advanceSearch($query, $kd, [$f]);
+                                                });
+                                            }
+                                        }
                                     }
-                                } else
+                                } else{
                                     switch ($searchType) {
                                         case 'start':
                                             $j = 0;
@@ -1282,6 +1322,11 @@ trait BaseQuery
                                             }
                                             break;
                                     }
+
+                                    $query->orWhere(function ($query) use ($kd, $f) {
+                                        $this->advanceSearch($query, $kd, [$f]);
+                                    });
+                                }
                             }
                         } elseif (is_array($search_by)) {
                             // tim theo nhieu cot
@@ -1371,8 +1416,20 @@ trait BaseQuery
                                     }
                                 }
                             }
+                            if (method_exists($this, 'advanceSearch')) {
+                                if ($i) {
+                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                        $this->advanceSearch($query, $kd, $search_by);
+                                    });
+                                } else {
+                                    $query->where(function ($query) use ($kd, $search_by) {
+                                        $this->advanceSearch($query, $kd, $search_by);
+                                    });
+                                }
+                            }
                         }
                     });
+                }
             }
         }
         return $query;
