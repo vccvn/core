@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Gomee\Files\Filemanager;
 use Gomee\Files\Image;
 use Gomee\Engines\Helper;
-use JamesHeinrich\GetID3\GetID3;
+// use JamesHeinrich\GetID3\GetID3;
 
 /**
  * các thuộc tính và phương thức của form sẽ được triển trong ManagerController
@@ -33,12 +33,11 @@ trait FileMethods
 
     public function parsePath($path)
     {
-        if($path == substr($base = base_path(), 0, strlen($path))) return $path;
-        if(str_replace('static/contents', '', $path)  != $path) $p = Helper::public_path('/');
-        elseif($this->storagePath == substr($base, 0, strlen($this->storagePath))){
+        if ($path == substr($base = base_path(), 0, strlen($path))) return $path;
+        if (str_replace('static/contents', '', $path)  != $path) $p = Helper::public_path('/');
+        elseif ($this->storagePath == substr($base, 0, strlen($this->storagePath))) {
             $p = $this->storagePath;
-        }
-        else{
+        } else {
             $p = Helper::public_path('static/contents');
         }
         return rtrim($p, '/') . '/' . ltrim($path);
@@ -46,7 +45,7 @@ trait FileMethods
 
     public function fileInit()
     {
-        if(!$this->storagePath) $this->storagePath = Helper::storage_path('uploads');
+        if (!$this->storagePath) $this->storagePath = Helper::storage_path('uploads');
         $this->filemanager = new Filemanager();
     }
 
@@ -55,7 +54,7 @@ trait FileMethods
         return new Filemanager($dir);
     }
 
-    
+
 
     /**
      * luu file tai thu muc public
@@ -102,10 +101,9 @@ trait FileMethods
         $original_filename = $file->getClientOriginalName();
 
         // neu co ten file cu
-        if(is_bool($filenameWithoutExtension) || $filenameWithoutExtension === true || $filenameWithoutExtension === false){
+        if (is_bool($filenameWithoutExtension) || $filenameWithoutExtension === true || $filenameWithoutExtension === false) {
             $attachment = $this->getFilenameWithoutExtension($original_filename, $extension) . ($filenameWithoutExtension == true ? '-' . uniqid() : '');
-        }
-        elseif ($fn = $this->getFilenameWithoutExtension($filenameWithoutExtension, $extension)) {
+        } elseif ($fn = $this->getFilenameWithoutExtension($filenameWithoutExtension, $extension)) {
             $attachment = $fn;
         } else {
             $attachment = $this->getFilenameWithoutExtension($original_filename, $extension) . '-' . uniqid();
@@ -125,15 +123,28 @@ trait FileMethods
         $size = filesize($filepath) / 1024;
 
         $f = new Arr(compact('filename', 'original_filename', 'filepath', 'extension', 'mime', 'size', 'filetype'));
-        if($filetype == 'audio' || $filetype == 'video'){
-            $getID3 = new GetID3;
-            $info = $getID3->analyze($filepath);
-            $f->info = $info;
-        }
-        else{
+        if ($filetype == 'audio' || $filetype == 'video') {
+            $getID3 = null;
+            try {
+                if (class_exists('james-heinrich/getid3')) {
+                    $getID3 = app('JamesHeinrich\GetID3\GetID3');
+                } elseif (class_exists('GetID3')) {
+                    $getID3 = app('GetID3');
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+            if ($getID3) {
+
+                $info = $getID3->analyze($filepath);
+                $f->info = $info;
+            } else {
+                $f->info = [];
+            }
+        } else {
             $f->info = [];
         }
-        
+
         return $f;
     }
 
@@ -178,10 +189,10 @@ trait FileMethods
             }
 
             $files = $request->file($field);
-            if($t = count($files)){
+            if ($t = count($files)) {
                 $list = [];
                 foreach ($files as $i => $file) {
-                    if($f = $this->uploadSingleFile($file, $filenameWithoutExtension . ($filenameWithoutExtension && $t > 1?'-'.($i+1) : ''), $path)){
+                    if ($f = $this->uploadSingleFile($file, $filenameWithoutExtension . ($filenameWithoutExtension && $t > 1 ? '-' . ($i + 1) : ''), $path)) {
                         $list[] = $f;
                     }
                 }
@@ -396,7 +407,7 @@ trait FileMethods
             $file = $request->file($field);
             $extension = strtolower($file->getClientOriginalExtension());
             $otge = $extension;
-            if($extension == 'jpeg'){
+            if ($extension == 'jpeg') {
                 $extension = 'jpg';
             }
             $original_filename = $file->getClientOriginalName();
@@ -407,7 +418,7 @@ trait FileMethods
             $fn = null;
             $filename = null;
         }
-        
+
         // neu 1 tromg 2 uploaf thanh cong
         if ($image = $this->saveImageFileData($request, $field, $filename, $path, $width, $height)) {
             // nếu ảnh cũ khác ảnh mới thì xóa ảnh cũ
@@ -504,7 +515,7 @@ trait FileMethods
         if ($request->hasFile($field) && $fileUpload = $this->uploadFile($request, $field, $filenameWithoutExtension, $path)) {
             // gan cho abatar gia tri moi
             $file = $fileUpload;
-            if ($resize && $width && $height && $fileUpload->filetype == 'image'&& $fileUpload->extension != 'svg') {
+            if ($resize && $width && $height && $fileUpload->filetype == 'image' && $fileUpload->extension != 'svg') {
                 if (!$path) $path = $this->parsePath($this->module);
                 $path .= "/{$width}x{$height}";
                 $this->filemanager->setDir($path, true);
@@ -554,8 +565,7 @@ trait FileMethods
 
     public function parseImageFileExtension($extension = null)
     {
-        if($extension == 'jpeg') $extension = 'jpg';
+        if ($extension == 'jpeg') $extension = 'jpg';
         return $extension;
     }
-
 }
