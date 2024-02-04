@@ -282,7 +282,7 @@ trait ViewMethods
     {
         $this->repository->notTrashed();
         $keyName = $this->repository->getKeyName();
-        $id = $id??($request->id??$request->uuid);
+        $id = $request->id??$request->uuid;
         if ($id && $detail = $this->repository->getFormData([$keyName => $id])) {
             $this->repository->setActiveID($detail->{$keyName});
             $this->activeMenu($this->module . '.update');
@@ -290,6 +290,7 @@ trait ViewMethods
         }
         return $this->showError($request, 404, "Mục này không tồn tại hoặc đã bị xóa");
     }
+
 
 
     /**
