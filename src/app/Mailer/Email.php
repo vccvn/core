@@ -131,6 +131,9 @@ class Email{
 
 					'paths' => config('mail.markdown.paths')
 				],
+				'queue' => [
+					'enabled' => in_array(config('mail.queue.enabled') , ['off', 'no', 'OFF', 'false', 'FALSE', false])? 'OFF': 'ON'
+				]
 			];
 			
 			static::$mailConfig = $config;
