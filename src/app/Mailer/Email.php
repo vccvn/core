@@ -328,6 +328,8 @@ class Email{
 
 	protected function _queue(int $time = 1){
 		$this->__checkConfig();
+		if(config('mail.queue.enabled') == 'OFF') 
+			return $this->send();
 		if(is_numeric($time) && $time >= 0){
 			$body = view($this->__body, $this->__data)->render();
 			$this->__data = ['body' => $body];

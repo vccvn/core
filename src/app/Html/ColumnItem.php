@@ -206,7 +206,7 @@ class ColumnItem
                     $params = static::$moduleRoute . $params;
                 }
             }
-        } elseif (method_exists(static::$item, $func)) {
+        } elseif (method_exists(static::$item, $func) || is_callable([static::$item, $func])) {
             $c = [static::$item, $func];
         }
         if ($c) {
@@ -258,6 +258,8 @@ class ColumnItem
             } elseif (strtolower(substr($nsp, 0, 5)) == 'data:') {
                 return static::$config->get('data.' . substr($nsp, 5));
             } elseif (method_exists(static::$item, $nsp)) {
+                return static::$item->{$nsp}();
+            } elseif (is_callable([static::$item, $nsp])) {
                 return static::$item->{$nsp}();
             } elseif (is_callable($nsp)) {
                 return $nsp();

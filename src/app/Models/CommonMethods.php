@@ -146,6 +146,29 @@ trait CommonMethods
             }
         }
     }
+    /**
+     * gán dự liệu meta cho dynamic
+     * @return void
+     */
+    public function applyFormMeta()
+    {
+        $this->checkMeta();
+        if ($this->_meta) {
+            foreach ($this->_meta as $key => $value) {
+                $val = $value;
+                if (!is_array($val)) {
+                    // if (($id = str_replace('@mediaid:', '', $value)) != $value) {
+                    //     if ($file = Helper::get_media_file([MODEL_PRIMARY_KEY => $id])) {
+                    //         $val = $file->source;
+                    //     } else {
+                    //         $val = null;
+                    //     }
+                    // }
+                }
+                $this->{$key} = $val;
+            }
+        }
+    }
 
     public function getRela($rela)
     {
