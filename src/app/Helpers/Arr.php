@@ -210,7 +210,6 @@ class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
         } elseif (count($keys = explode('.', $key)) > 1) {
             $this->data = $this->fillValue($keys, $value, $this->data);
         } elseif (is_array($value) && array_key_exists($key, $this->data) && is_array($this->data[$key])) {
-
             foreach ($value as $k => $v) {
                 $this->data = $this->fillValue([$key, $k], $v, $this->data);
             }
@@ -260,7 +259,20 @@ class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
             $k = array_shift($keys);
             if (!is_array($array)) $array = [];
             if (!count($keys)) {
-                $array[$k] = $value;
+                if (!is_array($value) || !array_key_exists($k, $array) || !is_array($array[$k]))
+                    $array[$k] = $value;
+                else{
+                    $d = $array[$k]??[];
+                    foreach ($value as $key => $v) {
+                        if(is_array($v) && is_array($d[$key])){
+                            $d[$key] = $this->fillValue([$key], $v, $d[$key]);
+                        }
+                        else{
+                            $d[$key] = $v;
+                        }
+                    }
+                    $array[$k] = $d;
+                }
             } else {
                 $array[$k] = $this->fillValue($keys, $value, $array[$k] ?? []);
             }
