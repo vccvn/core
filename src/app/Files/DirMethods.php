@@ -225,7 +225,7 @@ trait DirMethods
      * @param string Dường dẫn
      * @param string $ext phần mở rộng
      * @param bool $sort
-     * @return array
+     * @return File[]
      * 
      */
 

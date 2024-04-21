@@ -10,6 +10,7 @@ use Gomee\Helpers\Arr;
  * @property string $path
  * @property string $extension
  * @property string $type
+ * @property float $size
  */
 class File extends Arr{
 
