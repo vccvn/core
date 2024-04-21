@@ -13,6 +13,6 @@ use Gomee\Helpers\Arr;
  * @property string $mime
  * @property int $size
  */
-class FileUpdated extends Arr{
+class FileUploaded extends Arr{
 
 }
