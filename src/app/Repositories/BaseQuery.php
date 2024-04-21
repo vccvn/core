@@ -617,7 +617,7 @@ trait BaseQuery
         $vl = $value;
         // không bắt đầu bằng @ thì sẽ gọi hàm where với column là key và so sánh '='
         $operator = '=';
-        preg_match_all('/[A-z0-9_]\s*(=|!=|<=|>=|<|>|<>|!|==|\slike|!like|\snotlike|\snot\slike|startwith|endwith|startby|endby|contains|find|search)$/i', $field, $m);
+        preg_match_all('/[A-z0-9_]\s*(=|!=|<=|>=|<|>|<>|!|==|\slike|!like|\snotlike|\snot\slike|\sstartwith|\sendwith|\sstartby|\sendby|\scontains|\sfind|\ssearch)$/i', $field, $m);
         if ($m[1]) {
             $operator = strtolower(trim($m[1][0]));
             $field = trim(substr($field, 0, strlen($field) - strlen($operator)));

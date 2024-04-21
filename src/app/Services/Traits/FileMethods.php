@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Gomee\Files\Filemanager;
 use Gomee\Files\Image;
 use Gomee\Engines\Helper;
+use Gomee\Files\File;
+use Gomee\Files\FileUpdated;
+
 // use JamesHeinrich\GetID3\GetID3;
 
 /**
@@ -62,7 +65,7 @@ trait FileMethods
      * @param string $filename
      * @param mixed $content
      * @param string $mime_type
-     * @return Arr|null
+     * @return File|null
      */
     public function saveFile($dir = null, $filename = null, $content = null, $mime_type = null)
     {
@@ -79,7 +82,7 @@ trait FileMethods
      * @param string $filename
      * @param mixed $content
      * @param string $mime_type
-     * @return Arr|null
+     * @return File|null
      */
     public function savePublicFile($dir = null, $filename = null, $content = null, $mime_type = null)
     {
@@ -92,7 +95,7 @@ trait FileMethods
      * @param string $field
      * @param string $filenameWithoutExtension
      * @param string $path
-     * @return Arr
+     * @return FileUpdated
      */
     public function uploadSingleFile($file, $filenameWithoutExtension = false, $path = null)
     {
@@ -154,6 +157,7 @@ trait FileMethods
      * @param string $field
      * @param string $filenameWithoutExtension
      * @param string $path
+     * @return FileUpdated
      */
     public function uploadFile(Request $request, $field = 'file', $filenameWithoutExtension = true, $path = null)
     {
@@ -176,6 +180,7 @@ trait FileMethods
      * @param string $field
      * @param string $filenameWithoutExtension
      * @param string $path
+     * @return FileUpdated[]
      */
     public function uploadMultiFile(Request $request, $field = 'file', $filenameWithoutExtension = true, $path = null)
     {

@@ -89,7 +89,7 @@ trait FileMethods{
      * lấy Thông tin size
      * @param string $filename
      *
-     * @return number
+     * @return int
      */
     public function size($filename = null)
     {
@@ -179,7 +179,7 @@ trait FileMethods{
      * @param string $filename
      * @param mixed $content
      * @param string $mime_type là định dạng hoặc loại tập tin
-     * @return Arr
+     * @return File
      */
 
     public function save($filename = null, $content = null, $mime_type = null)
