@@ -3,6 +3,7 @@
 namespace Gomee\Files;
 
 use Gomee\Engines\Helper;
+use Gomee\Files\File as FilesFile;
 use Gomee\Helpers\Arr;
 use Illuminate\Support\Facades\File;
 
@@ -225,7 +226,7 @@ trait DirMethods
      * @param string Dường dẫn
      * @param string $ext phần mở rộng
      * @param bool $sort
-     * @return File[]
+     * @return FilesFile[]
      * 
      */
 
