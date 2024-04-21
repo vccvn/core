@@ -96,7 +96,7 @@ class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
                     return $default;
                 // ngược lại sẽ biến mảng data hiện tại thành giá trị tương ứng với key6 hiện tại trong mảng data hiện tại
                 $data = $data[$n];
-            } elseif (!property_exists($data, $n)) 
+            } elseif (!property_exists($data, $n))
                 return $default;
             else
                 $data = $data->{$n};
@@ -209,6 +209,11 @@ class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
             }
         } elseif (count($keys = explode('.', $key)) > 1) {
             $this->data = $this->fillValue($keys, $value, $this->data);
+        } elseif (is_array($value) && array_key_exists($key, $this->data) && is_array($this->data[$key])) {
+
+            foreach ($value as $k => $v) {
+                $this->data = $this->fillValue([$key, $k], $v, $this->data);
+            }
         } else {
             $this->data[$key] = $value;
         }
@@ -646,7 +651,7 @@ class Arr implements Countable, ArrayAccess, IteratorAggregate, JsonSerializable
                     $data[$key] = $value;
             }
             $data;
-        } 
+        }
         return $this->data;
     }
 
