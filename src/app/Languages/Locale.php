@@ -67,6 +67,11 @@ class Locale
         return static::get('current');
     }
 
+    public static function isDefault(){
+        static::check();
+        return static::$data->get('current') == static::$data->get('default');
+    }
+
     public static function all()
     {
         static::check();

@@ -648,6 +648,7 @@ trait BaseQuery
         if ($limit) $this->buildLimitQuery($query, $limit);
 
         $this->resetActionParams();
+        $this->resetMLC();
         $this->fire('query', $query);
 
         return $query;
@@ -1028,26 +1029,41 @@ trait BaseQuery
     protected function buildMlcSearch($query, $keywords)
     {
         if($t = count($keywords)){
-            $this->joinMLC();
-            $i = 0;
-            foreach ($keywords as $keyword) {
-                if($i == 0){
-                    $query->where($this->mlcTable . '.title', 'like', "$keyword%");
-                    $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
-                }else{
-                    $query->orWhere($this->mlcTable . '.title', 'like', "% $keyword%");
-                    $query->orWhere($this->mlcTable . '.keywords', 'like', "% $keyword%");
-                    $query->orWhere($this->mlcTable . '.title', 'like', "$keyword%");
-                    $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
+            
+            $current = Locale::current();
+            if (Locale::default() == $current || !($mlc = $this->_model->getMLCConfig())) {
+                
+                // return $this->where($this->getTable() . '.slug', $slug);
+                return ;
+            }            
+            $this->wereIn($this->getTable() . '.' . $mlc['main_key'], function($query) use($mlc, $current, $keywords){
+                $query->select($this->mlcTable . '.' . $mlc['ref_key'])
+                    ->from($this->mlcTable)
+                    ->whereColumn($this->getTable() . '.' . $mlc['main_key'],  '=', $this->mlcTable . '.' . $mlc['ref_key'])
+                    ->where($this->mlcTable . '.locale', $current)
+                    ->where(function($query) use($keywords){
 
-                }
-
-                if ($i == 2) {
-                    $query->orWhere($this->mlcTable . '.slug', 'like', "$keyword%");
-                }
-
-                $i++;
-            }
+                        $i = 0;
+                        foreach ($keywords as $keyword) {
+                            if($i == 0){
+                                $query->where($this->mlcTable . '.title', 'like', "$keyword%");
+                                $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
+                            }else{
+                                $query->orWhere($this->mlcTable . '.title', 'like', "% $keyword%");
+                                $query->orWhere($this->mlcTable . '.keywords', 'like', "% $keyword%");
+                                $query->orWhere($this->mlcTable . '.title', 'like', "$keyword%");
+                                $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
+                            }
+                            if ($i == 2) {
+                                $query->orWhere($this->mlcTable . '.slug', 'like', "$keyword%");
+                            }
+                            $i++;
+                        }
+                    });
+            });
+            
+            
+            
         }
     }
 
@@ -1169,13 +1185,13 @@ trait BaseQuery
                                                 });
                                             }
                                         }
-                                        if ($this->mlcSearchActive) {
+                                        if ($this->mlcSearchActive && Locale::isDefault()) {
                                             if ($i || method_exists($this, 'advanceSearch')) {
-                                                $query->orWhere(function ($query) use ($kd, $search_by) {
+                                                $query->orWhere(function ($query) use ($kd) {
                                                     $this->buildLimitQuery($query, $kd);
                                                 });
                                             } else {
-                                                $query->where(function ($query) use ($kd, $search_by) {
+                                                $query->where(function ($query) use ($kd) {
                                                     $this->buildLimitQuery($query, $kd);
                                                 });
                                             }
@@ -1216,8 +1232,8 @@ trait BaseQuery
                                             $this->advanceSearch($query, $kd, [$search_by]);
                                         });
                                     }
-                                    if ($this->mlcSearchActive) {
-                                        $query->orWhere(function ($query) use ($kd, $search_by) {
+                                    if ($this->mlcSearchActive && Locale::isDefault()) {
+                                        $query->orWhere(function ($query) use ($kd) {
                                             $this->buildLimitQuery($query, $kd);
                                         });
                                     }
@@ -1322,13 +1338,13 @@ trait BaseQuery
                                     });
                                 }
                             }
-                            if ($this->mlcSearchActive) {
+                            if ($this->mlcSearchActive && Locale::isDefault()) {
                                 if ($i || method_exists($this, 'advanceSearch')) {
-                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                    $query->orWhere(function ($query) use ($kd) {
                                         $this->buildLimitQuery($query, $kd);
                                     });
                                 } else {
-                                    $query->where(function ($query) use ($kd, $search_by) {
+                                    $query->where(function ($query) use ($kd) {
                                         $this->buildLimitQuery($query, $kd);
                                     });
                                 }
@@ -1432,13 +1448,13 @@ trait BaseQuery
                                                 });
                                             }
                                         }
-                                        if ($this->mlcSearchActive) {
+                                        if ($this->mlcSearchActive && Locale::isDefault()) {
                                             if ($i || method_exists($this, 'advanceSearch')) {
-                                                $query->orWhere(function ($query) use ($kd, $search_by) {
+                                                $query->orWhere(function ($query) use ($kd) {
                                                     $this->buildLimitQuery($query, $kd);
                                                 });
                                             } else {
-                                                $query->where(function ($query) use ($kd, $search_by) {
+                                                $query->where(function ($query) use ($kd) {
                                                     $this->buildLimitQuery($query, $kd);
                                                 });
                                             }
@@ -1494,8 +1510,8 @@ trait BaseQuery
                                             $this->advanceSearch($query, $kd, [$f]);
                                         });
                                     }
-                                    if ($this->mlcSearchActive) {
-                                        $query->where(function ($query) use ($kd, $search_by) {
+                                    if ($this->mlcSearchActive && Locale::isDefault()) {
+                                        $query->where(function ($query) use ($kd) {
                                             $this->buildLimitQuery($query, $kd);
                                         });
                                     }
@@ -1600,13 +1616,13 @@ trait BaseQuery
                                     });
                                 }
                             }
-                            if ($this->mlcSearchActive) {
+                            if ($this->mlcSearchActive && Locale::isDefault()) {
                                 if ($i || method_exists($this, 'advanceSearch')) {
-                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                    $query->orWhere(function ($query) use ($kd) {
                                         $this->buildLimitQuery($query, $kd);
                                     });
                                 } else {
-                                    $query->where(function ($query) use ($kd, $search_by) {
+                                    $query->where(function ($query) use ($kd) {
                                         $this->buildLimitQuery($query, $kd);
                                     });
                                 }
