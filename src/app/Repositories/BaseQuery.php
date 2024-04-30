@@ -180,6 +180,8 @@ trait BaseQuery
 
     protected $defaultLocale = null;
 
+
+    protected $isSelectQuery = false;
     /**
      * Set model
      */
@@ -598,6 +600,9 @@ trait BaseQuery
                                 $func = $ff;
                             }
                             if ($func) {
+                                if(in_array($fff, ['select', 'selectraw'])){
+                                    $this->isSelectQuery = true;
+                                }
                                 // la method cua query buildr
                                 if (is_array($vl) && isset($vl[0])) {
 
@@ -781,6 +786,10 @@ trait BaseQuery
         $this->actions = [];
         $this->isBuildJoin = false;
         $this->isBuildSelect = false;
+ 
+    }
+
+    final public function resetMLC() {
         $this->isJoinedMLC = false;
         $this->mlcSearchActive = true;
         $this->mlcSearchKeywords = null;
@@ -997,6 +1006,13 @@ trait BaseQuery
         $this->where(function ($query) use ($slug, $mlc) {
             $query->where($this->getTable() . '.slug', $slug)
                 ->orWhere($this->mlcTable . '.slug', $slug);
+        });
+
+        $this->whereIn($this->getTable() . '.' . $mlc['main_key'], function($query) use($mlc, $slug, $current){
+            $query->select($this->mlcTable . '.' . $mlc['ref_key'])
+                ->from($this->mlcTable)
+                ->whereColumn($this->getTable() . '.' . $mlc['main_key'],  '=', $this->mlcTable . '.' . $mlc['ref_key'])
+                ->where($this->getTable() . '.locale', $current);
         });
         return $this;
     }
