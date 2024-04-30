@@ -533,7 +533,9 @@ trait BaseQuery
                             }
                             $this->mlcSearchActive = true;
                             break;
-
+                        case 'mlcslug':
+                            $this->buildMLCSlugQuery($vl);
+                            break;
                         case 'search_by':
                             // tim kiem
                             $search_by = $vl;
