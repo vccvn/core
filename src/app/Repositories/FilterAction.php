@@ -915,8 +915,8 @@ trait FilterAction
         $fields = $this->getFields();
         $sb = $this->searchable;
         $sl = [];
-        if ($request->searchby) {
-            $s = $request->searchby;
+        if ($s = $request->searchby??($request->searchBy??$request->search_by)) {
+            
             if ($sb) {
                 if (isset($sb[$s])) {
                     if (is_array($sb[$s])) {
