@@ -1012,8 +1012,8 @@ trait BaseQuery
             $query->select($this->mlcTable . '.' . $mlc['ref_key'])
                 ->from($this->mlcTable)
                 ->whereColumn($this->getTable() . '.' . $mlc['main_key'],  '=', $this->mlcTable . '.' . $mlc['ref_key'])
-                ->where($this->getTable() . '.locale', $current)
-                ->where($this->getTable() . '.slug', $slug);
+                ->where($this->mlcTable . '.locale', $current)
+                ->where($this->mlcTable . '.slug', $slug);
         });
         return $this;
     }
