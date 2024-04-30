@@ -35,9 +35,9 @@ class Model extends BaseModel
         return static::MODEL_TYPE;
     }
 
-    public function getMLCConfig(){
-        $ref = $this->mlcRef??(defined('self::REF_KEY')?self::REF_KEY : null);
-        if(!$ref)
+    public function getMLCConfig()
+    {
+        if (!$this->multilang || !($ref  = $this->mlcRef ?? (defined('static::REF_KEY') ? static::REF_KEY : null)))
             return null;
         return [
             'ref' => $ref,

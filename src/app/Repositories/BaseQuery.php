@@ -195,7 +195,7 @@ trait BaseQuery
 
     /**
      * đưa tất cả về 0 =))))
-     * 
+     *
      */
     final public function reset($all = false)
     {
@@ -322,8 +322,8 @@ trait BaseQuery
     /**
      * thêm tham số có thể override
      * @param string|array $name có thể là tên cột hoặc một mảng
-     * @param mixed        $value giá trị 
-     * 
+     * @param mixed        $value giá trị
+     *
      * @return static
      */
     final public function addFixableParam($name, $value = null)
@@ -347,7 +347,7 @@ trait BaseQuery
     /**
      * xóa giá trị tham số mặt định
      * @param array|string $name
-     * 
+     *
      * @return static
      */
     final public function removeFixableParam($name = null)
@@ -367,7 +367,7 @@ trait BaseQuery
     /**
      * xóa giá trị tham số mặt định
      * @param array|string $name
-     * 
+     *
      * @return static
      */
     final public function removeDefaultValue($name = null)
@@ -436,10 +436,10 @@ trait BaseQuery
 
 
     /**
-     * tạo qury builder 
+     * tạo qury builder
      * @param array $args Mảng các tham số hoặc têm hàm và tham số hàm
      * @return \Illuminate\Database\Eloquent\Builder
-     * 
+     *
      */
     final public function query($args = [])
     {
@@ -457,7 +457,7 @@ trait BaseQuery
         if ($this->fixableParams) {
             $args = array_merge($this->fixableParams, $args);
         }
-        // pewfix 
+        // pewfix
 
         $prefix = '';
         $modelType = $this->_model->__getModelType__();
@@ -534,6 +534,7 @@ trait BaseQuery
                             $this->mlcSearchActive = true;
                             break;
                         case 'mlcslug':
+                            // dd($vl);
                             $this->buildMLCSlugQuery($vl);
                             break;
                         case 'search_by':
@@ -634,7 +635,7 @@ trait BaseQuery
         if ($keywords) $this->buildSearchQuery($query, $keywords, $search_by, $prefix);
         // thao tac voi query builder thong qua tham so actions
         if ($actions) $this->doAction($actions, $query);
-        // do all Query After 
+        // do all Query After
         $this->runQueryAfter($query);
         // build orderby
         if ($orderby) $this->buildOrderByQuery($query, $orderby, $prefix);
@@ -989,6 +990,7 @@ trait BaseQuery
     {
         $current = Locale::current();
         if (Locale::default() == $current || !($mlc = $this->_model->getMLCConfig())) {
+            
             return $this->where($this->getTable() . '.slug', $slug);
         }
         $this->joinMLC();
@@ -1020,9 +1022,9 @@ trait BaseQuery
                     $query->orWhere($this->mlcTable . '.keywords', 'like', "% $keyword%");
                     $query->orWhere($this->mlcTable . '.title', 'like', "$keyword%");
                     $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
-                    
+
                 }
-                
+
                 if ($i == 2) {
                     $query->orWhere($this->mlcTable . '.slug', 'like', "$keyword%");
                 }
@@ -1613,7 +1615,7 @@ trait BaseQuery
     /**
      * goi cac phuong thuc cua QueryBuilder
      *
-     * 
+     *
      * @param array $actions
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $prefix
@@ -1653,7 +1655,7 @@ trait BaseQuery
                     //     ['where', 'name', 'doan'], // tham số đầu tiên là tên phương thức
                     //     // ....
                     // ]
-                    // neu action la 1 mang 
+                    // neu action la 1 mang
 
                     if (is_string($f) && in_array($f, $this->sqlclause)) {
 
@@ -1672,7 +1674,7 @@ trait BaseQuery
                         //     ['where'=>['name','doan']],
                         //     // ....
                         // ]
-                        // neu action la 1 mang 
+                        // neu action la 1 mang
                         foreach ($act as $func => $param) {
                             // duyet qua mang day lay ten action
                             if (is_numeric($func) && is_array($param) && count($param) > 1) {
@@ -1838,8 +1840,8 @@ trait BaseQuery
      * gắn giá trị cho thuộc tính với name là tên thuộc tính
      * value là giá trị của thuộc tính
      * @param string $name
-     * 
-     * 
+     *
+     *
      */
     public function __set($name, $value)
     {
@@ -1875,7 +1877,7 @@ trait BaseQuery
      * them chuoi tim kiem
      * @param string $keywords
      * @param string/array $search_by
-     * 
+     *
      * @return static
      */
     public function addsearch(string $keywords = null, $search_by = null, $rules = null)
