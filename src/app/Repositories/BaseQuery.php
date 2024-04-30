@@ -589,8 +589,11 @@ trait BaseQuery
                             $ff = substr($field, 1);
                             $func = null;
                             $fff = strtolower($ff);
-                            if (in_array($ff, $this->sqlclause))  $func = $ff;
+                            if (in_array($ff, $this->sqlclause)) $func = $ff;
                             elseif (array_key_exists($fff, $this->sqlclause)) $func = $this->sqlclause[$fff];
+                            elseif (method_exists($query, $ff)) {
+                                $func = $ff;
+                            }
                             if ($func) {
                                 // la method cua query buildr
                                 if (is_array($vl) && isset($vl[0])) {

@@ -17,6 +17,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 /**
  * các phương thức filter
  * @method BaseRepository beforeFillter(\Iluminate\Http\Request $request)
+ * @property bool $isMLCFilter filter da ngon ngu
  */
 trait FilterAction
 {
@@ -185,6 +186,9 @@ trait FilterAction
     protected $responseMode = 'default';
     protected $isBuildJoin = false;
     protected $isBuildSelect = false;
+
+    protected $isMLCFilter = false;
+
 
     final public function mode($mode = null)
     {
@@ -729,6 +733,7 @@ trait FilterAction
         );
         if (strlen($s)) {
             if ($sb = $this->getSearchFields($request)) {
+                $this->mlcSearchActive = true;
                 $this->addSearch($s, $sb);
             }
         }
