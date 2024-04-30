@@ -24,9 +24,26 @@ class Model extends BaseModel
     public $localeTitleColumn = null;
 
 
+    protected $mlcRef = null;
+
+    protected $mlcMainKey = 'id';
+
+    protected $mlcRefKey = 'ref_id';
+
     public function __getModelType__()
     {
         return static::MODEL_TYPE;
+    }
+
+    public function getMLCConfig(){
+        $ref = $this->mlcRef??(defined('self::REF_KEY')?self::REF_KEY : null);
+        if(!$ref)
+            return null;
+        return [
+            'ref' => $ref,
+            'main_key' => $this->mlcMainKey,
+            'ref_key' => $this->mlcRefKey
+        ];
     }
 
     /**

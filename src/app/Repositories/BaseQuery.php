@@ -2,11 +2,13 @@
 
 namespace Gomee\Repositories;
 
+use Gomee\Languages\Locale;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
  * @property \Gomee\Models\Model _model
+ * @method $this buildMLC(array $params) tạo query
  */
 trait BaseQuery
 {
@@ -167,6 +169,16 @@ trait BaseQuery
     protected $__searchType__ = 'word'; // start || end
 
     protected $__searchRules__ = [];
+
+    protected $mlcTable = 'multi_language_contents';
+
+    protected $isJoinedMLC = false;
+
+    protected $mlcSearchKeywords = null;
+
+    protected $mlcSearchActive = false;
+
+    protected $defaultLocale = null;
 
     /**
      * Set model
@@ -413,6 +425,16 @@ trait BaseQuery
         return $this;
     }
 
+    protected function __mlcQuery($data = [])
+    {
+        if (method_exists($this, 'buildMLC') && is_array($data)) {
+            return $this->buildMLC($data);
+        }
+        return $this;
+    }
+
+
+
     /**
      * tạo qury builder 
      * @param array $args Mảng các tham số hoặc têm hàm và tham số hàm
@@ -494,6 +516,22 @@ trait BaseQuery
                                     $search_by = $vl['by'];
                                 }
                             }
+                            break;
+                        case 'mlcsearch':
+                            // tim kiem
+                            if (!is_array($vl)) {
+                                $keywords = $vl;
+                            } else {
+                                if (isset($vl['keywords'])) {
+                                    $keywords = $vl['keywords'];
+                                } elseif (isset($vl['keyword'])) {
+                                    $keywords = $vl['keyword'];
+                                }
+                                if (isset($vl['by'])) {
+                                    $search_by = $vl['by'];
+                                }
+                            }
+                            $this->mlcSearchActive = true;
                             break;
 
                         case 'search_by':
@@ -600,6 +638,7 @@ trait BaseQuery
 
         $this->resetActionParams();
         $this->fire('query', $query);
+
         return $query;
     }
 
@@ -736,6 +775,9 @@ trait BaseQuery
         $this->actions = [];
         $this->isBuildJoin = false;
         $this->isBuildSelect = false;
+        $this->isJoinedMLC = false;
+        $this->mlcSearchActive = true;
+        $this->mlcSearchKeywords = null;
     }
 
 
@@ -921,7 +963,69 @@ trait BaseQuery
         return $this;
     }
 
+    protected function joinMLC()
+    {
+        if ($this->isJoinedMLC) return $this;
+        $this->isJoinedMLC = true;
+        if (Locale::default() == ($locale = Locale::current()) || !($mlc = $this->_model->getMLCConfig())) {
+            return $this;
+        }
 
+        $this->leftJoin($this->mlcTable, function ($join) use ($mlc, $locale) {
+            $join->on($this->mlcTable . '.' . $mlc['ref_key'], '=', $this->getTable() . '.' . $mlc['main_key'])
+                ->on($this->mlcTable . '.ref', '=', DB::raw("'" . $mlc['ref'] . "'"))
+                ->on($this->mlcTable . '.locale', '=', DB::raw("'" . $locale . "'"));
+        });
+        return $this;
+    }
+
+
+    protected function buildMLCSlugQuery($slug)
+    {
+        $current = Locale::current();
+        if (Locale::default() == $current || !($mlc = $this->_model->getMLCConfig())) {
+            return $this->where($this->getTable() . '.slug', $slug);
+        }
+        $this->joinMLC();
+        $this->where(function ($query) use ($slug, $mlc) {
+            $query->where($this->getTable() . '.slug', $slug)
+                ->orWhere($this->mlcTable . '.slug', $slug);
+        });
+        return $this;
+    }
+
+    /**
+     * build search query
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|array $keywords
+     * @return static
+     */
+    protected function buildMlcSearch($query, $keywords)
+    {
+        if($t = count($keywords)){
+            $this->joinMLC();
+            $i = 0;
+            foreach ($keywords as $keyword) {
+                if($i == 0){
+                    $query->where($this->mlcTable . '.title', 'like', "$keyword%");
+                    $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
+                }else{
+                    $query->orWhere($this->mlcTable . '.title', 'like', "% $keyword%");
+                    $query->orWhere($this->mlcTable . '.keywords', 'like', "% $keyword%");
+                    $query->orWhere($this->mlcTable . '.title', 'like', "$keyword%");
+                    $query->orWhere($this->mlcTable . '.keywords', 'like', "$keyword%");
+                    
+                }
+                
+                if ($i == 2) {
+                    $query->orWhere($this->mlcTable . '.slug', 'like', "$keyword%");
+                }
+
+                $i++;
+            }
+        }
+    }
 
     /**
      * build search query
@@ -982,6 +1086,7 @@ trait BaseQuery
                                     if (!is_array($rule)) $rule = [$rule];
                                     if (is_array($rule)) {
                                         $i = 0;
+                                        $t = count($rule);
                                         foreach ($rule as $rul) {
                                             $rrs = null;
                                             if (($kc = str_replace('{clean}', $kd[1], $rul)) != $rul) {
@@ -1040,6 +1145,17 @@ trait BaseQuery
                                                 });
                                             }
                                         }
+                                        if ($this->mlcSearchActive) {
+                                            if ($i || method_exists($this, 'advanceSearch')) {
+                                                $query->orWhere(function ($query) use ($kd, $search_by) {
+                                                    $this->buildLimitQuery($query, $kd);
+                                                });
+                                            } else {
+                                                $query->where(function ($query) use ($kd, $search_by) {
+                                                    $this->buildLimitQuery($query, $kd);
+                                                });
+                                            }
+                                        }
                                     }
                                 } else {
                                     switch ($searchType) {
@@ -1074,6 +1190,11 @@ trait BaseQuery
                                     if (method_exists($this, 'advanceSearch')) {
                                         $query->orWhere(function ($query) use ($kd, $search_by) {
                                             $this->advanceSearch($query, $kd, [$search_by]);
+                                        });
+                                    }
+                                    if ($this->mlcSearchActive) {
+                                        $query->orWhere(function ($query) use ($kd, $search_by) {
+                                            $this->buildLimitQuery($query, $kd);
                                         });
                                     }
                                 }
@@ -1177,6 +1298,17 @@ trait BaseQuery
                                     });
                                 }
                             }
+                            if ($this->mlcSearchActive) {
+                                if ($i || method_exists($this, 'advanceSearch')) {
+                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                        $this->buildLimitQuery($query, $kd);
+                                    });
+                                } else {
+                                    $query->where(function ($query) use ($kd, $search_by) {
+                                        $this->buildLimitQuery($query, $kd);
+                                    });
+                                }
+                            }
                         }
                     });
                 } else {
@@ -1276,8 +1408,19 @@ trait BaseQuery
                                                 });
                                             }
                                         }
+                                        if ($this->mlcSearchActive) {
+                                            if ($i || method_exists($this, 'advanceSearch')) {
+                                                $query->orWhere(function ($query) use ($kd, $search_by) {
+                                                    $this->buildLimitQuery($query, $kd);
+                                                });
+                                            } else {
+                                                $query->where(function ($query) use ($kd, $search_by) {
+                                                    $this->buildLimitQuery($query, $kd);
+                                                });
+                                            }
+                                        }
                                     }
-                                } else{
+                                } else {
                                     switch ($searchType) {
                                         case 'start':
                                             $j = 0;
@@ -1322,10 +1465,16 @@ trait BaseQuery
                                             }
                                             break;
                                     }
-
-                                    $query->orWhere(function ($query) use ($kd, $f) {
-                                        $this->advanceSearch($query, $kd, [$f]);
-                                    });
+                                    if (method_exists($this, 'advanceSearch')) {
+                                        $query->orWhere(function ($query) use ($kd, $f) {
+                                            $this->advanceSearch($query, $kd, [$f]);
+                                        });
+                                    }
+                                    if ($this->mlcSearchActive) {
+                                        $query->where(function ($query) use ($kd, $search_by) {
+                                            $this->buildLimitQuery($query, $kd);
+                                        });
+                                    }
                                 }
                             }
                         } elseif (is_array($search_by)) {
@@ -1424,6 +1573,17 @@ trait BaseQuery
                                 } else {
                                     $query->where(function ($query) use ($kd, $search_by) {
                                         $this->advanceSearch($query, $kd, $search_by);
+                                    });
+                                }
+                            }
+                            if ($this->mlcSearchActive) {
+                                if ($i || method_exists($this, 'advanceSearch')) {
+                                    $query->orWhere(function ($query) use ($kd, $search_by) {
+                                        $this->buildLimitQuery($query, $kd);
+                                    });
+                                } else {
+                                    $query->where(function ($query) use ($kd, $search_by) {
+                                        $this->buildLimitQuery($query, $kd);
                                     });
                                 }
                             }
