@@ -1002,11 +1002,11 @@ trait BaseQuery
             
             return $this->where($this->getTable() . '.slug', $slug);
         }
-        $this->joinMLC();
-        $this->where(function ($query) use ($slug, $mlc) {
-            $query->where($this->getTable() . '.slug', $slug)
-                ->orWhere($this->mlcTable . '.slug', $slug);
-        });
+        // $this->joinMLC();
+        // $this->where(function ($query) use ($slug, $mlc) {
+        //     $query->where($this->getTable() . '.slug', $slug)
+        //         ->orWhere($this->mlcTable . '.slug', $slug);
+        // });
 
         $this->whereIn($this->getTable() . '.' . $mlc['main_key'], function($query) use($mlc, $slug, $current){
             $query->select($this->mlcTable . '.' . $mlc['ref_key'])
