@@ -86,7 +86,7 @@ if (!function_exists('parseFunctionCall')) {
         $input = trim(preg_replace('/\s+|\(.*?\)/', ' ', $input));
 
         // Check for valid format with letters, numbers, and underscores in function name
-        if (!preg_match('/^([a-zA-Z0-9_\.]+)(?:\((.*)\))$/', $input, $matches)) {
+        if (!preg_match('/^([a-zA-Z0-9_]+)(?:\((.*)\))$/', $input, $matches)) {
             return []; // Return empty array if invalid
         }
 
