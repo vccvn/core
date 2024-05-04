@@ -78,6 +78,58 @@ if (!function_exists('entities')) {
         return CrazyArr::entities($any);
     }
 }
+
+if (!function_exists('parseFunctionCall')) {
+    function parseFunctionCall($input)
+    {
+        // Remove extra spaces and parentheses
+        $input = trim(preg_replace('/\s+|\(.*?\)/', ' ', $input));
+
+        // Check for valid format with letters, numbers, and underscores in function name
+        if (!preg_match('/^([a-zA-Z0-9_\.]+)(?:\((.*)\))$/', $input, $matches)) {
+            return []; // Return empty array if invalid
+        }
+
+        // Extract function name and parameter string
+        $functionName = $matches[1];
+        $paramsStr = isset($matches[2]) ? $matches[2] : '';
+
+        // Process parameter string
+        $params = [];
+        if ($paramsStr) {
+            $paramPairs = explode(',', $paramsStr);
+            foreach ($paramPairs as $paramPair) {
+                $paramPair = trim($paramPair);
+
+                // Check for named parameter with value
+                if (preg_match('/^(\w+)\s*(=)(.*)$/', $paramPair, $matches)) {
+                    $paramName = $matches[1];
+                    $paramValue = isset($matches[3]) ? $matches[3] : null;
+
+                    // Process parameter value
+                    if (strtolower($paramValue) === 'null') {
+                        $paramValue = null;
+                    } elseif (is_numeric($paramValue)) {
+                        $paramValue = (float) $paramValue;
+                    } elseif (preg_match('/^[\'\"](.+?)\'\"]$/', $paramValue, $matches)) {
+                        $paramValue = stripslashes($matches[1]);
+                    }
+
+                    $params[$paramName] = $paramValue;
+                } else { // Assume positional parameter
+                    $params[] = $paramPair;
+                }
+            }
+        }
+
+        // Return result
+        return [
+            'function' => $functionName,
+            'params' => $params
+        ];
+    }
+}
+
 if (!function_exists('get_domain')) {
     /**
      * lấy tên miên dược cấu hình
@@ -196,21 +248,21 @@ if (!function_exists('nl2array')) {
     {
         $b = [];
         if ($string) {
-            if($checkEmpty){
-                if (count($a = explode("\r\n", $string))>1) {
+            if ($checkEmpty) {
+                if (count($a = explode("\r\n", $string)) > 1) {
                     foreach ($a as $v) {
                         if ($c = trim($v)) {
                             $b[] = $c;
                         }
                     }
-                } elseif (count($d = explode("\n", $string))>1) {
+                } elseif (count($d = explode("\n", $string)) > 1) {
                     foreach ($d as $v) {
                         if ($c = trim($v)) {
                             $b[] = $c;
                         }
                     }
                 } elseif (count($d = explode("
-", $string))>1) {
+", $string)) > 1) {
                     foreach ($d as $v) {
                         if ($c = trim($v)) {
                             $b[] = $c;
@@ -219,13 +271,13 @@ if (!function_exists('nl2array')) {
                 } elseif (strlen($string)) {
                     $b = [$string];
                 }
-            }else{
-                if (count($a = explode("\r\n", $string))>1) {
+            } else {
+                if (count($a = explode("\r\n", $string)) > 1) {
                     $b = $a;
-                } elseif (count($d = explode("\n", $string))>1) {
+                } elseif (count($d = explode("\n", $string)) > 1) {
                     $b = $d;
                 } elseif (count($d = explode("
-", $string))>1) {
+", $string)) > 1) {
                     $b = $d;
                 } elseif (strlen($string)) {
                     $b = [$string];
@@ -1600,8 +1652,9 @@ if (!function_exists('json_path')) {
     }
 }
 
-if(!function_exists('is_gd_image')){
-    function is_gd_image($var) : bool {
+if (!function_exists('is_gd_image')) {
+    function is_gd_image($var): bool
+    {
         return (gettype($var) == "object" && get_class($var) == "GdImage");
     }
 }
