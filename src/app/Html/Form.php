@@ -116,6 +116,7 @@ class Form extends HtmlDom implements Countable, ArrayAccess, IteratorAggregate,
         foreach ($inputs as $nsp => $inp) {
             // tao doi tuong truy cap input
 
+
             $input = new Arr($inp);
 
             if (($actionType == 'create' && ($input->HideOnCreate || $input->showOnUpdate)) || ($actionType == 'updadte' && ($input->HideOnUpdate || $input->showOnCreate))){

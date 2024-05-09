@@ -79,6 +79,13 @@ class Input extends HtmlDom
     public function __construct($args = [], $form = null)
     {
         if (is_array($args)) {
+
+            foreach ($args as $key => $value) {
+                if($key != 'value' && preg_match('/^@[A-z_]+[A-z0-9_]*\(.*?\)$/', $v = trim($value)) && $fnDAta = Template::parseFunctionCall($v)){
+                    $args[$key] = Template::callTplFunc($fnDAta);
+                }
+            }
+
             parent::__construct(isset($args['type']) ? $args['type'] : 'input');
             $this->orginalData = $args;
             $this->config = $args;
