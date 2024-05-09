@@ -83,6 +83,7 @@ class Template
                     $containers[$currentIndex]["params"] .= $c;
                 } elseif (!$inString) {
                     $val = $containers[$currentIndex]["str"];
+                    $type = 'string';
                     if ($val == 'true') {
                         $type = 'boolean';
                         $val = true;
