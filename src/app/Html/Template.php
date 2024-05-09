@@ -222,7 +222,7 @@ class Template
 
     public static function callTplFunc($fnData){
         if(function_exists($fnData['function']) ||  is_callable($fnData['function'])){
-            return call_user_func($fnData['function'], static::parseArgs($fnData['args']));
+            return call_user_func_array($fnData['function'], static::parseArgs($fnData['args']));
         }
         return null;
     }
