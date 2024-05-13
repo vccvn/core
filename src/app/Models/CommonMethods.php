@@ -336,7 +336,7 @@ trait CommonMethods
         }
         if($date1 && !is_a($date2, Carbon::class)) $date2 = Carbon::parse($date2);
         if (!$date2) $date2 = Carbon::now();
-        return $date->diffForHumans($date2); //1 giờ trước
+        return $date->locale(config('app.locale'))->diffForHumans($date2); //1 giờ trước
     }
     public function calculator_time($date1 = null, $date2 = null)
     {
