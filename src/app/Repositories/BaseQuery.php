@@ -999,15 +999,10 @@ trait BaseQuery
     protected function buildMLCSlugQuery($slug)
     {
         $current = Locale::current();
-        if (Locale::default() == $current || !($mlc = $this->_model->getMLCConfig())) {
+        if (config('app.multiple_language') != true || Locale::default() == $current || !($mlc = $this->_model->getMLCConfig())) {
             
             return $this->where($this->getTable() . '.slug', $slug);
         }
-        // $this->joinMLC();
-        // $this->where(function ($query) use ($slug, $mlc) {
-        //     $query->where($this->getTable() . '.slug', $slug)
-        //         ->orWhere($this->mlcTable . '.slug', $slug);
-        // });
 
         $this->where($this->getTable() . '.slug', $slug)->orWhereIn($this->getTable() . '.' . $mlc['main_key'], function($query) use($mlc, $slug, $current){
             $query->select($this->mlcTable . '.' . $mlc['ref_key'])
