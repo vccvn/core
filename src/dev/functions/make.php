@@ -915,7 +915,7 @@ function alter_table($params = [], $table = null, ...$args)
                         foreach ($c['calls'] as $cData) {
                             $col .= "->" . $cData['call'] . '(';
                             $col .= $cData['params'] ? implode(',', array_map(function ($v) {
-                                return is_numeric($v) ? $v : "\'" . $v . "\'";
+                                return is_numeric($v) ? $v : "'" . $v . "'";
                             }, $cData['params'])) : "";
                             $col .= ')';
                         }
