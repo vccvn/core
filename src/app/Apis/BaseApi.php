@@ -5,6 +5,7 @@ namespace Gomee\Apis;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Gomee\Helpers\Arr;
+use GuzzleHttp\Exception\ClientException;
 use Throwable;
 
 abstract class BaseApi
@@ -86,6 +87,8 @@ abstract class BaseApi
     
             $this->response = $response;
             return $response;
+        }catch (ClientException $th) {
+            return null;
         } catch (BadResponseException $th) {
             return null;
         }
@@ -174,7 +177,12 @@ abstract class BaseApi
                 return $response->getBody()->getContents();
             }
             return $response;
-        } catch (BadResponseException $th) {
+        } catch (ClientException $th) {
+            $this->exception = $th;
+            $this->response = $th->getResponse();
+            return null;
+        }catch (BadResponseException $th) {
+
             $this->exception = $th;
             return null;
         }catch (Throwable $th) {
