@@ -5,6 +5,7 @@ namespace Gomee\Apis;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Gomee\Helpers\Arr;
+use Throwable;
 
 abstract class BaseApi
 {
@@ -57,7 +58,8 @@ abstract class BaseApi
      * @param array  $data              mãng data get cũng dùng dc luôn
      * @param array  $headers           Mãng header. cái này tùy chọn
      * 
-     * @return object|Client
+     * 
+     * @return \Psr\Http\Message\ResponseInterface
      */
 
     public function sendRequest($url, $method = 'GET', array $data = [], array $headers = [])
@@ -124,7 +126,7 @@ abstract class BaseApi
      * @param array  $data              mãng data get cũng dùng dc luôn
      * @param array  $headers           Mãng header. cái này tùy chọn
      * 
-     * @return object Client
+     * @return \Psr\Http\Message\ResponseInterface|array|string
      */
 
     protected function send($method, $url = null, array $data = [], array $headers = [])
@@ -138,11 +140,13 @@ abstract class BaseApi
         if (!$url) return null;
         $client = new Client();
 
+        if(!is_array($data)) $data = [];
         $defaultOptions = [];
         $type = $this->oneTimeType ? $this->oneTimeType : $this->responseType;
         $this->oneTimeType = null;
         if ($type == 'json') {
             $defaultOptions['Content-Type'] = 'application/json';
+            $defaultOptions['Accept'] = 'application/json';
         }
         try {
             $headerData = array_merge($defaultOptions, (array) $headers);
@@ -173,6 +177,9 @@ abstract class BaseApi
         } catch (BadResponseException $th) {
             $this->exception = $th;
             return null;
+        }catch (Throwable $th) {
+            $this->exception = $th;
+            return null;
         }
     }
 
@@ -182,11 +189,21 @@ abstract class BaseApi
         return $this->http_code;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @return Throwable
+     */
     public function getException()
     {
         return $this->exception;
     }
 
+    /**
+     * get response
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function getResponse()
     {
         return $this->response;

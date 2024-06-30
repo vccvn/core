@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * doi tuong quan li request toi api
- * @method ResponseInterface|string|array get(string $url, array $data = [], array $headers = [])
+ * @method ResponseInterface|string|array get(string $url, array $query = [], array $headers = [])
  * @method ResponseInterface|string|array post(string $url, array $data = [], array $headers = [])
  * @method ResponseInterface|string|array put(string $url, array $data = [], array $headers = [])
  * @method ResponseInterface|string|array path(string $url, array $data = [], array $headers = [])
