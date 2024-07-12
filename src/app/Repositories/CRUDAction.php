@@ -63,6 +63,15 @@ trait CRUDAction
 
     protected $crudException = null;
 
+    protected $throwExceptionEnabled = true;
+
+    public function disableThrowException(){
+        $this->throwExceptionEnabled = false;
+    }
+    public function enableThrowException(){
+        $this->throwExceptionEnabled = false;
+    }
+
     public function getCrudErrorMessage(){
         return $this->crudErrorMessage;
     }
@@ -278,6 +287,10 @@ trait CRUDAction
             $model->save();
             
         } catch (\Throwable $th) {
+            if($this->throwExceptionEnabled){
+                throw $th;    
+            }
+            
             //throw $th;
             $this->crudErrorMessage = $th->getMessage();
             $this->crudException = $th;
