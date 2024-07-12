@@ -769,8 +769,20 @@ class Image
                 $image = \imagecreatefromjpeg($image_url);
             } elseif ($type == "gif") {
                 $image = \imagecreatefromgif($image_url);
-            } else {
+            }  elseif ($type == "webp") {
+                $image = \imagecreatefromwebp($image_url);
+            }else {
                 $image = file_get_contents($image_url);
+                if(preg_match('/^https?\:\/\/.*/', $image_url)){
+                    try {
+                        $im = imagecreatefromstring($image);
+                        if($im) $image = $im;
+                    } catch (\Throwable $th) {
+                        //throw $th;
+                    }
+                    
+                }
+                
             }
         } else {
             if (is_array($color) && isset($color[0]) && isset($color[1]) && isset($color[2])) {
