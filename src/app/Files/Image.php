@@ -82,22 +82,26 @@ class Image
     public function newImage($image = null)
     {
         if (self::isImageFile($image) || (is_resource($image) && \get_resource_type($image) == 'gd') || (is_object($image) && class_exists('GdImage') && is_a($image, 'GdImage'))) {
-            if (self::isImageFile($image)) {
-                $i = self::getsity($image);
-                $im  = self::create($image);
-                $this->data = $im;
-                $this->original = $im;
-                $this->height = $i['h'];
-                $this->width = $i['w'];
-                $this->type = $i['type'];
-                $this->mime = $i['mime'];
-                $this->isImage = true;
-            } else {
-                $this->data = $image;
-                $this->original = $image;
-                $this->height = imagesy($this->data);
-                $this->width = imagesx($this->data);
-                $this->isImage = true;
+            try {
+                if (self::isImageFile($image)) {
+                    $i = self::getsity($image);
+                    $im  = self::create($image);
+                    $this->data = $im;
+                    $this->original = $im;
+                    $this->height = $i['h'];
+                    $this->width = $i['w'];
+                    $this->type = $i['type'];
+                    $this->mime = $i['mime'];
+                    $this->isImage = true;
+                } else {
+                    $this->data = $image;
+                    $this->original = $image;
+                    $this->height = imagesy($this->data);
+                    $this->width = imagesx($this->data);
+                    $this->isImage = true;
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
             }
         } else {
             $this->height = 768;
@@ -575,7 +579,7 @@ class Image
     {
         if (!is_string($url))
             return false;
-        $stt = (preg_match('/(^http|\.jpg|\.gif|\.png|tmp|\.jpeg)/si', $url) || is_file($url)) ? true : false;
+        $stt = (preg_match('/(^http|\.jpg|\.gif|\.png|tmp|\.jpeg|\.webp)/si', $url) || is_file($url)) ? true : false;
         return $stt;
     }
 
