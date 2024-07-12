@@ -74,6 +74,7 @@ class Image
     protected static $font = 'arial.ttf';
     protected $isImage = false;
     protected $name = null;
+    protected static $checkedData = [];
     public function __construct($image = null)
     {
         $this->newImage($image);
@@ -577,9 +578,35 @@ class Image
      */
     public static function isImageFile($url)
     {
+        if(array_key_exists($url, static::$checkedData))
+            return static::$checkedData[$url];
         if (!is_string($url))
             return false;
         $stt = (preg_match('/(^http|\.jpg|\.gif|\.png|tmp|\.jpeg|\.webp)/si', $url) || is_file($url)) ? true : false;
+        if(!$stt && preg_match('/^(http|https)\:\/\/.*/si', $url)){
+            try {
+                $content = file_get_contents($url);
+
+                // Kiểm tra xem nội dung có phải là một hình ảnh hay không
+                $source = getimagesizefromstring($content);
+
+                if ($source) {
+                    $mime = $source['mime'];
+                    $w = $source[0];
+                    $h = $source[1];
+                    $typ = explode('/', $mime);
+                    if ($typ[0] == 'image') {
+                        $stt = true;
+                        static::$checkedData[$url] = $source;
+                    }
+                }
+            } catch (\Throwable $th) {
+                static::$checkedData[$url] = $stt;
+            }
+        }
+        else{
+            static::$checkedData[$url] = $stt;
+        }
         return $stt;
     }
 
@@ -593,25 +620,56 @@ class Image
         $mime = '';
         if (self::isImageFile($image_url)) {
             $source = getimagesize($image_url);
-            $mime = $source['mime'];
-            $w = $source[0];
-            $h = $source[1];
-            $typ = explode('/', $mime);
-            if ($typ[0] == 'image' && isset($typ[1])) {
-                $t = $typ[1];
-                switch ($t) {
-                    case 'png':
-                        $pex = $t;
-                        break;
-                    case 'jpeg':
-                        $pex = 'jpg';
-                        break;
-                    case 'gif':
-                        $pex = $t;
-                        break;
-                    default:
-                        $pex = $t;
-                        break;
+            if ($source) {
+                $mime = $source['mime'];
+                $w = $source[0];
+                $h = $source[1];
+                $typ = explode('/', $mime);
+                if ($typ[0] == 'image' && isset($typ[1])) {
+                    $t = $typ[1];
+                    switch ($t) {
+                        case 'png':
+                            $pex = $t;
+                            break;
+                        case 'jpeg':
+                            $pex = 'jpg';
+                            break;
+                        case 'gif':
+                            $pex = $t;
+                            break;
+                        default:
+                            $pex = $t;
+                            break;
+                    }
+                }
+            }elseif(preg_match('/^(http|https)\:\/\/.*/i', $image_url)){
+                $content = file_get_contents($image_url);
+
+                // Kiểm tra xem nội dung có phải là một hình ảnh hay không
+                $source = getimagesizefromstring($content);
+
+                if ($source) {
+                    $mime = $source['mime'];
+                    $w = $source[0];
+                    $h = $source[1];
+                    $typ = explode('/', $mime);
+                    if ($typ[0] == 'image' && isset($typ[1])) {
+                        $t = $typ[1];
+                        switch ($t) {
+                            case 'png':
+                                $pex = $t;
+                                break;
+                            case 'jpeg':
+                                $pex = 'jpg';
+                                break;
+                            case 'gif':
+                                $pex = $t;
+                                break;
+                            default:
+                                $pex = $t;
+                                break;
+                        }
+                    }
                 }
             }
         } elseif ($image_url) {
@@ -643,11 +701,10 @@ class Image
             if (file_exists($path)) {
                 $source_im = static::create($image);
                 unlink($path);
-            }else{
+            } else {
                 $source_im = static::create(null, 480, 360, array(255, 255, 255));
             }
-        }
-        elseif (self::isImageFile($image)) {
+        } elseif (self::isImageFile($image)) {
             $source_im = self::create($image);
         } elseif (is_gd_image($image)) {
             $source_im = $image;
