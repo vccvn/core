@@ -578,12 +578,12 @@ class Image
      */
     public static function isImageFile($url)
     {
-        if(array_key_exists($url, static::$checkedData))
-            return static::$checkedData[$url];
         if (!is_string($url))
             return false;
+        if (array_key_exists($url, static::$checkedData))
+            return static::$checkedData[$url];
         $stt = (preg_match('/(^http|\.jpg|\.gif|\.png|tmp|\.jpeg|\.webp)/si', $url) || is_file($url)) ? true : false;
-        if(!$stt && preg_match('/^(http|https)\:\/\/.*/si', $url)){
+        if (!$stt && preg_match('/^(http|https)\:\/\/.*/si', $url)) {
             try {
                 $content = file_get_contents($url);
 
@@ -603,8 +603,7 @@ class Image
             } catch (\Throwable $th) {
                 static::$checkedData[$url] = $stt;
             }
-        }
-        else{
+        } else {
             static::$checkedData[$url] = $stt;
         }
         return $stt;
@@ -642,7 +641,7 @@ class Image
                             break;
                     }
                 }
-            }elseif(preg_match('/^(http|https)\:\/\/.*/i', $image_url)){
+            } elseif (preg_match('/^(http|https)\:\/\/.*/i', $image_url)) {
                 $content = file_get_contents($image_url);
 
                 // Kiểm tra xem nội dung có phải là một hình ảnh hay không
@@ -769,20 +768,18 @@ class Image
                 $image = \imagecreatefromjpeg($image_url);
             } elseif ($type == "gif") {
                 $image = \imagecreatefromgif($image_url);
-            }  elseif ($type == "webp") {
+            } elseif ($type == "webp") {
                 $image = \imagecreatefromwebp($image_url);
-            }else {
+            } else {
                 $image = file_get_contents($image_url);
-                if(preg_match('/^https?\:\/\/.*/', $image_url)){
+                if (preg_match('/^https?\:\/\/.*/', $image_url)) {
                     try {
                         $im = imagecreatefromstring($image);
-                        if($im) $image = $im;
+                        if ($im) $image = $im;
                     } catch (\Throwable $th) {
                         //throw $th;
                     }
-                    
                 }
-                
             }
         } else {
             if (is_array($color) && isset($color[0]) && isset($color[1]) && isset($color[2])) {
