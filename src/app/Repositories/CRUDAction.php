@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 
 
 use Illuminate\Support\Str;
+use Throwable;
+
 /**
  * Các phuong thức để crud
  * @method array beforeCreate(array $data) can thiep va tra ve mang du lieu truoc khi tao moi
@@ -56,6 +58,23 @@ trait CRUDAction
     protected $crudAction = null;
 
     protected $currentID = 0;
+
+    protected $crudErrorMessage = null;
+
+    protected $crudException = null;
+
+    public function getCrudErrorMessage(){
+        return $this->crudErrorMessage;
+    }
+
+    /**
+     * get exception
+     *
+     * @return Throwable
+     */
+    public function getCrudException(){
+        return $this->crudException;
+    }
 
     public function setActor($actor = null)
     {
@@ -222,6 +241,7 @@ trait CRUDAction
      */
     final public function save(array $data, $id = null)
     {
+        $this->crudErrorMessage = null;
         if ($id && $m = $this->_model->find($id)) {
             $model = $m;
             $this->crudAction = 'update';
@@ -246,12 +266,23 @@ trait CRUDAction
         }
 
 
-        if (!$data && !$id) return false;
+        if (!$data && !$id) {
+            $this->crudErrorMessage = 'Không có dữ liệu';
+            return false;
+        }
         $data = $this->parseData($data);
         $model->fill($data);
         $this->checkModelUuid($model);
         // dd($model);
-        $model->save();
+        try {
+            $model->save();
+            
+        } catch (\Throwable $th) {
+            //throw $th;
+            $this->crudErrorMessage = $th->getMessage();
+            $this->crudException = $th;
+            return false;
+        }
         if ($id && $id == $model->{$this->_primaryKeyName}) {
             $this->afterUpdate($model);
             $this->fire('afterupdate', $this, $model);
@@ -316,6 +347,7 @@ trait CRUDAction
             // $this->afterCreate($model);
             return $model;
         }
+        $this->crudErrorMessage = 'Không thể khởi tạo bản ghi (' . $this->crudErrorMessage . ')';
         return false;
     }
 
@@ -327,13 +359,17 @@ trait CRUDAction
      */
     public function update($id, array $data = [])
     {
-        if (!$this->find($id)) return false;
+        if (!$this->find($id)) {
+            $this->crudErrorMessage = 'Không thể tìm thấy bản ghi có id là ' . $id . ' để cập nhật';
+            return false;
+        }
         if ($model = $this->save($data, $id)) {
             // do something
 
             // $this->afterUpdate($model);
             return $model;
         }
+        $this->crudErrorMessage = 'Không thể cập nhật bản ghi có id là '.$id.' (' . $this->crudErrorMessage . ')';
         return false;
     }
 
