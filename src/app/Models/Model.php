@@ -2,6 +2,7 @@
 
 namespace Gomee\Models;
 
+use Gomee\Languages\Locale;
 use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -93,7 +94,7 @@ class Model extends BaseModel
     public function defaultLocaleContent(): HasOne
     {
         $ref = defined('static::REF_KEY') ? static::REF_KEY : ($this->table ?? 'data');
-        return $this->hasOne('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref)->where('locale', config('app.default_locale', 'default'));
+        return $this->hasOne('App\\Models\\MultiLanguageContent', 'ref_id', 'id')->where('ref', $ref)->where('locale', config('app.default_locale', Locale::default()??'default'));
     }
 
 
