@@ -321,17 +321,17 @@ trait FilterAction
      */
     final public function getFilter($request, array $args = [])
     {
-        $this->fire('preparegetFilter', $this, $request, $args);
+        $this->fire('prepareGetFilter', $this, $request, $args);
         $this->beforeFilter($request);
         $this->buildFilter($request);
         $args = array_merge($this->getPaginateArgs($request), $args);
-        $this->fire('beforegetFilter', $this, $request, $args);
+        $this->fire('beforeGetFilter', $this, $request, $args);
         if (!$this->hasSortby && !isset($args['@orderBy']) && !isset($args['@order_by']) && $this->defaultSortBy) {
             $args['@order_by'] = $this->defaultSortBy;
         }
 
         $rs = $this->get($args);
-        $this->fire('aftergetFilter', $this, $request, $args, $rs);
+        $this->fire('afterGetFilter', $this, $request, $args, $rs);
         return $rs;
     }
 
@@ -343,7 +343,7 @@ trait FilterAction
      */
     final public function getDetail(array $args = [], $useConfig = true)
     {
-        $this->fire('beforegetDetail', $this, $args);
+        $this->fire('beforeGetDetail', $this, $args);
         if ($useConfig) {
             $this->buildJoin();
             $this->buildSelect();
@@ -351,7 +351,7 @@ trait FilterAction
             $this->buildGroupBy();
         }
         $rs = $this->first($args);
-        $this->fire('aftergetDetail', $this, $args, $rs);
+        $this->fire('afterGetDetail', $this, $args, $rs);
         return $rs;
     }
 
@@ -363,13 +363,14 @@ trait FilterAction
      */
     final public function getFormData(array $args = [])
     {
-        $this->fire('beforegetFormData', $this, $args);
+        $this->fire('beforeGetFormData', $this, $args);
         $this->beforeGetFormData($args);
         $this->buildJoin();
         $this->buildSelect();
         $this->buildGroupBy();
         $rs = $this->first($args);
-        $this->fire('aftergetFormData', $this, $args, $rs);
+        $this->fire('afterGetFormData', $this, $args, $rs);
+        $this->afterGetFormData($rs);
         return $rs;
     }
 
@@ -384,7 +385,7 @@ trait FilterAction
      */
     final public function filter($request, array $args = [])
     {
-        $this->fire('beforefilter', $this, $request, $args);
+        $this->fire('beforeFilter', $this, $request, $args);
         $rs = $this->parseCollection(
             $this->getFilter($request, $args)
         );
