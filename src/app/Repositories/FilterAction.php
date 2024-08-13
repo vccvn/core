@@ -409,10 +409,10 @@ trait FilterAction
         } else {
             $d[$this->_primaryKeyName] = $args;
         }
-        $this->fire('beforedetail', $this, $args);
+        $this->fire('beforeDetail', $this, $args);
         if ($data = $this->getDetail($d, $useConfig)) {
             $rs = $this->parseDetail($data);
-            $this->fire('afterdetail', $this, $args, $rs);
+            $this->fire('afterDetail', $this, $rs, $args);
             return $rs;
         }
 
@@ -432,8 +432,8 @@ trait FilterAction
      */
     final public function parseCollection($collection)
     {
-        return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : ($this->responseMode == 'resource' ? $this->resourceCollection($collection) : ($collection
-        )
+        return $this->responseMode == 'mask' ? $this->maskCollection($collection, $this->total()) : (
+            $this->responseMode == 'resource' ? $this->resourceCollection($collection) : $collection
         );
     }
 
@@ -451,10 +451,12 @@ trait FilterAction
         return $rs;
     }
 
-
-
-
-
+    /**
+     * get class of resource
+     *
+     * @param string $class
+     * @return string
+     */
     final protected function getResourceClass($class = null)
     {
         if (!$class) $class = $this->resourceClass;
