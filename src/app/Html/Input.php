@@ -243,10 +243,11 @@ class Input extends HtmlDom
             case 'radio':
                 $opts = $this->getInputData();
                 $slt = '';
+                $this->removeClass('form-control')->removeClass('m-input');
                 $className = $this->className??($this->class_name??($this->classname??$this->class));
                 $this->attr('type', null);
                 $this->tagName = 'div';
-                $this->className = 'inp-radio-group crazy-radio';
+                $this->className = $className. ' inp-radio-group crazy-radio';
 
                 $change = $this->hidden('change');
                 if(!$change) $change = $this->data('on-change');
