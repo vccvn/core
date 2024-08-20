@@ -723,6 +723,7 @@ class HtmlDom implements Htmlable
         }
         $this->contentType = 'text';
         $this->innerContent = [htmlentities(is_array($content)?json_encode($content, JSON_PRETTY_PRINT):$content)]; // test a
+        $mac = 0;
         return $this;
     }
 
